@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { NAIROBI_AREAS, areaBySlug } from "@/lib/data/nairobi";
 import { profilesInArea } from "@/lib/data/seed";
+import { hasApprovedCover } from "@/lib/media/public";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
@@ -34,7 +35,7 @@ export default async function NairobiAreaPage({
   const { area } = await params;
   const meta = areaBySlug(area);
   if (!meta) notFound();
-  const people = profilesInArea(meta.slug);
+  const people = profilesInArea(meta.slug).filter(hasApprovedCover);
   const live = activeNow().areas.find((a) => a.slug === meta.slug)?.count ?? 0;
 
   return (

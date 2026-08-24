@@ -26,4 +26,4 @@ PWA: install from the browser once the manifest is served (`/manifest.webmanifes
 
 Git → Vercel. No Supabase env vars needed yet.
 
-The product runs on seed data until a paid Supabase project is connected. Then Phase 03 (auth, RLS, live profiles) starts.
+The product runs on seed data until a paid Supabase project is connected. Discover is a ranked swipe deck. Guest can pass; Like and Message ask you to sign in. Photos stay in review until approved.

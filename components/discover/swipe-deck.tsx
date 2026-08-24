@@ -1,23 +1,31 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionValue, useTransform, type PanInfo } from "motion/react";
 import type { SeedProfile } from "@/lib/types";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { Button } from "@/components/soko/button";
 import { Star, X, Heart } from "lucide-react";
 
-const SWIPE = 108;
+const SWIPE = 96;
+const FLICK = 350;
 
 export function SwipeDeck({
   profiles,
   onEmpty,
   onLike,
+  onPass,
+  onEngage,
+  onImpression,
 }: {
   profiles: SeedProfile[];
   onEmpty?: () => void;
   onLike?: (profile: SeedProfile, kind: "like" | "spotlight") => void;
+  onPass?: (profile: SeedProfile) => void;
+  onEngage?: (profile: SeedProfile, kind: "like" | "spotlight") => boolean;
+  onImpression?: (profile: SeedProfile) => void;
 }) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
@@ -34,10 +42,26 @@ export function SwipeDeck({
   const spotOpacity = useTransform(y, [-120, -20], [1, 0]);
 
   const remaining = useMemo(() => profiles.slice(index), [profiles, index]);
+  const seen = useRef(new Set<string>());
+
+  useEffect(() => {
+    if (!current || seen.current.has(current.id)) return;
+    seen.current.add(current.id);
+    onImpression?.(current);
+  }, [current, onImpression]);
 
   function commit(dir: "left" | "right" | "up") {
     if (!current) return;
+    if (dir !== "left") {
+      const kind = dir === "up" ? "spotlight" : "like";
+      if (onEngage?.(current, kind) === false) {
+        x.set(0);
+        y.set(0);
+        return;
+      }
+    }
     setExit(dir);
+    if (dir === "left") onPass?.(current);
     if (dir === "right") onLike?.(current, "like");
     if (dir === "up") onLike?.(current, "spotlight");
     window.setTimeout(() => {
@@ -52,15 +76,15 @@ export function SwipeDeck({
 
   function onDragEnd(_: unknown, info: PanInfo) {
     const { offset, velocity } = info;
-    if (offset.y < -96 || velocity.y < -700) {
+    if (offset.y < -96 || velocity.y < -FLICK) {
       commit("up");
       return;
     }
-    if (offset.x > SWIPE || velocity.x > 650) {
+    if (offset.x > SWIPE || velocity.x > FLICK) {
       commit("right");
       return;
     }
-    if (offset.x < -SWIPE || velocity.x < -650) {
+    if (offset.x < -SWIPE || velocity.x < -FLICK) {
       commit("left");
       return;
     }
@@ -71,7 +95,10 @@ export function SwipeDeck({
       <div className="flex h-full items-center justify-center text-center">
         <div>
           <p className="font-display text-2xl">That’s everyone nearby</p>
-          <p className="mt-2 text-sm text-muted">Browse a city, or check again later.</p>
+          <p className="mt-2 text-sm text-muted">Browse Nairobi, or check again later.</p>
+          <Link href="/browse" className="mt-6 inline-block text-sm text-gold">
+            Browse
+          </Link>
         </div>
       </div>
     );
@@ -101,6 +128,7 @@ export function SwipeDeck({
             className="absolute inset-0 cursor-grab touch-none active:cursor-grabbing"
             style={{ x, y, rotate }}
             drag
+            dragSnapToOrigin
             dragElastic={0.18}
             onDragEnd={onDragEnd}
             animate={fly}

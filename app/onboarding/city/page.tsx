@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { joinWaitlist } from "@/lib/browse/waitlist";
 import { WAITLIST_CITIES } from "@/lib/data/nairobi";
 import { ONBOARDING } from "@/lib/onboarding";
 import { Button } from "@/components/soko/button";
@@ -14,7 +15,8 @@ export default function CityOnboardingPage() {
   }
 
   function waitlist(slug: string) {
-    localStorage.setItem("soko18_waitlist_city", slug);
+    joinWaitlist(slug);
+    router.push(`/city/${slug}`);
   }
 
   return (

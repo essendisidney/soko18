@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { SeedProfile } from "@/lib/types";
+import { coverPhoto } from "@/lib/media/public";
 import { PresenceDot } from "@/components/soko/presence-dot";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 
@@ -18,6 +19,9 @@ export function ProfileCard({
   href?: string;
   compact?: boolean;
 }) {
+  const cover = coverPhoto(profile);
+  if (!cover) return null;
+
   const inner = (
     <div
       className={cn(
@@ -27,7 +31,7 @@ export function ProfileCard({
       )}
     >
       <Image
-        src={profile.photos[0]}
+        src={cover}
         alt={`${profile.name}, ${profile.age}`}
         fill
         className="object-cover"
@@ -35,6 +39,11 @@ export function ProfileCard({
         priority={!compact}
       />
       <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/15 to-transparent" />
+      {profile.featured ? (
+        <p className="absolute top-3 left-3 rounded-full border border-gold/70 bg-black/40 px-2 py-0.5 font-display text-[10px] tracking-[0.16em] text-gold">
+          FEATURED
+        </p>
+      ) : null}
       <div className="absolute inset-x-0 bottom-0 p-4">
         {profile.verified ? (
           <VerificationBadge className="mb-2" />

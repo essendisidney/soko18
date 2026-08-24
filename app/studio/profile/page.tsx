@@ -1,5 +1,5 @@
-import StudioSection from "@/components/soko/section-placeholder";
+import { ProfileEditor } from "@/components/studio/profile-editor";
 
-export default function Page() {
-  return <StudioSection title="Profile" />;
+export default function StudioProfilePage() {
+  return <ProfileEditor />;
 }

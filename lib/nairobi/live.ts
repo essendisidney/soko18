@@ -1,5 +1,6 @@
 import { NAIROBI_AREAS } from "@/lib/data/nairobi";
 import { nairobiProfiles } from "@/lib/data/seed";
+import { hasApprovedCover } from "@/lib/media/public";
 import type { SeedProfile } from "@/lib/types";
 
 export type NairobiFilter = "trending" | "active" | "new" | "verified" | "near";
@@ -7,14 +8,18 @@ export type NairobiNowId = "trending" | "joined" | "viewed" | "liked" | "verifie
 
 const ORGANIC_FEATURED_CAP = 0.15;
 
+function catalog(profiles?: SeedProfile[]) {
+  return (profiles ?? nairobiProfiles()).filter(hasApprovedCover);
+}
+
 function organicScore(p: SeedProfile) {
   const recency = p.presence === "active" ? 12 : p.presence === "recent" ? 6 : 0;
   const paidBoost = p.featured ? Math.min(8, 8 * ORGANIC_FEATURED_CAP * 10) : 0;
   return p.likes * 1.2 + p.views * 0.08 + recency + paidBoost;
 }
 
-export function activeNow(profiles: SeedProfile[] = nairobiProfiles()) {
-  const active = profiles.filter((p) => p.presence === "active");
+export function activeNow(profiles?: SeedProfile[]) {
+  const active = catalog(profiles).filter((p) => p.presence === "active");
   const byArea = NAIROBI_AREAS.map((area) => ({
     ...area,
     count: active.filter((p) => p.areaSlug === area.slug).length,
@@ -29,28 +34,26 @@ export function activeNow(profiles: SeedProfile[] = nairobiProfiles()) {
 export function filterNairobi(
   facet: NairobiFilter,
   nearArea = "kilimani",
-  profiles: SeedProfile[] = nairobiProfiles(),
+  profiles?: SeedProfile[],
 ) {
+  const list = catalog(profiles);
   switch (facet) {
     case "active":
-      return profiles.filter((p) => p.presence === "active" || p.presence === "recent");
+      return list.filter((p) => p.presence === "active" || p.presence === "recent");
     case "new":
-      return profiles.filter((p) => p.newToday);
+      return list.filter((p) => p.newToday);
     case "verified":
-      return profiles.filter((p) => p.verified);
+      return list.filter((p) => p.verified);
     case "near":
-      return profiles.filter((p) => p.areaSlug === nearArea);
+      return list.filter((p) => p.areaSlug === nearArea);
     case "trending":
     default:
-      return nairobiNow("trending", profiles);
+      return nairobiNow("trending", list);
   }
 }
 
-export function nairobiNow(
-  facet: NairobiNowId,
-  profiles: SeedProfile[] = nairobiProfiles(),
-) {
-  const list = [...profiles];
+export function nairobiNow(facet: NairobiNowId, profiles?: SeedProfile[]) {
+  const list = [...catalog(profiles)];
   switch (facet) {
     case "joined":
       return list.filter((p) => p.newToday);
@@ -68,11 +71,12 @@ export function nairobiNow(
   }
 }
 
-export function welcomeBackStats(profiles: SeedProfile[] = nairobiProfiles()) {
+export function welcomeBackStats(profiles?: SeedProfile[]) {
+  const list = catalog(profiles);
   return {
-    newProfiles: profiles.filter((p) => p.newToday).length,
-    newlyVerified: profiles.filter((p) => p.verified && p.newToday).length,
-    recentlyActive: profiles.filter((p) => p.presence === "active" || p.presence === "recent").length,
+    newProfiles: list.filter((p) => p.newToday).length,
+    newlyVerified: list.filter((p) => p.verified && p.newToday).length,
+    recentlyActive: list.filter((p) => p.presence === "active" || p.presence === "recent").length,
     newMatches: 3,
   };
 }

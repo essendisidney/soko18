@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Search } from "lucide-react";
+import { BROWSE_CATEGORIES } from "@/lib/browse/categories";
+import { searchNairobi } from "@/lib/browse/feed";
 import { NAIROBI_AREAS, NAIROBI_FILTERS, NAIROBI_NOW } from "@/lib/data/nairobi";
 import { nairobiProfiles } from "@/lib/data/seed";
+import { hasApprovedCover } from "@/lib/media/public";
 import {
   activeNow,
   filterNairobi,
@@ -29,10 +32,8 @@ export function NairobiHome({
   const [facet, setFacet] = useState<NairobiFilter>("trending");
   const [now, setNow] = useState<NairobiNowId>("trending");
   const live = activeNow();
-  const searched = nairobiProfiles().filter((p) =>
-    `${p.name} ${p.area}`.toLowerCase().includes(q.toLowerCase()),
-  );
-  const grid = q ? searched : filterNairobi(facet, nearArea);
+  const featured = searchNairobi("").filter((p) => p.featured);
+  const grid = q ? searchNairobi(q) : filterNairobi(facet, nearArea);
 
   return (
     <div className="pb-6">
@@ -51,7 +52,7 @@ export function NairobiHome({
       <p className="mt-6 text-[13px] tracking-[0.22em] text-gold uppercase">Nairobi</p>
       <h1 className="mt-2 font-display text-4xl tracking-tight">Local discovery</h1>
       <p className="mt-2 text-sm text-muted">
-        {nairobiProfiles().length} live · {live.city} active now
+        {nairobiProfiles().filter(hasApprovedCover).length} live · {live.city} active now
       </p>
 
       <section className="glass mt-6 rounded-3xl p-4">
@@ -96,7 +97,41 @@ export function NairobiHome({
         {grid.map((profile) => (
           <ProfileCard key={profile.id} profile={profile} compact href={`/profile/${profile.slug}`} />
         ))}
+        {grid.length === 0 ? (
+          <p className="col-span-2 text-sm text-muted">
+            {q ? "No one in Nairobi matches that." : "No live profiles in this view yet."}
+          </p>
+        ) : null}
       </div>
+
+      <section className="mt-10">
+        <h2 className="text-sm text-muted">Categories</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {BROWSE_CATEGORIES.map((cat) => (
+            <Link
+              key={cat.slug}
+              href={`/category/${cat.slug}`}
+              className="rounded-full border border-line px-3 py-1.5 text-sm"
+            >
+              {cat.name}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {featured.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="text-sm text-muted">Featured</h2>
+          <p className="mt-1 text-xs text-muted">Paid placement. Not organic Nairobi Now.</p>
+          <div className="mt-4 flex gap-3 overflow-x-auto">
+            {featured.map((profile) => (
+              <div key={profile.id} className="w-36 shrink-0">
+                <ProfileCard profile={profile} compact href={`/profile/${profile.slug}`} />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="mt-10">
         <h2 className="text-sm text-muted">Popular areas</h2>
