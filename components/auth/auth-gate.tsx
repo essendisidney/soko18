@@ -6,13 +6,14 @@ import { motion } from "motion/react";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
 
-export type AuthIntent = "like" | "spotlight" | "message" | "profile";
+export type AuthIntent = "like" | "spotlight" | "message" | "profile" | "report";
 
 const copy: Record<AuthIntent, { title: string; line: string }> = {
   like: { title: "Sign in to like", line: "Pass stays open. Likes need an account." },
   spotlight: { title: "Sign in to Spotlight", line: "A Spotlight is a real signal. It needs you." },
   message: { title: "Sign in to message", line: "You can keep browsing Nairobi as a guest." },
   profile: { title: "Sign in to continue", line: "Create a profile once you’re in." },
+  report: { title: "Sign in to report", line: "A report opens a staff case. You can keep browsing." },
 };
 
 export function AuthGate({

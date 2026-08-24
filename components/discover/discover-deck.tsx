@@ -15,20 +15,30 @@ import {
 } from "@/lib/discovery/actions";
 import { writeImpression } from "@/lib/discovery/impressions";
 import { postLike } from "@/lib/likes/client";
+import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
+import { parseIdList } from "@/lib/safety/local-ids";
 import type { SeedProfile } from "@/lib/types";
 
-export function DiscoverDeck({ initial }: { initial: SeedProfile[] }) {
+export function DiscoverDeck({
+  initial,
+  subtitle = "Nairobi · people you’ll like",
+}: {
+  initial: SeedProfile[];
+  subtitle?: string;
+}) {
   const { user, ready } = useAuth();
   const [match, setMatch] = useState<SeedProfile | null>(null);
   const [gate, setGate] = useState<AuthIntent | null>(null);
 
   const raw = useSyncExternalStore(subscribeDiscoverActions, actionsSnapshot, () => null);
+  const blockedRaw = useSyncExternalStore(subscribeBlocks, blocksSnapshot, () => null);
   const profiles = useMemo(() => {
     const exclude = new Set(
       (raw ? (JSON.parse(raw) as DiscoverAction[]) : []).map((row) => row.profileId),
     );
+    for (const id of parseIdList(blockedRaw)) exclude.add(id);
     return initial.filter((profile) => !exclude.has(profile.id));
-  }, [initial, raw]);
+  }, [initial, raw, blockedRaw]);
 
   const onImpression = useCallback((profile: SeedProfile) => {
     writeImpression({ profileId: profile.id, surface: "discover", at: Date.now() });
@@ -41,7 +51,7 @@ export function DiscoverDeck({ initial }: { initial: SeedProfile[] }) {
 
   return (
     <div className="flex min-h-[calc(100dvh-6rem)] flex-col">
-      <AppHeader title="Discover" subtitle="Nairobi · people you’ll like" />
+      <AppHeader title="Discover" subtitle={subtitle} />
       <div className="mt-5 min-h-0 flex-1">
         <SwipeDeck
           profiles={profiles}

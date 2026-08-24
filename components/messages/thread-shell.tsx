@@ -8,14 +8,13 @@ import { AnimatePresence } from "motion/react";
 import { coverPhoto } from "@/lib/media/public";
 import { PresenceDot } from "@/components/soko/presence-dot";
 import { AuthGate } from "@/components/auth/auth-gate";
+import { ReportReasons } from "@/components/safety/report-reasons";
 import { useAuth } from "@/lib/auth/use-auth";
 import { cn } from "@/lib/utils";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/client";
 import type { SeedProfile } from "@/lib/types";
 import type { ThreadMessage } from "@/lib/messages/engine";
-
-const REASONS = ["spam", "harassment", "fake", "underage", "unsafe", "other"] as const;
 
 export function ThreadShell({
   profile,
@@ -153,34 +152,20 @@ export function ThreadShell({
       ) : null}
 
       {report ? (
-        <div className="glass mt-3 rounded-2xl p-3 text-sm">
-          <p className="px-2 py-1 text-xs text-muted">Why are you reporting?</p>
-          <div className="mt-1 flex flex-wrap gap-2 px-2">
-            {REASONS.map((reason) => (
-              <button
-                key={reason}
-                type="button"
-                className="rounded-full border border-line px-3 py-1.5 capitalize"
-                onClick={() => {
-                  void fetch("/api/reports", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ conversationId, reason }),
-                  }).then(async (res) => {
-                    if (!res.ok) return;
-                    setReport(false);
-                    setNotice("Report received.");
-                  });
-                }}
-              >
-                {reason}
-              </button>
-            ))}
-          </div>
-          <button type="button" className="mt-2 px-2 py-1 text-xs text-muted" onClick={() => setReport(false)}>
-            Cancel
-          </button>
-        </div>
+        <ReportReasons
+          onPick={(reason) => {
+            void fetch("/api/reports", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ conversationId, reason }),
+            }).then(async (res) => {
+              if (!res.ok) return;
+              setReport(false);
+              setNotice("Report received.");
+            });
+          }}
+          onCancel={() => setReport(false)}
+        />
       ) : null}
 
       {notice ? <p className="mt-3 text-center text-xs text-muted">{notice}</p> : null}

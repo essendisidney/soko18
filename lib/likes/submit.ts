@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { currentUser } from "@/lib/auth/user";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { applyLike, orderedPair } from "@/lib/likes/engine";
 import { SEED_INBOUND_IDS, seedAccountId, UUID } from "@/lib/likes/ids";
 import { readLikeState, writeLikeState } from "@/lib/likes/state";
+import { takeRateLimit } from "@/lib/security/limit";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -24,15 +26,6 @@ export type LikeResult =
     }
   | { ok: false; status: number; error: { code: string; message: string } };
 
-async function currentUser() {
-  if (!isSupabaseConfigured()) return null;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
-}
-
 export async function submitLike(input: unknown): Promise<LikeResult> {
   const parsed = bodySchema.safeParse(input);
   if (!parsed.success) {
@@ -42,6 +35,11 @@ export async function submitLike(input: unknown): Promise<LikeResult> {
   const user = await currentUser();
   if (!user) {
     return { ok: false, status: 401, error: { code: "unauthorized", message: "Sign in to like." } };
+  }
+
+  const limited = takeRateLimit("likes", user.id);
+  if (!limited.ok) {
+    return { ok: false, status: limited.status, error: limited.error };
   }
 
   const { profileId, kind } = parsed.data;

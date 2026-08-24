@@ -24,6 +24,10 @@ PWA: install from the browser once the manifest is served (`/manifest.webmanifes
 
 ## Deploy
 
-Git → Vercel. No Supabase env vars needed yet.
+Production: [https://soko18.vercel.app](https://soko18.vercel.app)
 
-The product runs on seed data until a paid Supabase project is connected. Discover is a ranked swipe deck. Guest can pass; Like and Message ask you to sign in. Photos stay in review until approved.
+Git → Vercel. Set `NEXT_PUBLIC_APP_URL` to the public origin. Leave Supabase env blank until a paid project exists — never put `service_role` in `NEXT_PUBLIC_` vars.
+
+Health: `/api/health`. Schema backups are `supabase/migrations/` in git. Point-in-time recovery waits for a paid Supabase project.
+
+The product runs on seed data until that project is connected. Discover is a ranked swipe deck. Guest can pass; Like and Message ask you to sign in. Photos stay in review until approved. Legal: `/terms`, `/privacy`, `/safety`.

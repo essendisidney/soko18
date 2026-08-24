@@ -2,6 +2,7 @@ import { z } from "zod";
 import { appendMessage } from "@/lib/messages/engine";
 import { resolveThread } from "@/lib/messages/access";
 import { readThreadState, writeThreadState } from "@/lib/messages/state";
+import { takeRateLimit } from "@/lib/security/limit";
 import { createClient } from "@/lib/supabase/server";
 
 const bodySchema = z.object({
@@ -17,6 +18,11 @@ export async function sendMessage(conversationKey: string, input: unknown) {
   const resolved = await resolveThread(conversationKey);
   if (!resolved.ok) return resolved;
   const { access } = resolved;
+
+  const limited = takeRateLimit("messages", access.userId);
+  if (!limited.ok) {
+    return { ok: false as const, status: limited.status, error: limited.error };
+  }
 
   if (!access.canSend) {
     return {

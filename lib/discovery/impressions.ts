@@ -1,6 +1,6 @@
 export type Impression = {
   profileId: string;
-  surface: "discover";
+  surface: "discover" | "browse" | "profile";
   at: number;
 };
 

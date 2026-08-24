@@ -121,6 +121,20 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <Link href={next} className="mt-4 text-sm text-muted">
         Not now
       </Link>
+      <p className="mt-8 text-xs leading-relaxed text-muted">
+        18+ only.{" "}
+        <Link href="/terms" className="text-cream/70">
+          Terms
+        </Link>
+        {" · "}
+        <Link href="/privacy" className="text-cream/70">
+          Privacy
+        </Link>
+        {" · "}
+        <Link href="/safety" className="text-cream/70">
+          Safety
+        </Link>
+      </p>
     </main>
   );
 }

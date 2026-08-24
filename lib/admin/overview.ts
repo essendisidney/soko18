@@ -1,4 +1,6 @@
 import { requireStaff } from "@/lib/admin/staff";
+import { ledgerRevenue } from "@/lib/admin/analytics";
+import { nairobiDay, nairobiRangeStart, shiftDay } from "@/lib/analytics/day";
 import { createClient } from "@/lib/supabase/server";
 
 export type AdminOverview = {
@@ -19,36 +21,29 @@ export async function getAdminOverview(): Promise<
   if (!staff.ok) return staff;
 
   const supabase = await createClient();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = nairobiDay();
+  const tomorrow = shiftDay(today, 1);
   const monthStart = `${today.slice(0, 8)}01`;
+  const fromToday = nairobiRangeStart(today);
+  const fromTomorrow = nairobiRangeStart(tomorrow);
+  const fromMonth = nairobiRangeStart(monthStart);
 
-  const [users, active, profiles, pending, reports, todayTx, monthTx] = await Promise.all([
+  const [users, active, profiles, pending, reports, revenueTodayKes, revenueMonthKes] = await Promise.all([
     supabase.from("accounts").select("id", { count: "exact", head: true }).is("deleted_at", null),
     supabase
       .from("accounts")
       .select("id", { count: "exact", head: true })
       .is("deleted_at", null)
-      .gte("last_seen_at", `${today}T00:00:00.000Z`),
+      .gte("last_seen_at", fromToday),
     supabase.from("profiles").select("id", { count: "exact", head: true }),
     supabase
       .from("profile_media")
       .select("id", { count: "exact", head: true })
       .in("status", ["pending_review", "scanning"]),
     supabase.from("reports").select("id", { count: "exact", head: true }),
-    supabase
-      .from("transactions")
-      .select("amount_kes")
-      .eq("status", "completed")
-      .gte("created_at", `${today}T00:00:00.000Z`),
-    supabase
-      .from("transactions")
-      .select("amount_kes")
-      .eq("status", "completed")
-      .gte("created_at", `${monthStart}T00:00:00.000Z`),
+    ledgerRevenue(fromToday, fromTomorrow),
+    ledgerRevenue(fromMonth, fromTomorrow),
   ]);
-
-  const sumKes = (rows: { amount_kes: number }[] | null) =>
-    (rows ?? []).reduce((total, row) => total + (row.amount_kes ?? 0), 0);
 
   return {
     ok: true as const,
@@ -58,8 +53,8 @@ export async function getAdminOverview(): Promise<
       profiles: profiles.count ?? 0,
       pendingReview: pending.count ?? 0,
       reports: reports.count ?? 0,
-      revenueTodayKes: sumKes(todayTx.data),
-      revenueMonthKes: sumKes(monthTx.data),
+      revenueTodayKes,
+      revenueMonthKes,
     } satisfies AdminOverview,
   };
 }

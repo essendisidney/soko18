@@ -367,6 +367,8 @@ SIMILAR         same area first
 
 ⋯ : Share, Favorite, Report, Block, **Search indexing on/off** (owner).
 
+Favorite is on-device for guests (like Pass). A session persists it. Report needs an account — it opens a staff case. Block hides immediately on Discover and Browse; a session persists it. Indexing is owner-only in Studio / Settings.
+
 ### 5.6 Match
 
 Not a Tinder replica.
@@ -931,7 +933,7 @@ If a product decision is missing, pick the conservative, safer option and record
 
 Open app → age + brand → Nairobi → intent → ready → **beautiful Nairobi card**.
 
-Returning users: Welcome back (new profiles, newly verified, recently active, new matches) — then the same loop.
+Returning users: Nairobi pulse (real new / active / verified — never invented matches) → **Discover**.
 
 Auth is a doorway to actions, not to the product.
 

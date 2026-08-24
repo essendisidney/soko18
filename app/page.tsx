@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { ONBOARDING } from "@/lib/onboarding";
@@ -45,7 +46,14 @@ export default function WelcomePage() {
       </div>
       <div className="relative z-10 w-full max-w-sm pb-4">
         <p className="mb-5 text-center text-xs leading-relaxed text-muted">
-          You must be 18 or older to continue. SOKO18 is a private discovery product for adults.
+          You must be 18 or older to continue. SOKO18 is a private discovery product for adults.{" "}
+          <Link href="/terms" className="text-cream/70">
+            Terms
+          </Link>
+          {" · "}
+          <Link href="/privacy" className="text-cream/70">
+            Privacy
+          </Link>
         </p>
         <Button className="w-full" onClick={continueAsAdult}>
           Continue

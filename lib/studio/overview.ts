@@ -1,4 +1,6 @@
 import { currentUser } from "@/lib/auth/user";
+import { nairobiDay, shiftDay } from "@/lib/analytics/day";
+import { studioWindows } from "@/lib/analytics/engine";
 import { requestedProfileAllowed, formatDelta } from "@/lib/studio/own";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -17,6 +19,7 @@ export type StudioOverview = {
     viewsDelta: string | null;
     likesDelta: string | null;
     connectionsDelta: string | null;
+    series: { day: string; views: number }[];
   };
   health: {
     score: number;
@@ -81,20 +84,26 @@ export async function getStudioOverview(requestedProfileId?: string | null): Pro
     };
   }
 
+  const today = nairobiDay();
   const { data: days } = await supabase
     .from("profile_daily_stats")
     .select("day, views, likes, matches")
     .eq("profile_id", profile.id)
-    .order("day", { ascending: false })
-    .limit(14);
+    .gte("day", shiftDay(today, -13))
+    .order("day", { ascending: true });
 
-  const recent = (days ?? []).slice(0, 7);
-  const previous = (days ?? []).slice(7, 14);
-  const sum = (rows: typeof recent, key: "views" | "likes" | "matches") =>
-    rows.reduce((total, row) => total + (row[key] ?? 0), 0);
+  const windows = studioWindows(
+    (days ?? []).map((row) => ({
+      day: row.day,
+      views: row.views ?? 0,
+      likes: row.likes ?? 0,
+      matches: row.matches ?? 0,
+    })),
+    today,
+  );
 
-  const views = sum(recent, "views");
-  const likes = sum(recent, "likes");
+  const views = windows.recent.views;
+  const likes = windows.recent.likes;
   const { count: connections } = await supabase
     .from("matches")
     .select("id", { count: "exact", head: true })
@@ -127,9 +136,10 @@ export async function getStudioOverview(requestedProfileId?: string | null): Pro
         views,
         likes,
         connections: connections ?? 0,
-        viewsDelta: formatDelta(views, previous.length ? sum(previous, "views") : null),
-        likesDelta: formatDelta(likes, previous.length ? sum(previous, "likes") : null),
-        connectionsDelta: null,
+        viewsDelta: formatDelta(views, windows.previous.views),
+        likesDelta: formatDelta(likes, windows.previous.likes),
+        connectionsDelta: formatDelta(windows.recent.matches, windows.previous.matches),
+        series: windows.series.map((row) => ({ day: row.day, views: row.views })),
       },
       health: {
         score: Math.round((checks.filter((c) => c.ok).length / checks.length) * 100),
@@ -171,5 +181,6 @@ function emptyStats(): StudioOverview["stats"] {
     viewsDelta: null,
     likesDelta: null,
     connectionsDelta: null,
+    series: [],
   };
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { UUID } from "@/lib/likes/ids";
 import { rejectOwnerApprove } from "@/lib/media/guard";
+import { revokeUserSessions } from "@/lib/auth/revoke";
 import { requireStaff } from "@/lib/admin/staff";
 import { createClient } from "@/lib/supabase/server";
 
@@ -107,6 +108,23 @@ export async function decideModeration(targetId: string, input: unknown) {
 
   if (["approve", "reject", "remove", "ban", "suspend"].includes(parsed.data.decision)) {
     await supabase.from("moderation_cases").update({ status: "resolved" }).eq("id", caseId);
+  }
+
+  if (parsed.data.decision === "ban" || parsed.data.decision === "suspend") {
+    const { data: media } = await supabase
+      .from("profile_media")
+      .select("profile_id, profiles(account_id)")
+      .eq("id", targetId)
+      .maybeSingle();
+    const related = media?.profiles as { account_id?: string } | { account_id?: string }[] | null;
+    const accountId = Array.isArray(related) ? related[0]?.account_id : related?.account_id;
+    if (accountId) {
+      await supabase.from("profiles").update({ status: "suspended" }).eq("account_id", accountId);
+      if (parsed.data.decision === "ban") {
+        await supabase.from("accounts").update({ is_banned: true }).eq("id", accountId);
+        await revokeUserSessions(accountId);
+      }
+    }
   }
 
   return {

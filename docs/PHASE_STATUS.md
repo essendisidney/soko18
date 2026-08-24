@@ -1,6 +1,6 @@
 # Phase status
 
-Current phase: **12 Payments** — sandbox + ledger; featured cannot exist without a ledger row.
+Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages.
 
 | Phase | Name | Status | Notes |
 |---|---|---|---|
@@ -16,9 +16,10 @@ Current phase: **12 Payments** — sandbox + ledger; featured cannot exist witho
 | 10 | Studio | ui_complete | Own stats only; health + Improve; Boost returns payment_required, never a free row |
 | 11 | Admin | ui_complete | Staff-only 404; overview/users/reports; decide writes actions + audit_logs |
 | 12 | Payments | ui_complete | Sandbox intent → ledger → flags. Featured/boost/spotlight until-dates require a ledger row |
-| 13–16 | | not_started | See MDD |
-
-Do not start Phase 13 until featured cannot exist without a ledger row.
+| 13 | Analytics | ui_complete | Impressions + likes + matches bump daily stats. Studio 7-day deltas. Admin revenue from ledger |
+| 14 | Security | ui_complete | Rate limits; export/delete; logout/ban/delete revoke sessions; private profile-media bucket |
+| 15 | Testing | complete | Vitest unit/API; Playwright onboarding + 390px; pgTAP RLS; CI workflow |
+| 16 | Production | complete | Legal pages; `/api/health`; security headers; canonical URL; env documented. No paid Supabase project yet |
 
 ## Decisions
 
@@ -28,6 +29,9 @@ Do not start Phase 13 until featured cannot exist without a ledger row.
 - Public profile indexing is **opt-in** (`indexPublic`). Sitemap respects it.
 - Ship **PWA** before native stores.
 - Seed counts are real seed density (16 Nairobi profiles), not fake 2,847. The 2,847 figure is the density *target*, not a lying KPI.
+- Opening payoff is **Discover**. Welcome-back and ready use real catalog pulse only. Never invent matches, views, or “183 new.”
+- Profile ⋯ is live: Share, Favorite, Report, Block. Favorite/Block work for guests on-device. Report is auth-walled. `/saved` lists on-device favorites.
+- Unicorn surfaces (SOKO Ads, consumer Premium, SOKO Verify as a second company, Kenya-wide / Africa) wait until Nairobi has liquidity (1k → 5k → 10k quality profiles).
 - Package name is `soko18`.
 - **Ship now:** Git + Vercel, seed data, no Supabase required.
 - **Supabase later:** when the project is paid. Schema is already in `supabase/migrations/`. Auth UI and walls ship before that; they do not fake a logged-in user.
@@ -102,3 +106,40 @@ Do not start Phase 13 until featured cannot exist without a ledger row.
 - Catalog: Boost KES 500 / 24h, Spotlight KES 1,200 / 4h, Featured KES 3,500 / 7d. Nairobi Now cannot be bought.
 - Admin `/admin/payments` lists real transactions. Revenue stays KES 0 until completed ledger payments exist.
 - Apply migrations only when a live database exists. Do not fake a logged-in user.
+
+## Phase 13 notes
+
+- Discover and public profile POST `/api/discover/impressions`. Live UUIDs persist; seed ids stay on-device. Surfaces: discover | browse | profile. Message bodies and media URLs are never stored.
+- Migration `00006_analytics.sql` bumps `profile_daily_stats` (Nairobi calendar day) from impressions, likes/spotlight, and matches. Staff can count impressions. Owners read aggregates only.
+- Studio `/studio/analytics` is own 7-day views/likes plus week deltas. Never Amani’s seed counts.
+- Admin `/admin/analytics` and overview revenue sum ledger `payment` debits, not pending transactions. KES 0 until ledger rows exist.
+- Apply `00006` with the live database. Do not fake a logged-in user.
+
+## Phase 14 notes
+
+- Rate limits (429 `rate_limited`): likes 40/10m, messages 30/10m, reports 8/h, uploads 12/h.
+- `POST /api/account/export` and `POST /api/account/delete` require a session. Delete is a soft `deleted_at` + profile `removed` + global sign-out.
+- Logout already uses `signOut({ scope: "global" })`. Ban sets `is_banned` and revokes via `SUPABASE_SERVICE_ROLE_KEY` when present (`ban_duration`). Banned/deleted accounts are signed out on the next `currentUser()` check. Never put service_role in `NEXT_PUBLIC_`.
+- Migration `00007_security.sql`: private `profile-media` bucket (signed reads only, owner folder = auth uid); `soft_delete_own_account`. Apply with the live database.
+- `GET /api/admin/security` returns the advisor baseline. Run `supabase db advisors` when a paid project exists — do not invent findings.
+- Roles still never come from `user_metadata`.
+
+## Phase 15 notes
+
+- `npm test` (Vitest): ranking, ledger append, match creation, health score; API discover exclusions, like 401 + match engine, cannot self-publish; SQL RLS contract.
+- `npm run test:e2e` (Playwright 390px): onboarding → discover pass → profile → like auth wall; discover/browse/profile/studio/admin.
+- `npm run test:rls` (`supabase test db` / pgTAP): anon cannot read pending media; cannot like as someone else; moderation is staff-only. Needs local `supabase start`.
+- CI: `.github/workflows/test.yml` runs Vitest, Playwright, and pgTAP. Install browsers with `npx playwright install chromium`.
+
+## Phase 16 notes
+
+- Live origin: `https://soko18.vercel.app`. Set `NEXT_PUBLIC_APP_URL` on Vercel. Sitemap/robots use that origin, not a guessed custom domain.
+- Legal (calm, specific): `/terms` (18+), `/privacy` (ODPC minimum, area-level presence, export/delete), `/safety` (report + block). Linked from the age gate, login, Me, and Settings.
+- Monitoring: `GET /api/health` → `{ ok, city: nairobi, supabase }`. No secrets. Security headers: nosniff, DENY frames, no geolocation/camera/mic.
+- Backups: schema is `supabase/migrations/` in git. Point-in-time recovery waits for a paid Supabase project. Do not create that project in this phase.
+- GitHub Actions is the CI gate. Push to `origin/main` when you want Git → Vercel to match local. Do not put `service_role` in `NEXT_PUBLIC_`.
+
+## Post-16 notes
+
+- Profile ⋯ (MDD 5.5): Share copies/shares the public URL. Favorite is guest-local (`soko18_favorites`) and listed at `/saved` from Me. Report requires a session (`POST /api/reports` with `profileId`). Block hides on Discover/Browse immediately; session persists via `POST /api/blocks`.
+- Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

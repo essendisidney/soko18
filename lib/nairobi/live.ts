@@ -77,6 +77,32 @@ export function welcomeBackStats(profiles?: SeedProfile[]) {
     newProfiles: list.filter((p) => p.newToday).length,
     newlyVerified: list.filter((p) => p.verified && p.newToday).length,
     recentlyActive: list.filter((p) => p.presence === "active" || p.presence === "recent").length,
-    newMatches: 3,
+    activeNow: list.filter((p) => p.presence === "active").length,
+    live: list.length,
+    newMatches: 0,
   };
+}
+
+export function nairobiHour(now: Date | string = new Date()) {
+  const date = typeof now === "string" ? new Date(now) : now;
+  return Number(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Africa/Nairobi",
+      hour: "numeric",
+      hourCycle: "h23",
+    }).format(date),
+  );
+}
+
+export function nairobiGreeting(now?: Date | string) {
+  const hour = nairobiHour(now);
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+export function nairobiAliveLine(now?: Date | string) {
+  const hour = nairobiHour(now);
+  if (hour >= 18 || hour < 5) return "Nairobi is active tonight.";
+  return "Nairobi is active.";
 }

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Syne } from "next/font/google";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const geist = Geist({
@@ -14,6 +15,7 @@ const syne = Syne({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: {
     default: "SOKO18",
     template: "%s · SOKO18",

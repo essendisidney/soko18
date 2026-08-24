@@ -14,6 +14,7 @@ import { signOutAction } from "@/lib/auth/actions";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 
 const rows = [
+  { href: "/saved", label: "Saved" },
   { href: "/studio", label: "SOKO18 Studio" },
   { href: "/admin", label: "Admin" },
   { href: "/settings", label: "Settings" },
@@ -107,6 +108,11 @@ export default function MePage() {
       <p className="mt-8 text-xs leading-relaxed text-muted">
         SOKO18 is 18+. Report, block, and privacy controls are always available from a profile or thread.
       </p>
+      <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted">
+        <Link href="/terms">Terms</Link>
+        <Link href="/privacy">Privacy</Link>
+        <Link href="/safety">Safety</Link>
+      </div>
       <AnimatePresence>
         {gate ? <AuthGate intent="profile" onClose={() => setGate(false)} /> : null}
       </AnimatePresence>

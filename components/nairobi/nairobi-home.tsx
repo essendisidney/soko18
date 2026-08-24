@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { hideBlocked } from "@/lib/safety/flags";
+import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
+import { useLocalIds } from "@/lib/safety/use-id-list";
 import { Search } from "lucide-react";
 import { BROWSE_CATEGORIES } from "@/lib/browse/categories";
 import { searchNairobi } from "@/lib/browse/feed";
@@ -31,9 +34,10 @@ export function NairobiHome({
   const [q, setQ] = useState("");
   const [facet, setFacet] = useState<NairobiFilter>("trending");
   const [now, setNow] = useState<NairobiNowId>("trending");
+  const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
   const live = activeNow();
-  const featured = searchNairobi("").filter((p) => p.featured);
-  const grid = q ? searchNairobi(q) : filterNairobi(facet, nearArea);
+  const featured = hideBlocked(searchNairobi("").filter((p) => p.featured), blocked);
+  const grid = hideBlocked(q ? searchNairobi(q) : filterNairobi(facet, nearArea), blocked);
 
   return (
     <div className="pb-6">
@@ -167,7 +171,7 @@ export function NairobiHome({
           ))}
         </div>
         <div className="mt-4 flex gap-3 overflow-x-auto">
-          {nairobiNow(now).slice(0, 8).map((profile) => (
+          {hideBlocked(nairobiNow(now), blocked).slice(0, 8).map((profile) => (
             <div key={profile.id} className="w-36 shrink-0">
               <ProfileCard profile={profile} compact href={`/profile/${profile.slug}`} />
             </div>

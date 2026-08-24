@@ -2,6 +2,7 @@ import { z } from "zod";
 import { resolveThread } from "@/lib/messages/access";
 import { readThreadState, writeThreadState } from "@/lib/messages/state";
 import { createClient } from "@/lib/supabase/server";
+import { takeRateLimit } from "@/lib/security/limit";
 import { UUID } from "@/lib/likes/ids";
 
 const bodySchema = z.object({
@@ -18,6 +19,11 @@ export async function submitReport(input: unknown) {
   const resolved = await resolveThread(parsed.data.conversationId);
   if (!resolved.ok) return resolved;
   const { access } = resolved;
+
+  const limited = takeRateLimit("reports", access.userId);
+  if (!limited.ok) {
+    return { ok: false as const, status: limited.status, error: limited.error };
+  }
 
   if (access.persisted && UUID.test(access.item.otherAccountId)) {
     const supabase = await createClient();

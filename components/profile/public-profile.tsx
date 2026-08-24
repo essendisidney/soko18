@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowLeft, Heart, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, Heart } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { publicPhotos } from "@/lib/media/public";
 import { similarProfiles } from "@/lib/data/seed";
@@ -13,17 +13,21 @@ import { PresenceDot } from "@/components/soko/presence-dot";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
+import { ImpressionBeacon } from "@/components/analytics/impression-beacon";
 import { MatchOverlay } from "@/components/discover/match-overlay";
+import { ProfileOverflow } from "@/components/profile/profile-overflow";
 import { useAuth } from "@/lib/auth/use-auth";
 import { postLike } from "@/lib/likes/client";
+import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
+import { useLocalIds } from "@/lib/safety/use-id-list";
 import { cn } from "@/lib/utils";
 
 export function PublicProfile({ profile }: { profile: SeedProfile }) {
   const { user, ready } = useAuth();
   const [photo, setPhoto] = useState<number | null>(null);
-  const [menu, setMenu] = useState(false);
   const [gate, setGate] = useState<AuthIntent | null>(null);
   const [match, setMatch] = useState(false);
+  const blocked = useLocalIds(subscribeBlocks, blocksSnapshot).includes(profile.id);
   const more = similarProfiles(profile);
   const v = profile.verification;
   const photos = publicPhotos(profile);
@@ -38,6 +42,7 @@ export function PublicProfile({ profile }: { profile: SeedProfile }) {
 
   return (
     <main className="mx-auto min-h-dvh max-w-md bg-bg pb-16">
+      <ImpressionBeacon profileId={profile.id} surface="profile" />
       <div className="relative aspect-[3/4]">
         <Image
           src={photos[0]}
@@ -51,13 +56,7 @@ export function PublicProfile({ profile }: { profile: SeedProfile }) {
           <Link href="/discover" className="grid size-10 place-items-center rounded-full bg-black/40 backdrop-blur">
             <ArrowLeft className="size-5" />
           </Link>
-          <button
-            type="button"
-            className="grid size-10 place-items-center rounded-full bg-black/40 backdrop-blur"
-            onClick={() => setMenu((m) => !m)}
-          >
-            <MoreHorizontal className="size-5" />
-          </button>
+          <ProfileOverflow profile={profile} />
         </div>
       </div>
 
@@ -68,24 +67,15 @@ export function PublicProfile({ profile }: { profile: SeedProfile }) {
           {profile.age} · Nairobi · {profile.area}
         </p>
         <PresenceDot presence={profile.presence} className="mt-2" />
-
-        {menu ? (
-          <div className="glass mt-4 rounded-2xl p-3 text-sm">
-            <p className="px-2 py-2">Share</p>
-            <p className="px-2 py-2">Favorite</p>
-            <p className="px-2 py-2 text-danger">Report</p>
-            <p className="px-2 py-2">Block</p>
-            <p className="px-2 py-2 text-xs text-muted">
-              Public search indexing is {profile.indexPublic ? "on" : "off"} for this profile.
-            </p>
-          </div>
-        ) : null}
+        {blocked ? <p className="mt-3 text-sm text-muted">You blocked them. They won’t appear in Discover or Browse.</p> : null}
 
         <div className="mt-6 grid grid-cols-2 gap-3">
           <Button
             variant="gold"
             className="w-full"
+            disabled={blocked}
             onClick={() => {
+              if (blocked) return;
               if (!ready || !user) {
                 setGate("like");
                 return;
@@ -100,13 +90,17 @@ export function PublicProfile({ profile }: { profile: SeedProfile }) {
           <Link
             href={`/messages/${profile.slug}`}
             onClick={(event) => {
+              if (blocked) {
+                event.preventDefault();
+                return;
+              }
               if (!ready || !user) {
                 event.preventDefault();
                 setGate("message");
               }
             }}
           >
-            <Button variant="ghost" className="w-full">
+            <Button variant="ghost" className="w-full" disabled={blocked}>
               Message
             </Button>
           </Link>

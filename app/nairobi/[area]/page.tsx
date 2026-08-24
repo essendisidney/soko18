@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 import { NAIROBI_AREAS, areaBySlug } from "@/lib/data/nairobi";
 import { profilesInArea } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
-import { ProfileCard } from "@/components/soko/profile-card";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
+import { ProfileGrid } from "@/components/profile/profile-grid";
 import { activeNow } from "@/lib/nairobi/live";
 
 export function generateStaticParams() {
@@ -50,12 +50,7 @@ export default async function NairobiAreaPage({
         <Button variant="gold">Discover</Button>
       </Link>
       <div className="mt-8 grid grid-cols-2 gap-3">
-        {people.map((p) => (
-          <ProfileCard key={p.id} profile={p} compact href={`/profile/${p.slug}`} />
-        ))}
-        {people.length === 0 ? (
-          <p className="col-span-2 text-sm text-muted">No live profiles in {meta.name} yet.</p>
-        ) : null}
+        <ProfileGrid profiles={people} />
       </div>
       <Link href="/nairobi" className="mt-8 inline-block text-sm text-muted">
         All of Nairobi

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BROWSE_CATEGORIES, categoryBySlug } from "@/lib/browse/categories";
 import { browseFeed } from "@/lib/browse/feed";
-import { ProfileCard } from "@/components/soko/profile-card";
+import { ProfileGrid } from "@/components/profile/profile-grid";
 import { Wordmark } from "@/components/brand/wordmark";
 
 export function generateStaticParams() {
@@ -42,12 +42,7 @@ export default async function CategoryPage({
       <h1 className="mt-3 font-display text-4xl tracking-tight">{meta.name}</h1>
       <p className="mt-2 text-sm text-muted">{meta.line}</p>
       <div className="mt-8 grid grid-cols-2 gap-3">
-        {items.map((profile) => (
-          <ProfileCard key={profile.id} profile={profile} compact href={`/profile/${profile.slug}`} />
-        ))}
-        {items.length === 0 ? (
-          <p className="col-span-2 text-sm text-muted">Nothing in this list yet.</p>
-        ) : null}
+        <ProfileGrid profiles={items} />
       </div>
       <Link href="/nairobi" className="mt-8 inline-block text-sm text-muted">
         All of Nairobi
