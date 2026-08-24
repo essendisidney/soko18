@@ -34,14 +34,18 @@
   --radius-card: 28px;
 }
 
+html {
+  overflow-x: clip;
+}
+
 html,
 body {
   background: var(--bg);
   color: var(--text);
-  min-height: 100%;
 }
 
 body {
+  min-height: 100dvh;
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
 }

@@ -7,7 +7,8 @@ import { hasApprovedCover } from "@/lib/media/public";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ProfileGrid } from "@/components/profile/profile-grid";
-import { activeNow } from "@/lib/nairobi/live";
+import { RememberArea } from "@/components/nairobi/remember-area";
+import { nairobiInventoryLine } from "@/lib/nairobi/live";
 
 export function generateStaticParams() {
   return NAIROBI_AREAS.map((area) => ({ area: area.slug }));
@@ -36,16 +37,15 @@ export default async function NairobiAreaPage({
   const meta = areaBySlug(area);
   if (!meta) notFound();
   const people = profilesInArea(meta.slug).filter(hasApprovedCover);
-  const live = activeNow().areas.find((a) => a.slug === meta.slug)?.count ?? 0;
+  const inventory = nairobiInventoryLine();
 
   return (
     <main className="mx-auto min-h-dvh max-w-md bg-bg px-5 pt-6 pb-16">
+      <RememberArea slug={meta.slug} />
       <Wordmark size="sm" />
       <p className="mt-10 text-[13px] tracking-[0.22em] text-gold uppercase">Nairobi</p>
       <h1 className="mt-3 font-display text-4xl tracking-tight">{meta.name}</h1>
-      <p className="mt-2 text-sm text-muted">
-        {people.length} live · {live} active now · area-level only
-      </p>
+      <p className="mt-2 text-sm text-muted">{inventory ?? "Area-level only. Never a precise location."}</p>
       <Link href="/discover" className="mt-6 inline-block">
         <Button variant="gold">Discover</Button>
       </Link>

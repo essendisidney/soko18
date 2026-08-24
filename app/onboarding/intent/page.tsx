@@ -21,12 +21,14 @@ export default function IntentOnboardingPage() {
 
   function next() {
     localStorage.setItem(ONBOARDING.intent, selected.join(","));
-    router.push("/onboarding/ready");
+    localStorage.setItem(ONBOARDING.done, "1");
+    localStorage.setItem(ONBOARDING.city, "nairobi");
+    router.push("/discover");
   }
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-bg px-6 pt-16 pb-10">
-      <p className="text-[13px] tracking-[0.2em] text-gold uppercase">Step 3</p>
+      <p className="text-[13px] tracking-[0.2em] text-gold uppercase">Nairobi</p>
       <h1 className="mt-4 font-display text-4xl tracking-tight">What are you looking for?</h1>
       <p className="mt-3 text-sm text-muted">Choose up to three.</p>
       <div className="mt-10 flex flex-wrap gap-2">
@@ -42,7 +44,7 @@ export default function IntentOnboardingPage() {
       </div>
       <div className="mt-auto pt-10">
         <Button className="w-full" disabled={selected.length === 0} onClick={next}>
-          Continue
+          Discover
         </Button>
       </div>
     </main>

@@ -8,6 +8,7 @@ import { AnimatePresence } from "motion/react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
 import { AuthGate } from "@/components/auth/auth-gate";
+import { InstallHome } from "@/components/pwa/install-home";
 import { accountRole, useAuth } from "@/lib/auth/use-auth";
 import { isStaffRole } from "@/lib/admin/roles";
 import { signOutAction } from "@/lib/auth/actions";
@@ -66,6 +67,8 @@ export default function MePage() {
           ) : null}
         </div>
       )}
+
+      <InstallHome />
 
       <div className="mt-6">
         {draft ? (

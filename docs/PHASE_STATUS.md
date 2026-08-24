@@ -29,7 +29,11 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Public profile indexing is **opt-in** (`indexPublic`). Sitemap respects it.
 - Ship **PWA** before native stores.
 - Seed counts are real seed density (16 Nairobi profiles), not fake 2,847. The 2,847 figure is the density *target*, not a lying KPI.
+- Catalog portraits in `/public/seed/` are generated Kenyan-presenting stand-ins (unique per profile). They are not real listings and not scraped photos. Real women appear when they publish through review.
+- Empty room: do not lead with “16 live” / “8 active now.” Open, ready, Discover, and Browse show active **areas** until live inventory ≥ 200. Then show real counts. Never invent 1,842.
 - Opening payoff is **Discover**. Welcome-back and ready use real catalog pulse only. Never invent matches, views, or “183 new.”
+- Discover ranking uses onboarding intent + last area opened. Empty deck: Browse (primary), Saved (secondary). Pulse once per session.
+- Discover tab stays Discover. The screen title is Nairobi plus active areas. The card is the product.
 - Profile ⋯ is live: Share, Favorite, Report, Block. Favorite/Block work for guests on-device. Report is auth-walled. `/saved` lists on-device favorites.
 - Unicorn surfaces (SOKO Ads, consumer Premium, SOKO Verify as a second company, Kenya-wide / Africa) wait until Nairobi has liquidity (1k → 5k → 10k quality profiles).
 - Package name is `soko18`.
@@ -142,4 +146,9 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 ## Post-16 notes
 
 - Profile ⋯ (MDD 5.5): Share copies/shares the public URL. Favorite is guest-local (`soko18_favorites`) and listed at `/saved` from Me. Report requires a session (`POST /api/reports` with `profileId`). Block hides on Discover/Browse immediately; session persists via `POST /api/blocks`.
+- Empty room: open/ready/Discover/Browse lead with active areas until live inventory ≥ 200. Studio still shows own stats only — never Amani’s seed views, never a fake “24% better.”
+- Discover ranks from onboarding intent, last Nairobi area, passes, and impressions. Empty deck primary is Browse. Returning `/` shows Nairobi pulse once per session, then goes to Discover.
+- First open: Continue in Nairobi (age + city) → intent → Discover. City and Ready stay as waitlist / bookmark. Matches empty has a gold Discover button. Discover header has no bell or menu.
+- PWA: standalone manifest, 192/512 icons, apple-touch icon, `/sw.js`, Me “Add to Home Screen.” Start URL is `/` so age still gates. No web push yet.
+- Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

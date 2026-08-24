@@ -11,6 +11,8 @@ test("returning open is Nairobi pulse then Discover", async ({ page }) => {
   await expect(page.getByText("new matches")).toHaveCount(0);
   await page.getByRole("button", { name: "Discover" }).click();
   await expect(page).toHaveURL(/\/discover/);
-  await expect(page.getByRole("heading", { name: "Discover" })).toBeVisible();
-  await expect(page.getByText(/active now/i)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Nairobi" })).toBeVisible();
+  await expect(page.getByText(/Westlands · Kilimani/)).toBeVisible();
+  await page.goto("/");
+  await expect(page).toHaveURL(/\/discover/);
 });

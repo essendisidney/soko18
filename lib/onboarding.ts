@@ -34,9 +34,8 @@ export function bumpVisit() {
 
 export function shouldShowWelcomeBack() {
   if (typeof window === "undefined") return false;
-  const visits = Number(localStorage.getItem(ONBOARDING.visits) ?? "0");
-  const seen = sessionStorage.getItem(ONBOARDING.welcomeSeen) === "1";
-  return visits > 1 && !seen;
+  if (localStorage.getItem(ONBOARDING.done) !== "1") return false;
+  return sessionStorage.getItem(ONBOARDING.welcomeSeen) !== "1";
 }
 
 export function markWelcomeSeen() {

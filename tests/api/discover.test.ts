@@ -21,4 +21,11 @@ describe("GET /api/discover", () => {
     expect(body.data.items).toEqual([]);
     expect(body.data.nextCursor).toBeNull();
   });
+
+  it("accepts intent from the query string", async () => {
+    const res = await GET(new Request("http://soko18.test/api/discover?intent=connect"));
+    const body = (await res.json()) as { data: { items: { verified?: boolean }[] } };
+    expect(body.data.items.length).toBeGreaterThan(0);
+    expect(body.data.items[0]?.verified).toBe(true);
+  });
 });

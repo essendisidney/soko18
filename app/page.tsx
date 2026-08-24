@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useSyncExternalStore } from "react";
-import { ONBOARDING } from "@/lib/onboarding";
+import { useEffect, useSyncExternalStore } from "react";
+import { ONBOARDING, bumpVisit, markWelcomeSeen } from "@/lib/onboarding";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
 import { WelcomeBack } from "@/components/nairobi/welcome-back";
@@ -12,25 +12,51 @@ function subscribe() {
   return () => {};
 }
 
+function openMode() {
+  if (localStorage.getItem(ONBOARDING.done) !== "1") return "age";
+  if (sessionStorage.getItem(ONBOARDING.welcomeSeen) !== "1") return "pulse";
+  return "go";
+}
+
 export default function WelcomePage() {
   const router = useRouter();
-  const returning = useSyncExternalStore(
-    subscribe,
-    () => localStorage.getItem(ONBOARDING.done) === "1",
-    () => false,
-  );
+  const mode = useSyncExternalStore(subscribe, openMode, () => "age");
 
-  function continueAsAdult() {
+  useEffect(() => {
+    if (mode === "age") return;
+    bumpVisit();
+    if (mode === "pulse") {
+      markWelcomeSeen();
+      return;
+    }
+    router.replace("/discover");
+  }, [mode, router]);
+
+  function continueInNairobi() {
+    localStorage.setItem(ONBOARDING.age, "1");
+    localStorage.setItem(ONBOARDING.city, "nairobi");
+    router.push("/onboarding/intent");
+  }
+
+  function otherCities() {
     localStorage.setItem(ONBOARDING.age, "1");
     router.push("/onboarding/city");
   }
 
-  if (returning) {
+  if (mode === "pulse") {
     return <WelcomeBack onDone={() => router.push("/discover")} />;
   }
 
+  if (mode === "go") {
+    return (
+      <main className="grid min-h-dvh place-items-center bg-bg">
+        <Wordmark size="sm" />
+      </main>
+    );
+  }
+
   return (
-    <main className="relative flex min-h-dvh flex-col items-center justify-between overflow-hidden bg-bg px-6 py-10">
+    <main className="relative flex min-h-dvh touch-pan-y flex-col items-center justify-between bg-bg px-6 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_20%,rgba(212,181,106,0.12),transparent_55%)]" />
       <div />
       <div className="relative z-10 flex flex-col items-center text-center">
@@ -55,9 +81,12 @@ export default function WelcomePage() {
             Privacy
           </Link>
         </p>
-        <Button className="w-full" onClick={continueAsAdult}>
-          Continue
+        <Button className="w-full" onClick={continueInNairobi}>
+          Continue in Nairobi
         </Button>
+        <button type="button" onClick={otherCities} className="mt-4 w-full text-sm text-muted">
+          Other cities
+        </button>
       </div>
     </main>
   );

@@ -83,6 +83,30 @@ export function welcomeBackStats(profiles?: SeedProfile[]) {
   };
 }
 
+/** City-wide inventory integers wait until the room is not empty. 1,842 / 2,847 are targets, never display lies. */
+export const INVENTORY_COUNT_FLOOR = 200;
+
+export function showInventoryCounts(liveCount: number) {
+  return liveCount >= INVENTORY_COUNT_FLOOR;
+}
+
+export function activeAreaNames(profiles?: SeedProfile[], limit = 4) {
+  return activeNow(profiles)
+    .areas.slice(0, limit)
+    .map((area) => area.name);
+}
+
+export function nairobiPlaceLine(profiles?: SeedProfile[], limit = 3) {
+  const names = activeAreaNames(profiles, limit);
+  return names.length > 0 ? names.join(" · ") : "Nairobi";
+}
+
+export function nairobiInventoryLine(profiles?: SeedProfile[]) {
+  const stats = welcomeBackStats(profiles);
+  if (!showInventoryCounts(stats.live)) return null;
+  return `${stats.live} live · ${stats.activeNow} active now`;
+}
+
 export function nairobiHour(now: Date | string = new Date()) {
   const date = typeof now === "string" ? new Date(now) : now;
   return Number(

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { AnimatePresence } from "motion/react";
 import { AppHeader } from "@/components/nav/app-header";
 import { SwipeDeck } from "@/components/discover/swipe-deck";
@@ -14,6 +14,7 @@ import {
   type DiscoverAction,
 } from "@/lib/discovery/actions";
 import { writeImpression } from "@/lib/discovery/impressions";
+import { discoverQuery } from "@/lib/discovery/prefs";
 import { postLike } from "@/lib/likes/client";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { parseIdList } from "@/lib/safety/local-ids";
@@ -27,8 +28,19 @@ export function DiscoverDeck({
   subtitle?: string;
 }) {
   const { user, ready } = useAuth();
+  const [feed, setFeed] = useState(initial);
   const [match, setMatch] = useState<SeedProfile | null>(null);
   const [gate, setGate] = useState<AuthIntent | null>(null);
+
+  useEffect(() => {
+    const q = discoverQuery();
+    void fetch(`/api/discover?${q.toString()}`)
+      .then((res) => res.json())
+      .then((json: { data?: { items?: SeedProfile[] } }) => {
+        if (json.data?.items) setFeed(json.data.items);
+      })
+      .catch(() => {});
+  }, []);
 
   const raw = useSyncExternalStore(subscribeDiscoverActions, actionsSnapshot, () => null);
   const blockedRaw = useSyncExternalStore(subscribeBlocks, blocksSnapshot, () => null);
@@ -37,8 +49,8 @@ export function DiscoverDeck({
       (raw ? (JSON.parse(raw) as DiscoverAction[]) : []).map((row) => row.profileId),
     );
     for (const id of parseIdList(blockedRaw)) exclude.add(id);
-    return initial.filter((profile) => !exclude.has(profile.id));
-  }, [initial, raw, blockedRaw]);
+    return feed.filter((profile) => !exclude.has(profile.id));
+  }, [feed, raw, blockedRaw]);
 
   const onImpression = useCallback((profile: SeedProfile) => {
     writeImpression({ profileId: profile.id, surface: "discover", at: Date.now() });
@@ -50,9 +62,9 @@ export function DiscoverDeck({
   }, []);
 
   return (
-    <div className="flex min-h-[calc(100dvh-6rem)] flex-col">
-      <AppHeader title="Discover" subtitle={subtitle} />
-      <div className="mt-5 min-h-0 flex-1">
+    <div className="flex h-[calc(100dvh-6.75rem-env(safe-area-inset-bottom,0px))] flex-col overflow-hidden">
+      <AppHeader title="Nairobi" subtitle={subtitle} />
+      <div className="mt-5 flex min-h-0 flex-1 flex-col">
         <SwipeDeck
           profiles={profiles}
           onImpression={onImpression}

@@ -36,6 +36,24 @@ describe("ranking", () => {
     expect(capFeatured(profiles).slice(0, 8).filter((p) => p.featured).length).toBeLessThanOrEqual(1);
   });
 
+  it("boosts verified profiles when intent is connect", () => {
+    const verified = testProfile({
+      id: "v",
+      slug: "v",
+      verified: true,
+      verification: { phone: true, identity: true, profile: true, established: true },
+    });
+    const unverified = testProfile({
+      id: "u",
+      slug: "u",
+      verified: false,
+      verification: { phone: false, identity: false, profile: false, established: false },
+    });
+    expect(rankScore(verified, { citySlug: "nairobi", intents: ["connect"] })).toBeGreaterThan(
+      rankScore(unverified, { citySlug: "nairobi", intents: ["connect"] }),
+    );
+  });
+
   it("caps the featured bonus at 0.04", () => {
     const organic = testProfile({ id: "organic", slug: "organic", featured: false });
     const featured = testProfile({ id: "featured", slug: "featured", featured: true });

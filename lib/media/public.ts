@@ -2,8 +2,12 @@ import type { SeedProfile } from "@/lib/types";
 import { isPublicMediaStatus, type MediaItem } from "@/lib/media/types";
 
 /** Seed catalog photos are already approved. Owner uploads never enter this list. */
+export function isCatalogPhoto(src: string) {
+  return src.startsWith("https://") || src.startsWith("/seed/");
+}
+
 export function publicPhotos(profile: SeedProfile) {
-  return profile.photos.filter((src) => src.startsWith("https://"));
+  return profile.photos.filter(isCatalogPhoto);
 }
 
 export function coverPhoto(profile: SeedProfile) {

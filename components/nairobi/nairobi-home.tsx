@@ -9,12 +9,12 @@ import { Search } from "lucide-react";
 import { BROWSE_CATEGORIES } from "@/lib/browse/categories";
 import { searchNairobi } from "@/lib/browse/feed";
 import { NAIROBI_AREAS, NAIROBI_FILTERS, NAIROBI_NOW } from "@/lib/data/nairobi";
-import { nairobiProfiles } from "@/lib/data/seed";
-import { hasApprovedCover } from "@/lib/media/public";
 import {
   activeNow,
   filterNairobi,
+  nairobiInventoryLine,
   nairobiNow,
+  nairobiPlaceLine,
   type NairobiFilter,
   type NairobiNowId,
 } from "@/lib/nairobi/live";
@@ -36,6 +36,8 @@ export function NairobiHome({
   const [now, setNow] = useState<NairobiNowId>("trending");
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
   const live = activeNow();
+  const inventory = nairobiInventoryLine();
+  const dense = Boolean(inventory);
   const featured = hideBlocked(searchNairobi("").filter((p) => p.featured), blocked);
   const grid = hideBlocked(q ? searchNairobi(q) : filterNairobi(facet, nearArea), blocked);
 
@@ -55,19 +57,17 @@ export function NairobiHome({
 
       <p className="mt-6 text-[13px] tracking-[0.22em] text-gold uppercase">Nairobi</p>
       <h1 className="mt-2 font-display text-4xl tracking-tight">Local discovery</h1>
-      <p className="mt-2 text-sm text-muted">
-        {nairobiProfiles().filter(hasApprovedCover).length} live · {live.city} active now
-      </p>
+      <p className="mt-2 text-sm text-muted">{inventory ?? nairobiPlaceLine()}</p>
 
       <section className="glass mt-6 rounded-3xl p-4">
         <p className="text-[11px] tracking-[0.16em] text-gold uppercase">Active now</p>
-        <p className="mt-2 font-display text-2xl">{live.city} in Nairobi</p>
+        <p className="mt-2 font-display text-2xl">{dense ? `${live.city} in Nairobi` : "Nairobi"}</p>
         <p className="mt-1 text-xs text-muted">Area-level only. Never a precise location.</p>
         <ul className="mt-4 space-y-1.5 text-sm">
           {live.areas.map((area) => (
             <li key={area.slug} className="flex justify-between">
               <Link href={`/nairobi/${area.slug}`}>{area.name}</Link>
-              <span className="text-muted">{area.count} active</span>
+              {dense ? <span className="text-muted">{area.count} active</span> : null}
             </li>
           ))}
         </ul>

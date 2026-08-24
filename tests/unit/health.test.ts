@@ -5,9 +5,18 @@ import { testProfile } from "../helpers/profile";
 
 describe("health score", () => {
   it("scores a complete live profile at 100", () => {
+    const complete = testProfile({
+      verified: true,
+      bio: "Kilimani evenings.",
+      photos: ["/seed/one.jpg", "/seed/two.jpg", "/seed/three.jpg"],
+    });
+    expect(profileHealth(complete).score).toBe(100);
+  });
+
+  it("treats Nairobi catalog covers as public", () => {
     const amani = nairobiProfiles().find((p) => p.id === "p1");
     expect(amani).toBeTruthy();
-    expect(profileHealth(amani!).score).toBe(100);
+    expect(profileHealth(amani!).score).toBe(75);
   });
 
   it("drops for missing bio, verification, and extra photos", () => {

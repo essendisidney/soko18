@@ -65,6 +65,8 @@ Target feeling on first screenshot: **“What app is that?”** then **“This l
 
 Density creates the network effect. 2,847 live Nairobi profiles beats 17 profiles scattered across Kenya.
 
+Never display a fake city-wide count (1,842, 2,847, “183 new”). Until Nairobi crosses real density, open/browse/discover lead with **place** (active areas), not a small inventory integer. 1,842 / 2,847 are density *targets*, not KPIs to invent on screen.
+
 v1 live market: **Nairobi only.**
 
 Mombasa, Kisumu, Nakuru, Eldoret are waitlist until Nairobi has:
@@ -200,11 +202,10 @@ Never animate for the sake of animation.
 ## 4. Information architecture
 
 ```
-/                         marketing
-/welcome                  age + brand
-/onboarding/city
+/                         age + brand (Continue in Nairobi)
+/onboarding/city          waitlist (not on the main path)
 /onboarding/intent
-/onboarding/ready
+/onboarding/ready         bookmark only (not on the main path)
 /discover                 primary home
 /browse
 /matches
@@ -244,7 +245,7 @@ Desktop: same IA, expanded. Discover card is centered. Browse becomes a rich dir
 
 ### 5.1 Launch / onboarding
 
-No 17-step registration wall. Four screens, then a real card.
+No 17-step registration wall. Age + Nairobi as one tap, then intent, then a real card.
 
 **Screen 1 — Welcome**
 
@@ -252,26 +253,17 @@ No 17-step registration wall. Four screens, then a real card.
 - Wordmark SOKO + gold 18
 - Discover. Connect. Verify.
 - Age line: “You must be 18 or older to continue.”
-- Primary: Continue
-- Age confirmation is a required tap, stored as `age_confirmed_at`
+- Primary: Continue in Nairobi (stores age + Nairobi)
+- Other cities: waitlist only, not an equal market. Link, not a required step.
 
-**Screen 2 — Nairobi**
-
-- SOKO18 is live in Nairobi.
-- Primary: Continue in Nairobi
-- Other Kenyan cities: waitlist only. Do not present them as equal markets.
-
-**Screen 3 — Intent**
+**Screen 2 — Intent**
 
 - “What are you looking for?”
 - Chips, multi-select, max 3: Connect · Meet · Browse · Featured in Nairobi
 - Keep this non-sleazy and short.
+- Primary: Discover → `/discover`
 
-**Screen 4 — Ready**
-
-- “You’re ready.”
-- “Let’s discover.”
-- [ Start ] → `/discover`
+`/onboarding/city` stays for waitlist. `/onboarding/ready` is not on the main path.
 
 Auth is prompted at the first like, message, or “create profile” — not before.
 
@@ -280,9 +272,9 @@ Auth is prompted at the first like, message, or “create profile” — not bef
 This screen sells the product.
 
 ```
-SOKO18                    ·  ☰
-Discover
-People you’ll like · Nairobi
+SOKO18
+Nairobi
+Westlands · Kilimani · Kileleshwa
 
 ...
 │  Amani, 26              │
@@ -292,6 +284,8 @@ People you’ll like · Nairobi
    ×         ♥         ★
   Pass      Like    Spotlight
 ```
+
+The tab is Discover (the job). The screen title is Nairobi (the place). Do not repeat “Discover” as a page heading.
 
 Rules:
 
@@ -303,7 +297,7 @@ Rules:
 - Drag left = pass, right = like, up = spotlight
 - Release with spring. Commit past 96px or 0.35 velocity
 
-Menu (☰): Settings, Safety, Studio (if owner), Admin (if admin)
+Settings, Safety, Studio, and Admin live in Me. Discover has no bell or hamburger — the tab bar already owns Matches and Me.
 
 ### 5.3 Profile card
 
@@ -931,13 +925,13 @@ If a product decision is missing, pick the conservative, safer option and record
 
 ## 19. Launch experience (must not regress)
 
-Open app → age + brand → Nairobi → intent → ready → **beautiful Nairobi card**.
+Open app → age + Nairobi (one tap) → intent → **beautiful Nairobi card**.
 
-Returning users: Nairobi pulse (real new / active / verified — never invented matches) → **Discover**.
+Install as a **standalone PWA** (home screen) before native stores. Manifest starts at `/` so age still gates first open. Icons are 192 and 512. Me explains Add to Home Screen.
+
+Returning users: Nairobi pulse once per session (place first — active areas — then real counts only after density; never invented matches or a fake 1,842) → **Discover**. Later opens in that session go straight to the card. Discover ranking uses onboarding intent and the last Nairobi area opened.
 
 Auth is a doorway to actions, not to the product.
-
-Ship PWA (standalone) before native stores.
 
 ---
 
@@ -969,8 +963,8 @@ Copy is calm and specific. Not a joke.
 
 A stranger on a phone can:
 
-1. Confirm age
-2. Continue in Nairobi
+1. Confirm 18+ and Nairobi
+2. Pick intent
 3. See a cinematic Nairobi card
 4. Open a profile
 5. Browse a city

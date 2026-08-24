@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Syne } from "next/font/google";
 import { siteUrl } from "@/lib/site";
+import { PwaRegister } from "@/components/pwa/register";
 import "./globals.css";
 
 const geist = Geist({
@@ -42,9 +43,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geist.variable} ${syne.variable} h-full bg-bg antialiased`}
+      className={`${geist.variable} ${syne.variable} bg-bg antialiased`}
     >
-      <body className="min-h-dvh bg-bg text-cream">{children}</body>
+      <body className="min-h-dvh bg-bg text-cream">
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }

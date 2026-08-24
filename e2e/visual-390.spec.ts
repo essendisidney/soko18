@@ -5,9 +5,16 @@ test.describe("390px surfaces", () => {
 
   test("discover", async ({ page }) => {
     await page.goto("/discover");
-    await expect(page.getByRole("heading", { name: "Discover" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Nairobi" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Like" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
+  });
+
+  test("matches empty sends you back to the card", async ({ page }) => {
+    await page.goto("/matches");
+    await expect(page.getByRole("heading", { name: "Matches" })).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
   });
 
   test("browse", async ({ page }) => {
