@@ -1,0 +1,19 @@
+---
+description: SOKO18 database, RLS, and authorization rules
+globs: supabase/**/*.sql,lib/supabase/**/*.ts,app/api/**/*.ts
+alwaysApply: false
+---
+
+# Data & auth
+
+`auth.users` is identity. `public.accounts` is the app user. `public.profiles` is a public listing — not the same thing.
+
+Roles live in `public.accounts.role` and `auth.users.raw_app_meta_data`. Never authorize from `user_metadata`.
+
+Enable RLS on every exposed table. Put `SECURITY DEFINER` functions in `private`, not `public`. Views use `security_invoker = true`.
+
+Media starts unpublished. Only `approved` media is visible to non-owners, via signed URLs.
+
+Money path is payment → transaction → immutable ledger → receipt. No direct wallet updates.
+
+Index foreign keys. Use cursor pagination. Prefer partial indexes for live profiles and pending moderation.

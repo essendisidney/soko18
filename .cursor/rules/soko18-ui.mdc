@@ -1,0 +1,19 @@
+---
+description: SOKO18 visual system and motion rules
+globs: app/**/*.{tsx,css},components/**/*.tsx
+alwaysApply: false
+---
+
+# UI
+
+Design mobile-first: 375 → 390 → 430, then tablet, then desktop.
+
+Tokens live in `app/globals.css`. Do not introduce random hex values in components.
+
+Typography: Syne for display/wordmark, Geist for UI. Large headings, small supporting text, almost no paragraphs.
+
+Components in `components/soko/` wrap shadcn primitives. Reuse `Button`, `ProfileCard`, `Badge`, `Chip`, `BottomSheet`, `StatCard`, `VerificationBadge` — do not one-off similar UI.
+
+Motion is subtle and functional: card spring, press, sheet physics, skeletons, like/match, gallery. No decorative animation.
+
+Discover is a huge photograph with breathing room. Three actions only: Pass, Like, Spotlight.

@@ -1,0 +1,20 @@
+---
+description: SOKO18 non-negotiable product, brand, and phase rules
+alwaysApply: true
+---
+
+# SOKO18
+
+Source of truth: `docs/SOKO18_MASTER_DEVELOPMENT.md`. Do not invent product behavior that contradicts it.
+
+Positioning: Nairobi-first 18+ local discovery. Not Kenya-wide until Nairobi has density. Not classifieds. Not African Tinder. SOKO18 owns local discovery; Tinder owns dating.
+
+Brand: dark, glassy, cinematic, minimal, high-contrast, mobile-first. Wordmark `SOKO` + gold `18`. No flames, lips, or adult-cliché imagery.
+
+Stack: Next.js App Router + TypeScript + Tailwind + shadcn primitives + Supabase + Vercel.
+
+Build order is mandatory. Do not start the next phase until the current phase acceptance criteria pass. Check `docs/PHASE_STATUS.md`.
+
+Never publish media without moderation. Never put roles in `user_metadata`. Never bypass RLS. Never mutate balances without a ledger row.
+
+Every screen must pass: 2-second comprehension, one-hand primary action, little copy, clear hierarchy, trustworthy, premium, fast. If not, remove something.
