@@ -46,6 +46,43 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("button", { name: "Like" })).toBeVisible();
   });
 
+  test("profile back returns to Nairobi", async ({ page }) => {
+    await page.goto("/nairobi");
+    await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
+    await page.getByRole("link", { name: /Amani, 26/ }).first().click();
+    await expect(page).toHaveURL(/\/profile\/amani-nairobi/);
+    await page.getByRole("button", { name: "Back" }).click();
+    await expect(page).toHaveURL(/\/nairobi/);
+    await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
+  });
+
+  test("me keeps Safety and does not duplicate Nairobi", async ({ page }) => {
+    await page.goto("/me");
+    await expect(page.getByRole("heading", { name: "Me" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Saved" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Safety" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Nairobi" })).toHaveCount(0);
+    await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+  });
+
+  test("closed thread sends you to Discover", async ({ page }) => {
+    await page.goto("/messages/amani-nairobi");
+    await expect(page.getByRole("heading", { name: "No thread yet" })).toBeVisible();
+    await expect(page.getByText("Conversation unavailable.")).toHaveCount(0);
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
+  });
+
+  test("settings only has real privacy actions", async ({ page }) => {
+    await page.goto("/settings");
+    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Download my data" })).toBeVisible();
+    await expect(page.getByText("Restrict messages")).toHaveCount(0);
+    await expect(page.getByText("Hide last seen")).toHaveCount(0);
+    await expect(page.getByText("Allow public search indexing")).toHaveCount(0);
+    await expect(page.getByText("Public search indexing lives on your profile in Studio.")).toBeVisible();
+  });
+
   test("studio", async ({ page }) => {
     await page.goto("/studio");
     await expect(page.getByText("SOKO18 Studio")).toBeVisible();

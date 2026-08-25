@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowLeft, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { publicPhotos } from "@/lib/media/public";
 import { similarProfiles } from "@/lib/data/seed";
@@ -15,6 +15,7 @@ import { VerificationBadge } from "@/components/soko/verification-badge";
 import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
 import { ImpressionBeacon } from "@/components/analytics/impression-beacon";
 import { MatchOverlay } from "@/components/discover/match-overlay";
+import { ProfileBack } from "@/components/profile/profile-back";
 import { ProfileOverflow } from "@/components/profile/profile-overflow";
 import { useAuth } from "@/lib/auth/use-auth";
 import { postLike } from "@/lib/likes/client";
@@ -53,9 +54,7 @@ export function PublicProfile({ profile }: { profile: SeedProfile }) {
         />
         <div className="absolute inset-0 bg-linear-to-t from-bg via-transparent to-black/30" />
         <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
-          <Link href="/discover" className="grid size-10 place-items-center rounded-full bg-black/40 backdrop-blur">
-            <ArrowLeft className="size-5" />
-          </Link>
+          <ProfileBack />
           <ProfileOverflow profile={profile} />
         </div>
       </div>

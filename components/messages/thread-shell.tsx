@@ -7,6 +7,7 @@ import { ArrowLeft, Flag, MoreHorizontal, Send } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { coverPhoto } from "@/lib/media/public";
 import { PresenceDot } from "@/components/soko/presence-dot";
+import { Button } from "@/components/soko/button";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { ReportReasons } from "@/components/safety/report-reasons";
 import { useAuth } from "@/lib/auth/use-auth";
@@ -90,11 +91,13 @@ export function ThreadShell({
 
   if (!open || !conversationId) {
     return (
-      <div className="pt-16 text-center">
-        <p className="font-display text-2xl tracking-tight">Conversation unavailable.</p>
-        <p className="mt-3 text-sm text-muted">A thread opens after you both like each other.</p>
-        <Link href="/discover" className="mt-8 inline-block text-sm text-gold">
-          Discover Nairobi
+      <div className="mt-10">
+        <h1 className="font-display text-[34px] tracking-tight">No thread yet</h1>
+        <p className="mt-2 text-sm text-muted">A like stays quiet until they like you back.</p>
+        <Link href="/discover" className="mt-8 inline-block w-full">
+          <Button className="w-full" variant="gold">
+            Discover
+          </Button>
         </Link>
       </div>
     );

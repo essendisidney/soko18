@@ -1,3 +1,4 @@
+import { RememberReturn } from "@/components/nav/remember-return";
 import { TabBar } from "@/components/nav/tab-bar";
 
 export default function AppShellLayout({
@@ -7,6 +8,7 @@ export default function AppShellLayout({
 }) {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-bg pb-24">
+      <RememberReturn />
       <div className="flex min-h-0 flex-1 flex-col px-4 pt-4">{children}</div>
       <TabBar />
     </div>

@@ -6,8 +6,6 @@ import { useState } from "react";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [indexPublic, setIndexPublic] = useState(false);
-  const [hideSeen, setHideSeen] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -57,23 +55,6 @@ export default function SettingsPage() {
       <div className="mt-8 space-y-3 text-sm">
         <button
           type="button"
-          onClick={() => setHideSeen((v) => !v)}
-          className="flex w-full items-center justify-between rounded-2xl border border-line bg-glass px-5 py-4 text-left"
-        >
-          Hide last seen
-          <span className="text-muted">{hideSeen ? "On" : "Off"}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setIndexPublic((v) => !v)}
-          className="flex w-full items-center justify-between rounded-2xl border border-line bg-glass px-5 py-4 text-left"
-        >
-          Allow public search indexing
-          <span className="text-muted">{indexPublic ? "On" : "Off"}</span>
-        </button>
-        <div className="rounded-2xl border border-line bg-glass px-5 py-4">Restrict messages</div>
-        <button
-          type="button"
           disabled={busy}
           onClick={() => void exportData()}
           className="flex w-full items-center justify-between rounded-2xl border border-line bg-glass px-5 py-4 text-left"
@@ -93,6 +74,9 @@ export default function SettingsPage() {
       {note ? <p className="mt-4 text-xs text-muted">{note}</p> : null}
       <p className="mt-6 text-xs leading-relaxed text-muted">
         Location is shown at area level only (Kilimani, Westlands). SOKO18 never shows a live pin.
+      </p>
+      <p className="mt-3 text-xs leading-relaxed text-muted">
+        Public search indexing lives on your profile in Studio. It is off until you turn it on.
       </p>
       <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted">
         <Link href="/terms">Terms</Link>

@@ -19,7 +19,7 @@ const rows = [
   { href: "/studio", label: "SOKO18 Studio" },
   { href: "/admin", label: "Admin" },
   { href: "/settings", label: "Settings" },
-  { href: "/nairobi", label: "Nairobi" },
+  { href: "/safety", label: "Safety" },
   { href: "/onboarding/city", label: "Other cities" },
 ];
 
@@ -114,7 +114,6 @@ export default function MePage() {
       <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted">
         <Link href="/terms">Terms</Link>
         <Link href="/privacy">Privacy</Link>
-        <Link href="/safety">Safety</Link>
       </div>
       <AnimatePresence>
         {gate ? <AuthGate intent="profile" onClose={() => setGate(false)} /> : null}

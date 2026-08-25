@@ -151,5 +151,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - First open: Continue in Nairobi (age + city) → intent → Discover. City and Ready stay as waitlist / bookmark. Matches empty has a gold Discover button. Discover header has no bell or menu.
 - PWA: standalone manifest, 192/512 icons, apple-touch icon, `/sw.js`, Me “Add to Home Screen.” Start URL is `/` so age still gates. No web push yet.
 - Browse tab opens `/nairobi`. `/browse` redirects. Area and category pages (`/category/trending` …) use the same tab bar. No Supabase this increment.
+- Profile ← returns to the last app screen (Discover, Nairobi, Saved). Cold landings go to Discover. Me no longer duplicates Nairobi; Safety is a row.
+- Closed threads say “No thread yet” and send you to Discover. Settings no longer shows fake Hide last seen / indexing / restrict-message controls. Indexing stays in Studio.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.
