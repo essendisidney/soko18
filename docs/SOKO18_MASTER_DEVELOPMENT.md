@@ -238,6 +238,8 @@ App tab bar (mobile): **Discover · Browse · Matches · Me**
 
 Browse opens `/nairobi`. `/browse` redirects there. Area and category pages stay on the Browse tab. One city door.
 
+Me stays active on Saved, Settings, and Studio. Admin stays outside the tab bar.
+
 Messages live under Matches (list + threads), not as a fifth tab.
 
 Desktop: same IA, expanded. Discover card is centered. Browse becomes a rich directory. Studio/Admin become real SaaS layouts.

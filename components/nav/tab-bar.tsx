@@ -21,6 +21,18 @@ function tabActive(href: string, pathname: string) {
       pathname.startsWith("/category/")
     );
   }
+  if (href === "/me") {
+    return (
+      pathname === "/me" ||
+      pathname.startsWith("/me/") ||
+      pathname === "/saved" ||
+      pathname.startsWith("/saved/") ||
+      pathname === "/settings" ||
+      pathname.startsWith("/settings/") ||
+      pathname === "/studio" ||
+      pathname.startsWith("/studio/")
+    );
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Wordmark } from "@/components/brand/wordmark";
 import { StatCard } from "@/components/soko/stat-card";
 import { Button } from "@/components/soko/button";
 import { getStudioOverview } from "@/lib/studio/overview";
@@ -12,10 +11,9 @@ export default async function StudioAnalyticsPage() {
   const max = Math.max(1, ...(stats?.series.map((row) => row.views) ?? [0]));
 
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-bg px-5 pt-6 pb-16">
+    <div>
       <p className="text-[11px] tracking-[0.22em] text-gold uppercase">Studio</p>
-      <Wordmark className="mt-2" size="sm" />
-      <h1 className="mt-8 font-display text-3xl tracking-tight">Analytics</h1>
+      <h1 className="mt-3 font-display text-3xl tracking-tight">Analytics</h1>
       <p className="mt-2 text-sm text-muted">Your numbers only. Last 7 days in Nairobi.</p>
       {stats ? (
         <>
@@ -53,6 +51,6 @@ export default async function StudioAnalyticsPage() {
           Back to studio
         </Button>
       </Link>
-    </main>
+    </div>
   );
 }

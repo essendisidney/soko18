@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Button } from "@/components/soko/button";
-import { Wordmark } from "@/components/brand/wordmark";
 import { StatCard } from "@/components/soko/stat-card";
 import { HealthBar } from "@/components/soko/health-bar";
 import { BoostPay } from "@/components/studio/promotion-pay";
@@ -25,10 +24,9 @@ export function StudioHome({
   const status = overview?.profile?.status ?? (draft ? (draft.status === "pending_review" ? "In review" : "Draft") : null);
 
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-bg px-5 pt-6 pb-16">
+    <div>
       <p className="text-[11px] tracking-[0.22em] text-gold uppercase">SOKO18 Studio</p>
-      <Wordmark className="mt-2" />
-      <h1 className="mt-8 font-display text-3xl tracking-tight">
+      <h1 className="mt-3 font-display text-3xl tracking-tight">
         {name ? `${greeting}, ${name}` : "Your studio"}
       </h1>
       <p className="mt-2 text-sm text-muted">
@@ -97,8 +95,7 @@ export function StudioHome({
         <Link href="/studio/analytics">Analytics</Link>
         <Link href="/studio/promotions">Promotions</Link>
         <Link href="/studio/settings">Studio settings</Link>
-        <Link href="/nairobi">Nairobi</Link>
       </nav>
-    </main>
+    </div>
   );
 }

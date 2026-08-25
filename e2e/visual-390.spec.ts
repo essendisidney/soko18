@@ -81,12 +81,15 @@ test.describe("390px surfaces", () => {
     await expect(page.getByText("Hide last seen")).toHaveCount(0);
     await expect(page.getByText("Allow public search indexing")).toHaveCount(0);
     await expect(page.getByText("Public search indexing lives on your profile in Studio.")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Me")).toBeVisible();
   });
 
-  test("studio", async ({ page }) => {
+  test("studio stays on the Me tab", async ({ page }) => {
     await page.goto("/studio");
     await expect(page.getByText("SOKO18 Studio")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Your studio" })).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Me")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
   });
 
   test("admin is 404 for guests", async ({ page }) => {

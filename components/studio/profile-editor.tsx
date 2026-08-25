@@ -101,7 +101,7 @@ export function ProfileEditor() {
   }
 
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-bg px-5 pt-6 pb-16">
+    <div>
       <p className="text-[11px] tracking-[0.22em] text-gold uppercase">SOKO18 Studio</p>
       <h1 className="mt-3 font-display text-3xl tracking-tight">Profile</h1>
       <p className="mt-2 text-sm text-muted">
@@ -219,6 +219,6 @@ export function ProfileEditor() {
         Back
       </Link>
       {gate ? <AuthGate intent="profile" onClose={() => setGate(false)} /> : null}
-    </main>
+    </div>
   );
 }
