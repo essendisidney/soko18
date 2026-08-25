@@ -7,10 +7,22 @@ import { cn } from "@/lib/utils";
 
 const tabs = [
   { href: "/discover", label: "Discover", icon: Compass },
-  { href: "/browse", label: "Browse", icon: Grid2x2 },
+  { href: "/nairobi", label: "Browse", icon: Grid2x2 },
   { href: "/matches", label: "Matches", icon: Heart },
   { href: "/me", label: "Me", icon: UserRound },
 ];
+
+function tabActive(href: string, pathname: string) {
+  if (href === "/nairobi") {
+    return (
+      pathname === "/nairobi" ||
+      pathname.startsWith("/nairobi/") ||
+      pathname === "/browse" ||
+      pathname.startsWith("/category/")
+    );
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function TabBar() {
   const pathname = usePathname();
@@ -19,7 +31,7 @@ export function TabBar() {
     <nav className="safe-bottom glass fixed inset-x-0 bottom-0 z-40 border-t border-line">
       <ul className="mx-auto grid max-w-md grid-cols-4 px-2 pt-2">
         {tabs.map((tab) => {
-          const active = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+          const active = tabActive(tab.href, pathname);
           const Icon = tab.icon;
           return (
             <li key={tab.href}>

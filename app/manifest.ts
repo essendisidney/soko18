@@ -37,7 +37,7 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     shortcuts: [
       { name: "Discover", short_name: "Discover", url: "/discover" },
-      { name: "Browse", short_name: "Browse", url: "/browse" },
+      { name: "Browse", short_name: "Browse", url: "/nairobi" },
     ],
   };
 }

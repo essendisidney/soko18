@@ -68,7 +68,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 
 ## Phase 07 notes
 
-- Nairobi is the only live market (`GET /api/cities/nairobi`, `/nairobi`, `/browse`).
+- Nairobi is the only live market (`GET /api/cities/nairobi`, `/nairobi`). `/browse` redirects to `/nairobi`.
 - Kisumu, Mombasa, Nakuru, and Eldoret are waitlist landings at `/city/[slug]`. Browse for those cities returns empty + `waitlist: true`.
 - Categories (`/category/trending|verified|featured|rising`) are Nairobi grids. Featured is labeled paid and is not mixed into organic Nairobi Now.
 - Search empty state: “No one in Nairobi matches that.” Notify me persists locally and confirms on the city page.
@@ -150,5 +150,6 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Discover ranks from onboarding intent, last Nairobi area, passes, and impressions. Empty deck primary is Browse. Returning `/` shows Nairobi pulse once per session, then goes to Discover.
 - First open: Continue in Nairobi (age + city) → intent → Discover. City and Ready stay as waitlist / bookmark. Matches empty has a gold Discover button. Discover header has no bell or menu.
 - PWA: standalone manifest, 192/512 icons, apple-touch icon, `/sw.js`, Me “Add to Home Screen.” Start URL is `/` so age still gates. No web push yet.
+- Browse tab opens `/nairobi`. `/browse` redirects. Area and category pages (`/category/trending` …) use the same tab bar. No Supabase this increment.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

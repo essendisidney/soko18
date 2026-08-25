@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function NairobiPage() {
-  return (
-    <main className="mx-auto min-h-dvh max-w-md bg-bg px-4 pt-6">
-      <NairobiHome showChrome />
-    </main>
-  );
+  return <NairobiHome />;
 }

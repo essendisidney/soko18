@@ -1,7 +1,5 @@
-"use client";
-
-import { NairobiHome } from "@/components/nairobi/nairobi-home";
+import { redirect } from "next/navigation";
 
 export default function BrowsePage() {
-  return <NairobiHome />;
+  redirect("/nairobi");
 }

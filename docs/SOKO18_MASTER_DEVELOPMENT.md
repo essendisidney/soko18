@@ -207,14 +207,15 @@ Never animate for the sake of animation.
 /onboarding/intent
 /onboarding/ready         bookmark only (not on the main path)
 /discover                 primary home
-/browse
+/browse                   redirects to /nairobi
 /matches
 /messages
 /messages/[id]
 /me                       current account
 /settings
-/nairobi                      Nairobi SEO + city home
+/nairobi                      Nairobi city home (Browse tab)
 /nairobi/[area]               Westlands, Kilimani, …
+/category/[facet]             Trending, Verified, Featured, Rising (Browse tab)
 /city/[city]                  waitlist if not Nairobi
 /profile/[slug]               public profile (index only if opted in)
 /studio                   owner home
@@ -234,6 +235,8 @@ Never animate for the sake of animation.
 ```
 
 App tab bar (mobile): **Discover · Browse · Matches · Me**
+
+Browse opens `/nairobi`. `/browse` redirects there. Area and category pages stay on the Browse tab. One city door.
 
 Messages live under Matches (list + threads), not as a fifth tab.
 

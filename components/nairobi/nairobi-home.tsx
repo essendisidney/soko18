@@ -25,7 +25,7 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { cn } from "@/lib/utils";
 
 export function NairobiHome({
-  showChrome = true,
+  showChrome = false,
   nearArea = "kilimani",
 }: {
   showChrome?: boolean;
@@ -55,7 +55,7 @@ export function NairobiHome({
         </div>
       ) : null}
 
-      <p className="mt-6 text-[13px] tracking-[0.22em] text-gold uppercase">Nairobi</p>
+      <p className={cn("text-[13px] tracking-[0.22em] text-gold uppercase", showChrome ? "mt-6" : null)}>Nairobi</p>
       <h1 className="mt-2 font-display text-4xl tracking-tight">Local discovery</h1>
       <p className="mt-2 text-sm text-muted">{inventory ?? nairobiPlaceLine()}</p>
 

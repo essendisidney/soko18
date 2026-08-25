@@ -17,10 +17,27 @@ test.describe("390px surfaces", () => {
     await expect(page).toHaveURL(/\/discover/);
   });
 
-  test("browse", async ({ page }) => {
+  test("browse is Nairobi with tabs", async ({ page }) => {
     await page.goto("/browse");
+    await expect(page).toHaveURL(/\/nairobi$/);
     await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
     await expect(page.getByText("Area-level only. Never a precise location.")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
+    await page.getByRole("link", { name: "Westlands" }).first().click();
+    await expect(page).toHaveURL(/\/nairobi\/westlands/);
+    await expect(page.getByRole("heading", { name: "Westlands" })).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+  });
+
+  test("category stays in the Browse tab", async ({ page }) => {
+    await page.goto("/nairobi");
+    await page.getByRole("link", { name: "Trending" }).click();
+    await expect(page).toHaveURL(/\/category\/trending/);
+    await expect(page.getByRole("heading", { name: "Trending" })).toBeVisible();
+    await expect(page.getByText("From real activity in Nairobi.")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
   });
 
   test("profile", async ({ page }) => {

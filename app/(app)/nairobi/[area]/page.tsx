@@ -5,7 +5,6 @@ import { NAIROBI_AREAS, areaBySlug } from "@/lib/data/nairobi";
 import { profilesInArea } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
 import { Button } from "@/components/soko/button";
-import { Wordmark } from "@/components/brand/wordmark";
 import { ProfileGrid } from "@/components/profile/profile-grid";
 import { RememberArea } from "@/components/nairobi/remember-area";
 import { nairobiInventoryLine } from "@/lib/nairobi/live";
@@ -40,10 +39,9 @@ export default async function NairobiAreaPage({
   const inventory = nairobiInventoryLine();
 
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-bg px-5 pt-6 pb-16">
+    <div>
       <RememberArea slug={meta.slug} />
-      <Wordmark size="sm" />
-      <p className="mt-10 text-[13px] tracking-[0.22em] text-gold uppercase">Nairobi</p>
+      <p className="text-[13px] tracking-[0.22em] text-gold uppercase">Nairobi</p>
       <h1 className="mt-3 font-display text-4xl tracking-tight">{meta.name}</h1>
       <p className="mt-2 text-sm text-muted">{inventory ?? "Area-level only. Never a precise location."}</p>
       <Link href="/discover" className="mt-6 inline-block">
@@ -55,6 +53,6 @@ export default async function NairobiAreaPage({
       <Link href="/nairobi" className="mt-8 inline-block text-sm text-muted">
         All of Nairobi
       </Link>
-    </main>
+    </div>
   );
 }
