@@ -2,22 +2,21 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { PresenceDot } from "@/components/soko/presence-dot";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 import { Button } from "@/components/soko/button";
 import type { MatchListItem } from "@/lib/likes/list";
 
 export function MatchList({ items }: { items: MatchListItem[] }) {
-  const router = useRouter();
-
   if (items.length === 0) {
     return (
       <div className="mt-10">
         <p className="text-sm text-muted">No matches yet. A like stays quiet until they like you back.</p>
-        <Button className="mt-8 w-full" variant="gold" onClick={() => router.push("/discover")}>
-          Discover
-        </Button>
+        <Link href="/discover" className="mt-8 inline-block w-full">
+          <Button className="w-full" variant="gold">
+            Discover
+          </Button>
+        </Link>
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import { NAIROBI_AREAS } from "@/lib/data/nairobi";
+import { DEFAULT_NEAR_AREA } from "@/lib/nairobi/near";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
 import type { SeedProfile } from "@/lib/types";
@@ -33,7 +34,7 @@ export function activeNow(profiles?: SeedProfile[]) {
 
 export function filterNairobi(
   facet: NairobiFilter,
-  nearArea = "kilimani",
+  nearArea = DEFAULT_NEAR_AREA,
   profiles?: SeedProfile[],
 ) {
   const list = catalog(profiles);

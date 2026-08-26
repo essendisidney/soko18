@@ -22,11 +22,13 @@ import { ProfileCard } from "@/components/soko/profile-card";
 import { Chip } from "@/components/soko/chip";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
+import { nearAreaName } from "@/lib/nairobi/near";
+import { useNearArea } from "@/lib/nairobi/use-near-area";
 import { cn } from "@/lib/utils";
 
 export function NairobiHome({
   showChrome = false,
-  nearArea = "kilimani",
+  nearArea,
 }: {
   showChrome?: boolean;
   nearArea?: string;
@@ -34,12 +36,14 @@ export function NairobiHome({
   const [q, setQ] = useState("");
   const [facet, setFacet] = useState<NairobiFilter>("trending");
   const [now, setNow] = useState<NairobiNowId>("trending");
+  const near = useNearArea(nearArea);
+  const nearName = nearAreaName(near);
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
   const live = activeNow();
   const inventory = nairobiInventoryLine();
   const dense = Boolean(inventory);
   const featured = hideBlocked(searchNairobi("").filter((p) => p.featured), blocked);
-  const grid = hideBlocked(q ? searchNairobi(q) : filterNairobi(facet, nearArea), blocked);
+  const grid = hideBlocked(q ? searchNairobi(q) : filterNairobi(facet, near), blocked);
 
   return (
     <div className="pb-6">
@@ -80,6 +84,9 @@ export function NairobiHome({
           </Chip>
         ))}
       </div>
+      {facet === "near" ? (
+        <p className="mt-2 text-xs text-muted">{nearName}. Area-level only.</p>
+      ) : null}
 
       <label className="glass mt-4 flex items-center gap-3 rounded-full px-4 py-3">
         <Search className="size-4 text-muted" />

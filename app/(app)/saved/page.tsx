@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { X } from "lucide-react";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
 import { hideBlocked } from "@/lib/safety/flags";
-import { favoritesSnapshot, subscribeFavorites } from "@/lib/favorites/local";
+import { favoritesSnapshot, subscribeFavorites, writeFavorite } from "@/lib/favorites/local";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { Button } from "@/components/soko/button";
-import { Wordmark } from "@/components/brand/wordmark";
 
 export default function SavedPage() {
   const saved = useLocalIds(subscribeFavorites, favoritesSnapshot);
@@ -23,8 +23,7 @@ export default function SavedPage() {
 
   return (
     <div>
-      <Wordmark size="sm" />
-      <h1 className="mt-8 font-display text-[34px] tracking-tight">Saved</h1>
+      <h1 className="font-display text-[34px] tracking-tight">Saved</h1>
       <p className="mt-2 text-sm text-muted">People you want to come back to.</p>
 
       {items.length === 0 ? (
@@ -37,7 +36,17 @@ export default function SavedPage() {
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-3">
           {items.map((profile) => (
-            <ProfileCard key={profile.id} profile={profile} compact href={`/profile/${profile.slug}`} />
+            <div key={profile.id} className="relative">
+              <ProfileCard profile={profile} compact href={`/profile/${profile.slug}`} />
+              <button
+                type="button"
+                aria-label={`Remove ${profile.name}`}
+                className="absolute top-2 right-2 z-10 grid size-8 place-items-center rounded-full bg-black/55 text-cream"
+                onClick={() => writeFavorite(profile.id, false)}
+              >
+                <X className="size-4" />
+              </button>
+            </div>
           ))}
         </div>
       )}

@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { ONBOARDING } from "@/lib/onboarding";
+import { writeNearArea } from "@/lib/nairobi/near";
 
 export function RememberArea({ slug }: { slug: string }) {
   useEffect(() => {
-    localStorage.setItem(ONBOARDING.nearArea, slug);
+    writeNearArea(slug);
   }, [slug]);
   return null;
 }

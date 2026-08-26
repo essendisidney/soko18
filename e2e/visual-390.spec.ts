@@ -28,6 +28,12 @@ test.describe("390px surfaces", () => {
     await expect(page).toHaveURL(/\/nairobi\/westlands/);
     await expect(page.getByRole("heading", { name: "Westlands" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+    await page.getByRole("navigation").getByText("Browse").click();
+    await expect(page).toHaveURL(/\/nairobi$/);
+    await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
+    await page.getByRole("button", { name: "Near you" }).click();
+    await expect(page.getByText("Westlands. Area-level only.")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Nia, 24/ }).first()).toBeVisible();
   });
 
   test("category stays in the Browse tab", async ({ page }) => {
