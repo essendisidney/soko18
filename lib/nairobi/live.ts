@@ -1,4 +1,4 @@
-import { NAIROBI_AREAS } from "@/lib/data/nairobi";
+import { areaBySlug, NAIROBI_AREAS } from "@/lib/data/nairobi";
 import { DEFAULT_NEAR_AREA } from "@/lib/nairobi/near";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
@@ -97,9 +97,12 @@ export function activeAreaNames(profiles?: SeedProfile[], limit = 4) {
     .map((area) => area.name);
 }
 
-export function nairobiPlaceLine(profiles?: SeedProfile[], limit = 3) {
+export function nairobiPlaceLine(profiles?: SeedProfile[], limit = 3, leadSlug?: string) {
   const names = activeAreaNames(profiles, limit);
-  return names.length > 0 ? names.join(" · ") : "Nairobi";
+  const lead = leadSlug ? areaBySlug(leadSlug)?.name : undefined;
+  const ordered = lead ? [lead, ...names.filter((name) => name !== lead)] : names;
+  const line = ordered.slice(0, limit);
+  return line.length > 0 ? line.join(" · ") : "Nairobi";
 }
 
 export function nairobiInventoryLine(profiles?: SeedProfile[]) {

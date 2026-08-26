@@ -18,6 +18,7 @@ describe("Nairobi pulse", () => {
   it("seed catalog leads with place, not 16 live", () => {
     expect(nairobiInventoryLine(nairobiProfiles())).toBeNull();
     expect(nairobiPlaceLine(nairobiProfiles())).toBe("Westlands · Kilimani · Kileleshwa");
+    expect(nairobiPlaceLine(nairobiProfiles(), 3, "kilimani")).toBe("Kilimani · Westlands · Kileleshwa");
   });
 
   it("does not advertise an empty room", () => {

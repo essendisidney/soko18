@@ -1,4 +1,5 @@
 import { LAUNCH_CITY, WAITLIST_CITIES } from "@/lib/data/nairobi";
+import { KISUMU_AREAS } from "@/lib/data/kisumu";
 import { activeNow } from "@/lib/nairobi/live";
 
 export type CityRecord = {
@@ -26,7 +27,10 @@ export function cityPayload(slug: string) {
       ...city,
       waitlist: true,
       activeNow: 0,
-      areas: [] as { slug: string; name: string; count: number }[],
+      areas:
+        city.slug === "kisumu"
+          ? KISUMU_AREAS.map((area) => ({ slug: area.slug, name: area.name }))
+          : ([] as { slug: string; name: string }[]),
     };
   }
   const live = activeNow();

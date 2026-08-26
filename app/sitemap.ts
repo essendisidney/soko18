@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { BROWSE_CATEGORIES } from "@/lib/browse/categories";
+import { KISUMU_AREAS } from "@/lib/data/kisumu";
 import { NAIROBI_AREAS, WAITLIST_CITIES } from "@/lib/data/nairobi";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
@@ -15,7 +16,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/privacy` },
     { url: `${base}/safety` },
     ...NAIROBI_AREAS.map((area) => ({ url: `${base}/nairobi/${area.slug}` })),
-    ...WAITLIST_CITIES.map((city) => ({ url: `${base}/city/${city.slug}` })),
+    { url: `${base}/kisumu` },
+    ...KISUMU_AREAS.map((area) => ({ url: `${base}/kisumu/${area.slug}` })),
+    ...WAITLIST_CITIES.filter((city) => city.slug !== "kisumu").map((city) => ({
+      url: `${base}/city/${city.slug}`,
+    })),
     ...BROWSE_CATEGORIES.map((cat) => ({ url: `${base}/category/${cat.slug}` })),
     ...nairobiProfiles()
       .filter((p) => p.indexPublic && hasApprovedCover(p))

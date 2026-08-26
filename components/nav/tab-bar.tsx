@@ -18,7 +18,10 @@ function tabActive(href: string, pathname: string) {
       pathname === "/nairobi" ||
       pathname.startsWith("/nairobi/") ||
       pathname === "/browse" ||
-      pathname.startsWith("/category/")
+      pathname.startsWith("/category/") ||
+      pathname === "/kisumu" ||
+      pathname.startsWith("/kisumu/") ||
+      pathname.startsWith("/city/")
     );
   }
   if (href === "/me") {

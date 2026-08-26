@@ -1,17 +1,27 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { joinWaitlist } from "@/lib/browse/waitlist";
 import { WAITLIST_CITIES } from "@/lib/data/nairobi";
 import { ONBOARDING } from "@/lib/onboarding";
 import { Button } from "@/components/soko/button";
 
+function subscribe() {
+  return () => {};
+}
+
+function onboarded() {
+  return localStorage.getItem(ONBOARDING.done) === "1";
+}
+
 export default function CityOnboardingPage() {
   const router = useRouter();
+  const done = useSyncExternalStore(subscribe, onboarded, () => false);
 
   function continueNairobi() {
     localStorage.setItem(ONBOARDING.city, "nairobi");
-    router.push("/onboarding/intent");
+    router.push(done ? "/discover" : "/onboarding/intent");
   }
 
   function waitlist(slug: string) {
@@ -27,7 +37,7 @@ export default function CityOnboardingPage() {
         Density first. Other cities open when Nairobi is strong.
       </p>
       <Button className="mt-10 w-full" variant="gold" onClick={continueNairobi}>
-        Continue in Nairobi
+        {done ? "Discover Nairobi" : "Continue in Nairobi"}
       </Button>
       <div className="mt-12">
         <p className="text-xs tracking-[0.16em] text-muted uppercase">Coming later</p>

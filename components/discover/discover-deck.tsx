@@ -18,19 +18,21 @@ import { discoverQuery } from "@/lib/discovery/prefs";
 import { postLike } from "@/lib/likes/client";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { parseIdList } from "@/lib/safety/local-ids";
+import { nairobiPlaceLine } from "@/lib/nairobi/live";
+import { nearAreaSnapshot, subscribeNearArea } from "@/lib/nairobi/near";
 import type { SeedProfile } from "@/lib/types";
 
 export function DiscoverDeck({
   initial,
-  subtitle = "Nairobi · people you’ll like",
 }: {
   initial: SeedProfile[];
-  subtitle?: string;
 }) {
   const { user, ready } = useAuth();
   const [feed, setFeed] = useState(initial);
   const [match, setMatch] = useState<SeedProfile | null>(null);
   const [gate, setGate] = useState<AuthIntent | null>(null);
+  const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
+  const subtitle = nairobiPlaceLine(undefined, 3, near ?? undefined);
 
   useEffect(() => {
     const q = discoverQuery();

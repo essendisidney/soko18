@@ -155,5 +155,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Closed threads say “No thread yet” and send you to Discover. Settings no longer shows fake Hide last seen / indexing / restrict-message controls. Indexing stays in Studio.
 - Studio, Saved, and Settings stay in the tab bar. Me is the active tab. No Supabase this increment.
 - Browse “Near you” is the last Nairobi area opened (area-level, never GPS). Saved can remove a person from the grid.
+- Discover header leads with that last area. Me → Other cities is waitlist, not a second onboarding.
+- Kisumu is a waitlist city at `/kisumu` (areas: Milimani, Mamboleo, CBD, Kondele). No live catalog, no fake counts. `/city/kisumu` redirects there.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.
