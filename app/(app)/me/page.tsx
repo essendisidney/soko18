@@ -16,10 +16,12 @@ import { useDraftProfile } from "@/lib/profile/use-draft";
 
 const rows = [
   { href: "/saved", label: "Saved" },
+  { href: "/intent", label: "Looking for" },
   { href: "/studio", label: "SOKO18 Studio" },
   { href: "/admin", label: "Admin" },
   { href: "/settings", label: "Settings" },
   { href: "/safety", label: "Safety" },
+  { href: "/blocked", label: "Blocked" },
   { href: "/onboarding/city", label: "Other cities" },
 ];
 
@@ -31,9 +33,9 @@ export default function MePage() {
   const router = useRouter();
 
   return (
-    <div>
+    <div className="pb-8">
       <Wordmark />
-      <h1 className="mt-8 font-display text-[34px] tracking-tight">Me</h1>
+      <h1 className="mt-4 font-display text-[34px] tracking-tight">Me</h1>
       <p className="mt-2 text-sm text-muted">
         {user ? "Account, safety, and business tools." : "Discovering as a guest."}
       </p>
@@ -101,7 +103,7 @@ export default function MePage() {
           <Link
             key={row.href}
             href={row.href}
-            className="flex items-center justify-between border-b border-line px-5 py-4 last:border-b-0"
+            className="flex scroll-mb-28 items-center justify-between border-b border-line px-5 py-4 last:border-b-0"
           >
             {row.label}
             <ChevronRight className="size-4 text-muted" />

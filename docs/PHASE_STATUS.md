@@ -69,7 +69,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 ## Phase 07 notes
 
 - Nairobi is the only live market (`GET /api/cities/nairobi`, `/nairobi`). `/browse` redirects to `/nairobi`.
-- Kisumu, Mombasa, Nakuru, and Eldoret are waitlist landings at `/city/[slug]`. Browse for those cities returns empty + `waitlist: true`.
+- Kisumu, Mombasa, Nakuru, and Eldoret are waitlist doors at `/{city}` and `/{city}/[area]`. `/city/[slug]` redirects there. Browse for those cities returns empty + `waitlist: true`.
 - Categories (`/category/trending|verified|featured|rising`) are Nairobi grids. Featured is labeled paid and is not mixed into organic Nairobi Now.
 - Search empty state: “No one in Nairobi matches that.” Notify me persists locally and confirms on the city page.
 
@@ -147,15 +147,18 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 
 - Profile ⋯ (MDD 5.5): Share copies/shares the public URL. Favorite is guest-local (`soko18_favorites`) and listed at `/saved` from Me. Report requires a session (`POST /api/reports` with `profileId`). Block hides on Discover/Browse immediately; session persists via `POST /api/blocks`.
 - Empty room: open/ready/Discover/Browse lead with active areas until live inventory ≥ 200. Studio still shows own stats only — never Amani’s seed views, never a fake “24% better.”
-- Discover ranks from onboarding intent, last Nairobi area, passes, and impressions. Empty deck primary is Browse. Returning `/` shows Nairobi pulse once per session, then goes to Discover.
+- Discover ranks from onboarding intent, last Nairobi area, passes, and impressions. Empty deck primary is Browse; Undo last pass is secondary. Returning `/` shows Nairobi pulse once per session, then goes to Discover.
 - First open: Continue in Nairobi (age + city) → intent → Discover. City and Ready stay as waitlist / bookmark. Matches empty has a gold Discover button. Discover header has no bell or menu.
 - PWA: standalone manifest, 192/512 icons, apple-touch icon, `/sw.js`, Me “Add to Home Screen.” Start URL is `/` so age still gates. No web push yet.
 - Browse tab opens `/nairobi`. `/browse` redirects. Area and category pages (`/category/trending` …) use the same tab bar. No Supabase this increment.
 - Profile ← returns to the last app screen (Discover, Nairobi, Saved). Cold landings go to Discover. Me no longer duplicates Nairobi; Safety is a row.
-- Closed threads say “No thread yet” and send you to Discover. Settings no longer shows fake Hide last seen / indexing / restrict-message controls. Indexing stays in Studio.
+- Closed threads say “No thread yet” and send you to Discover. Thread back returns to Discover or Matches. Thread block hides them on Discover. Settings no longer shows fake Hide last seen / indexing / restrict-message controls. Indexing stays in Studio.
 - Studio, Saved, and Settings stay in the tab bar. Me is the active tab. No Supabase this increment.
-- Browse “Near you” is the last Nairobi area opened (area-level, never GPS). Saved can remove a person from the grid.
+- Browse “Near you” is the last Nairobi area opened (area-level, never GPS). Empty Discover Browse opens that area. Area pages have other areas and Share. Saved can remove a person from the grid.
 - Discover header leads with that last area. Me → Other cities is waitlist, not a second onboarding.
-- Kisumu is a waitlist city at `/kisumu` (areas: Milimani, Mamboleo, CBD, Kondele). No live catalog, no fake counts. `/city/kisumu` redirects there.
+- Kisumu, Mombasa, Nakuru, and Eldoret are waitlist cities at `/{city}` with real areas and no fake catalog. `/city/{city}` redirects there.
+- Me is compact: PWA is a line, not a card, so Looking for and Other cities stay tappable.
+- Looking for lives on Me (`/intent`). Intent still ranks Discover. Blocked people are hidden from Similar and listed at `/blocked` from Me. Profile ⋯ Pass returns you to Discover.
+- Profile Message does not open a thread until there is a match. Guests still hit the auth wall.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

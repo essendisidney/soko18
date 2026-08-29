@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { WaitlistHome } from "@/components/city/waitlist-home";
 import { WAITLIST_CITIES } from "@/lib/data/nairobi";
-import { waitlistCity } from "@/lib/data/waitlist";
+import { waitlistAreas, waitlistCity } from "@/lib/data/waitlist";
 
 export function generateStaticParams() {
-  return [{ city: "nairobi" }, ...WAITLIST_CITIES.map((c) => ({ city: c.slug }))];
+  return WAITLIST_CITIES.map((city) => ({ city: city.slug }));
 }
 
 export async function generateMetadata({
@@ -13,7 +14,6 @@ export async function generateMetadata({
   params: Promise<{ city: string }>;
 }): Promise<Metadata> {
   const { city } = await params;
-  if (city === "nairobi") return { title: "Nairobi" };
   const meta = waitlistCity(city);
   if (!meta) return { title: "City" };
   return {
@@ -23,13 +23,16 @@ export async function generateMetadata({
   };
 }
 
-export default async function CityPage({
+export default async function WaitlistCityPage({
   params,
 }: {
   params: Promise<{ city: string }>;
 }) {
   const { city } = await params;
-  if (city === "nairobi") redirect("/nairobi");
-  if (waitlistCity(city)) redirect(`/${city}`);
-  notFound();
+  const meta = waitlistCity(city);
+  if (!meta) notFound();
+
+  return (
+    <WaitlistHome name={meta.name} slug={meta.slug} areas={waitlistAreas(meta.slug)} areaBase={`/${meta.slug}`} />
+  );
 }

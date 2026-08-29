@@ -216,7 +216,8 @@ Never animate for the sake of animation.
 /nairobi                      Nairobi city home (Browse tab)
 /nairobi/[area]               Westlands, Kilimani, …
 /category/[facet]             Trending, Verified, Featured, Rising (Browse tab)
-/city/[city]                  waitlist if not Nairobi
+/kisumu /mombasa /nakuru /eldoret   waitlist city + area doors
+/city/[city]                  redirects to /{city} (Nairobi → /nairobi)
 /profile/[slug]               public profile (index only if opted in)
 /studio                   owner home
 /studio/profile
@@ -948,7 +949,7 @@ Areas (v1): Westlands, Kilimani, Kileleshwa, Lavington, CBD, South B, Karen, Par
 
 **Waitlist:** Mombasa, Kisumu, Nakuru, Eldoret, then the rest of Kenya, then East/West Africa — only after Nairobi liquidity.
 
-SEO: `/nairobi`, `/nairobi/[area]`. `/city/[city]` waitlists non-Nairobi cities.
+SEO: `/nairobi`, `/nairobi/[area]`. Waitlist cities use `/{city}` and `/{city}/[area]`. `/city/[city]` redirects.
 
 ---
 

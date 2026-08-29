@@ -6,10 +6,16 @@ import { useLocalIds } from "@/lib/safety/use-id-list";
 import { ProfileCard } from "@/components/soko/profile-card";
 import type { SeedProfile } from "@/lib/types";
 
-export function ProfileGrid({ profiles }: { profiles: SeedProfile[] }) {
+export function ProfileGrid({
+  profiles,
+  emptyText = "No live profiles in this view yet.",
+}: {
+  profiles: SeedProfile[];
+  emptyText?: string;
+}) {
   const visible = hideBlocked(profiles, useLocalIds(subscribeBlocks, blocksSnapshot));
   if (visible.length === 0) {
-    return <p className="col-span-2 text-sm text-muted">No live profiles in this view yet.</p>;
+    return <p className="col-span-2 text-sm text-muted">{emptyText}</p>;
   }
   return (
     <>

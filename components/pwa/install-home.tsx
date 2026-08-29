@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Button } from "@/components/soko/button";
 
 type InstallEvent = Event & {
   prompt: () => Promise<void>;
@@ -48,20 +47,16 @@ export function InstallHome() {
   }
 
   return (
-    <div className="mt-6 rounded-3xl border border-line bg-glass px-5 py-4">
-      <p className="font-medium">On your phone</p>
+    <p className="mt-4 text-xs leading-relaxed text-muted">
       {install ? (
-        <>
-          <p className="mt-1 text-sm text-muted">Add SOKO18 to the home screen.</p>
-          <Button className="mt-4 w-full" variant="gold" onClick={() => void addToHome()}>
-            Add to Home Screen
-          </Button>
-        </>
+        <button type="button" className="text-cream/80" onClick={() => void addToHome()}>
+          Add to Home Screen
+        </button>
       ) : ios ? (
-        <p className="mt-1 text-sm text-muted">Share, then Add to Home Screen.</p>
+        "Share, then Add to Home Screen."
       ) : (
-        <p className="mt-1 text-sm text-muted">Browser menu, then Add to Home Screen.</p>
+        "On a phone, Add to Home Screen from the browser menu."
       )}
-    </div>
+    </p>
   );
 }

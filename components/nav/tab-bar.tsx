@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Compass, Grid2x2, Heart, UserRound } from "lucide-react";
+import { WAITLIST_CITIES } from "@/lib/data/nairobi";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -19,8 +20,9 @@ function tabActive(href: string, pathname: string) {
       pathname.startsWith("/nairobi/") ||
       pathname === "/browse" ||
       pathname.startsWith("/category/") ||
-      pathname === "/kisumu" ||
-      pathname.startsWith("/kisumu/") ||
+      WAITLIST_CITIES.some(
+        (city) => pathname === `/${city.slug}` || pathname.startsWith(`/${city.slug}/`),
+      ) ||
       pathname.startsWith("/city/")
     );
   }
@@ -33,7 +35,11 @@ function tabActive(href: string, pathname: string) {
       pathname === "/settings" ||
       pathname.startsWith("/settings/") ||
       pathname === "/studio" ||
-      pathname.startsWith("/studio/")
+      pathname.startsWith("/studio/") ||
+      pathname === "/intent" ||
+      pathname.startsWith("/intent/") ||
+      pathname === "/blocked" ||
+      pathname.startsWith("/blocked/")
     );
   }
   return pathname === href || pathname.startsWith(`${href}/`);

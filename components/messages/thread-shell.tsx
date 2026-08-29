@@ -2,15 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Flag, MoreHorizontal, Send } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { coverPhoto } from "@/lib/media/public";
 import { PresenceDot } from "@/components/soko/presence-dot";
 import { Button } from "@/components/soko/button";
-import { AuthGate } from "@/components/auth/auth-gate";
+import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
 import { ReportReasons } from "@/components/safety/report-reasons";
+import { goBackOr } from "@/components/profile/profile-back";
 import { useAuth } from "@/lib/auth/use-auth";
+import { writeBlock } from "@/lib/blocks/local";
+import { writeFavorite } from "@/lib/favorites/local";
+import { postBlock, postFavorite } from "@/lib/safety/client";
 import { cn } from "@/lib/utils";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/client";
@@ -37,6 +42,7 @@ export function ThreadShell({
   actorId: string | null;
 }) {
   const { user, ready } = useAuth();
+  const router = useRouter();
   const cover = coverPhoto(profile);
   const [text, setText] = useState("");
   const [messages, setMessages] = useState(initialMessages);
@@ -45,7 +51,7 @@ export function ThreadShell({
   const [canSend, setCanSend] = useState(initialCanSend);
   const [blocked, setBlocked] = useState(initialBlocked);
   const [notice, setNotice] = useState<string | null>(null);
-  const [gate, setGate] = useState(false);
+  const [gate, setGate] = useState<AuthIntent | null>(null);
 
   useEffect(() => {
     if (!persisted || !conversationId || !isSupabaseConfigured()) return;
@@ -106,9 +112,14 @@ export function ThreadShell({
   return (
     <div className="flex min-h-[calc(100dvh-6rem)] flex-col">
       <header className="flex items-center gap-3 border-b border-line pb-3">
-        <Link href="/matches" aria-label="Back" className="grid size-10 place-items-center">
+        <button
+          type="button"
+          aria-label="Back"
+          className="grid size-10 place-items-center"
+          onClick={() => goBackOr(router, "/matches")}
+        >
           <ArrowLeft className="size-5" />
-        </Link>
+        </button>
         <div className="relative size-10 overflow-hidden rounded-full">
           {cover ? <Image src={cover} alt="" fill sizes="40px" className="object-cover" /> : null}
         </div>
@@ -129,6 +140,11 @@ export function ThreadShell({
             type="button"
             className="flex w-full items-center gap-2 px-2 py-2 text-danger"
             onClick={() => {
+              if (!ready) return;
+              if (!user) {
+                setGate("report");
+                return;
+              }
               setReport(true);
               setMenu(false);
             }}
@@ -139,13 +155,19 @@ export function ThreadShell({
             type="button"
             className="flex w-full px-2 py-2 text-cream/80"
             onClick={() => {
-              void fetch(`/api/conversations/${conversationId}/block`, { method: "POST" }).then(async (res) => {
-                if (!res.ok) return;
-                setBlocked(true);
-                setCanSend(false);
-                setMenu(false);
-                setNotice("You blocked them. You can’t send.");
-              });
+              writeBlock(profile.id, true);
+              writeFavorite(profile.id, false);
+              if (user) {
+                void postBlock(profile.id, true);
+                void postFavorite(profile.id, false);
+              }
+              setBlocked(true);
+              setCanSend(false);
+              setMenu(false);
+              setNotice("Blocked. Hidden from Discover.");
+              if (conversationId) {
+                void fetch(`/api/conversations/${conversationId}/block`, { method: "POST" });
+              }
             }}
           >
             Block
@@ -162,6 +184,10 @@ export function ThreadShell({
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ conversationId, reason }),
             }).then(async (res) => {
+              if (res.status === 401) {
+                setGate("report");
+                return;
+              }
               if (!res.ok) return;
               setReport(false);
               setNotice("Report received.");
@@ -200,7 +226,7 @@ export function ThreadShell({
         onSubmit={(e) => {
           e.preventDefault();
           if (!ready || !user) {
-            setGate(true);
+            setGate("message");
             return;
           }
           if (!canSend) return;
@@ -247,7 +273,7 @@ export function ThreadShell({
         </button>
       </form>
       <AnimatePresence>
-        {gate ? <AuthGate intent="message" onClose={() => setGate(false)} /> : null}
+        {gate ? <AuthGate intent={gate} onClose={() => setGate(null)} /> : null}
       </AnimatePresence>
     </div>
   );

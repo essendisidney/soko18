@@ -20,9 +20,32 @@ export function readOnboarding() {
   return {
     age: localStorage.getItem(ONBOARDING.age) === "1",
     city: localStorage.getItem(ONBOARDING.city) ?? "nairobi",
-    intent: (localStorage.getItem(ONBOARDING.intent) ?? "").split(",").filter(Boolean),
+    intent: readIntents(),
     done: localStorage.getItem(ONBOARDING.done) === "1",
   };
+}
+
+export function readIntents() {
+  if (typeof window === "undefined") return [] as string[];
+  return (localStorage.getItem(ONBOARDING.intent) ?? "").split(",").filter(Boolean);
+}
+
+export function intentSnapshot() {
+  return localStorage.getItem(ONBOARDING.intent);
+}
+
+const intentListeners = new Set<() => void>();
+
+export function subscribeIntents(onChange: () => void) {
+  intentListeners.add(onChange);
+  return () => {
+    intentListeners.delete(onChange);
+  };
+}
+
+export function writeIntents(ids: string[]) {
+  localStorage.setItem(ONBOARDING.intent, ids.join(","));
+  intentListeners.forEach((listen) => listen());
 }
 
 export function bumpVisit() {

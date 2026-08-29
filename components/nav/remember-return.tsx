@@ -9,7 +9,7 @@ export function RememberReturn() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!pathname || pathname.startsWith("/profile/")) return;
+    if (!pathname || pathname.startsWith("/profile/") || pathname.startsWith("/messages/")) return;
     sessionStorage.setItem(RETURN_KEY, pathname);
   }, [pathname]);
 

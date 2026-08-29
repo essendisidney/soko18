@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth/use-auth";
 import {
   actionsSnapshot,
   subscribeDiscoverActions,
+  undoLastPass,
   writeDiscoverAction,
   type DiscoverAction,
 } from "@/lib/discovery/actions";
@@ -19,7 +20,8 @@ import { postLike } from "@/lib/likes/client";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { parseIdList } from "@/lib/safety/local-ids";
 import { nairobiPlaceLine } from "@/lib/nairobi/live";
-import { nearAreaSnapshot, subscribeNearArea } from "@/lib/nairobi/near";
+import { nearAreaSnapshot, subscribeNearArea, nearAreaName } from "@/lib/nairobi/near";
+import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
 import type { SeedProfile } from "@/lib/types";
 
 export function DiscoverDeck({
@@ -32,6 +34,7 @@ export function DiscoverDeck({
   const [match, setMatch] = useState<SeedProfile | null>(null);
   const [gate, setGate] = useState<AuthIntent | null>(null);
   const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
+  const intents = useSyncExternalStore(subscribeIntents, intentSnapshot, () => null);
   const subtitle = nairobiPlaceLine(undefined, 3, near ?? undefined);
 
   useEffect(() => {
@@ -42,7 +45,7 @@ export function DiscoverDeck({
         if (json.data?.items) setFeed(json.data.items);
       })
       .catch(() => {});
-  }, []);
+  }, [near, intents]);
 
   const raw = useSyncExternalStore(subscribeDiscoverActions, actionsSnapshot, () => null);
   const blockedRaw = useSyncExternalStore(subscribeBlocks, blocksSnapshot, () => null);
@@ -53,6 +56,14 @@ export function DiscoverDeck({
     for (const id of parseIdList(blockedRaw)) exclude.add(id);
     return feed.filter((profile) => !exclude.has(profile.id));
   }, [feed, raw, blockedRaw]);
+  const canUndo = useMemo(() => {
+    if (!raw) return false;
+    try {
+      return (JSON.parse(raw) as DiscoverAction[]).some((row) => row.kind === "pass");
+    } catch {
+      return false;
+    }
+  }, [raw]);
 
   const onImpression = useCallback((profile: SeedProfile) => {
     writeImpression({ profileId: profile.id, surface: "discover", at: Date.now() });
@@ -69,6 +80,19 @@ export function DiscoverDeck({
       <div className="mt-5 flex min-h-0 flex-1 flex-col">
         <SwipeDeck
           profiles={profiles}
+          canUndo={canUndo}
+          browseHref={near ? `/nairobi/${near}` : "/nairobi"}
+          browseLabel={near ? `Browse ${nearAreaName(near)}` : "Browse"}
+          onUndo={() => {
+            const id = undoLastPass();
+            if (!id) return null;
+            setFeed((current) => {
+              if (current.some((profile) => profile.id === id)) return current;
+              const restored = initial.find((profile) => profile.id === id);
+              return restored ? [restored, ...current] : current;
+            });
+            return id;
+          }}
           onImpression={onImpression}
           onPass={(profile) => {
             writeDiscoverAction({ profileId: profile.id, kind: "pass", at: Date.now() });

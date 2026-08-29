@@ -40,6 +40,10 @@ export function SwipeDeck({
   onEmpty,
   onLike,
   onPass,
+  onUndo,
+  canUndo,
+  browseHref = "/nairobi",
+  browseLabel = "Browse",
   onEngage,
   onImpression,
 }: {
@@ -47,6 +51,10 @@ export function SwipeDeck({
   onEmpty?: () => void;
   onLike?: (profile: SeedProfile, kind: "like" | "spotlight") => void;
   onPass?: (profile: SeedProfile) => void;
+  onUndo?: () => string | null;
+  canUndo?: boolean;
+  browseHref?: string;
+  browseLabel?: string;
   onEngage?: (profile: SeedProfile, kind: "like" | "spotlight") => boolean;
   onImpression?: (profile: SeedProfile) => void;
 }) {
@@ -170,13 +178,30 @@ export function SwipeDeck({
   if (!current && exits.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-        <p className="font-display text-2xl">That’s everyone nearby</p>
-        <p className="mt-2 text-sm text-muted">Browse Nairobi. Come back later for a new deck.</p>
-        <Link href="/nairobi" className="mt-8 w-full max-w-xs">
+        <p className="font-display text-2xl">That’s everyone in Nairobi</p>
+        <p className="mt-2 text-sm text-muted">A pass stays off Discover for 30 days. Browse still open.</p>
+        <Link href={browseHref} className="mt-8 w-full max-w-xs">
           <Button className="w-full" variant="gold">
-            Browse
+            {browseLabel}
           </Button>
         </Link>
+        {canUndo ? (
+          <button
+            type="button"
+            className="mt-4 text-sm text-cream/80"
+            onClick={() => {
+              const id = onUndo?.();
+              if (!id) return;
+              setGone((prev) => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+              });
+            }}
+          >
+            Undo last pass
+          </button>
+        ) : null}
         <Link href="/saved" className="mt-4 text-sm text-muted">
           Saved
         </Link>

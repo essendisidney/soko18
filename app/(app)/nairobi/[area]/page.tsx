@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { NAIROBI_AREAS, areaBySlug } from "@/lib/data/nairobi";
 import { profilesInArea } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
-import { Button } from "@/components/soko/button";
-import { ProfileGrid } from "@/components/profile/profile-grid";
-import { RememberArea } from "@/components/nairobi/remember-area";
-import { nairobiInventoryLine } from "@/lib/nairobi/live";
+import { AreaHome } from "@/components/nairobi/area-home";
 
 export function generateStaticParams() {
   return NAIROBI_AREAS.map((area) => ({ area: area.slug }));
@@ -36,23 +32,6 @@ export default async function NairobiAreaPage({
   const meta = areaBySlug(area);
   if (!meta) notFound();
   const people = profilesInArea(meta.slug).filter(hasApprovedCover);
-  const inventory = nairobiInventoryLine();
 
-  return (
-    <div>
-      <RememberArea slug={meta.slug} />
-      <p className="text-[13px] tracking-[0.22em] text-gold uppercase">Nairobi</p>
-      <h1 className="mt-3 font-display text-4xl tracking-tight">{meta.name}</h1>
-      <p className="mt-2 text-sm text-muted">{inventory ?? "Area-level only. Never a precise location."}</p>
-      <Link href="/discover" className="mt-6 inline-block">
-        <Button variant="gold">Discover</Button>
-      </Link>
-      <div className="mt-8 grid grid-cols-2 gap-3">
-        <ProfileGrid profiles={people} />
-      </div>
-      <Link href="/nairobi" className="mt-8 inline-block text-sm text-muted">
-        All of Nairobi
-      </Link>
-    </div>
-  );
+  return <AreaHome name={meta.name} slug={meta.slug} people={people} />;
 }

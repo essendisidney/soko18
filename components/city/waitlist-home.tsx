@@ -13,7 +13,7 @@ export function WaitlistHome({
   areas?: readonly { slug: string; name: string }[];
   areaBase?: string;
 }) {
-  const base = areaBase ?? `/city/${slug}`;
+  const base = areaBase ?? `/${slug}`;
 
   return (
     <div>

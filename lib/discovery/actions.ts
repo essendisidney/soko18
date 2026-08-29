@@ -49,6 +49,23 @@ export function writeDiscoverAction(action: DiscoverAction) {
   emit();
 }
 
+export function lastPass(): DiscoverAction | null {
+  const passes = readDiscoverActions().filter((row) => row.kind === "pass");
+  if (!passes.length) return null;
+  return passes.reduce((latest, row) => (row.at >= latest.at ? row : latest));
+}
+
+export function undoLastPass() {
+  const last = lastPass();
+  if (!last) return null;
+  const next = readDiscoverActions().filter(
+    (row) => !(row.profileId === last.profileId && row.kind === "pass" && row.at === last.at),
+  );
+  localStorage.setItem(ACTIONS_KEY, JSON.stringify(next));
+  emit();
+  return last.profileId;
+}
+
 export function excludedProfileIds() {
   return readDiscoverActions().map((row) => row.profileId);
 }

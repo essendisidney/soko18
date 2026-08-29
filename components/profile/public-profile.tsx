@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Heart } from "lucide-react";
-import { AnimatePresence } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { publicPhotos } from "@/lib/media/public";
 import { similarProfiles } from "@/lib/data/seed";
 import type { SeedProfile } from "@/lib/types";
@@ -13,23 +14,35 @@ import { PresenceDot } from "@/components/soko/presence-dot";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
+import { Wordmark } from "@/components/brand/wordmark";
 import { ImpressionBeacon } from "@/components/analytics/impression-beacon";
 import { MatchOverlay } from "@/components/discover/match-overlay";
 import { ProfileBack } from "@/components/profile/profile-back";
 import { ProfileOverflow } from "@/components/profile/profile-overflow";
 import { useAuth } from "@/lib/auth/use-auth";
 import { postLike } from "@/lib/likes/client";
+import { writeDiscoverAction } from "@/lib/discovery/actions";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
+import { hideBlocked } from "@/lib/safety/flags";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 import { cn } from "@/lib/utils";
 
-export function PublicProfile({ profile }: { profile: SeedProfile }) {
+export function PublicProfile({
+  profile,
+  matched = false,
+}: {
+  profile: SeedProfile;
+  matched?: boolean;
+}) {
   const { user, ready } = useAuth();
+  const router = useRouter();
   const [photo, setPhoto] = useState<number | null>(null);
   const [gate, setGate] = useState<AuthIntent | null>(null);
   const [match, setMatch] = useState(false);
-  const blocked = useLocalIds(subscribeBlocks, blocksSnapshot).includes(profile.id);
-  const more = similarProfiles(profile);
+  const [needMatch, setNeedMatch] = useState(false);
+  const blockedIds = useLocalIds(subscribeBlocks, blocksSnapshot);
+  const blocked = blockedIds.includes(profile.id);
+  const more = hideBlocked(similarProfiles(profile), blockedIds);
   const v = profile.verification;
   const photos = publicPhotos(profile);
 
@@ -79,6 +92,7 @@ export function PublicProfile({ profile }: { profile: SeedProfile }) {
                 setGate("like");
                 return;
               }
+              writeDiscoverAction({ profileId: profile.id, kind: "like", at: Date.now() });
               void postLike(profile.id, "like").then((result) => {
                 if (result.ok && result.data.isNew) setMatch(true);
               });
@@ -86,23 +100,25 @@ export function PublicProfile({ profile }: { profile: SeedProfile }) {
           >
             <Heart className="size-4 fill-bg" /> Like
           </Button>
-          <Link
-            href={`/messages/${profile.slug}`}
-            onClick={(event) => {
-              if (blocked) {
-                event.preventDefault();
+          <Button
+            variant="ghost"
+            className="w-full"
+            disabled={blocked}
+            onClick={() => {
+              if (blocked) return;
+              if (!ready || !user) {
+                setGate("message");
                 return;
               }
-              if (!ready || !user) {
-                event.preventDefault();
-                setGate("message");
+              if (!matched) {
+                setNeedMatch(true);
+                return;
               }
+              router.push(`/messages/${profile.slug}`);
             }}
           >
-            <Button variant="ghost" className="w-full" disabled={blocked}>
-              Message
-            </Button>
-          </Link>
+            Message
+          </Button>
         </div>
 
         <section className="mt-10">
@@ -153,14 +169,16 @@ export function PublicProfile({ profile }: { profile: SeedProfile }) {
           </ul>
         </section>
 
-        <section className="mt-10">
-          <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Similar</h2>
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            {more.map((p) => (
-              <ProfileCard key={p.id} profile={p} compact href={`/profile/${p.slug}`} />
-            ))}
-          </div>
-        </section>
+        {more.length > 0 ? (
+          <section className="mt-10">
+            <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Similar</h2>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {more.map((p) => (
+                <ProfileCard key={p.id} profile={p} compact href={`/profile/${p.slug}`} />
+              ))}
+            </div>
+          </section>
+        ) : null}
       </div>
 
       {photo !== null ? (
@@ -184,6 +202,26 @@ export function PublicProfile({ profile }: { profile: SeedProfile }) {
           />
         ) : null}
         {gate ? <AuthGate intent={gate} onClose={() => setGate(null)} /> : null}
+        {needMatch ? (
+          <motion.div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg/95 px-8 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Wordmark size="sm" />
+            <h2 className="mt-10 font-display text-4xl tracking-tight">No thread yet</h2>
+            <p className="mt-4 max-w-xs text-sm text-muted">A like stays quiet until they like you back.</p>
+            <Link href="/discover" className="mt-10 w-full max-w-xs">
+              <Button className="w-full" variant="gold">
+                Discover
+              </Button>
+            </Link>
+            <button type="button" onClick={() => setNeedMatch(false)} className="mt-5 text-sm text-muted">
+              Not now
+            </button>
+          </motion.div>
+        ) : null}
       </AnimatePresence>
     </main>
   );

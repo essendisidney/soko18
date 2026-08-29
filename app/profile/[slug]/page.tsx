@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import { getLiveProfile } from "@/lib/profile/live";
+import { hasMatch } from "@/lib/likes/list";
 import { PublicProfile } from "@/components/profile/public-profile";
+
+export const dynamic = "force-dynamic";
 
 export default async function PublicProfilePage({
   params,
@@ -10,5 +13,6 @@ export default async function PublicProfilePage({
   const { slug } = await params;
   const profile = getLiveProfile(slug);
   if (!profile) notFound();
-  return <PublicProfile profile={profile} />;
+  const matched = await hasMatch(slug);
+  return <PublicProfile profile={profile} matched={matched} />;
 }

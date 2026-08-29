@@ -26,7 +26,7 @@ export default function CityOnboardingPage() {
 
   function waitlist(slug: string) {
     joinWaitlist(slug);
-    router.push(`/city/${slug}`);
+    router.push(`/${slug}`);
   }
 
   return (

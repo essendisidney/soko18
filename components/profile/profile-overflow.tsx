@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { AnimatePresence } from "motion/react";
@@ -7,6 +8,8 @@ import { blocksSnapshot, subscribeBlocks, writeBlock } from "@/lib/blocks/local"
 import { favoritesSnapshot, subscribeFavorites, writeFavorite } from "@/lib/favorites/local";
 import { parseIdList } from "@/lib/safety/local-ids";
 import { postBlock, postFavorite, postProfileReport } from "@/lib/safety/client";
+import { writeDiscoverAction } from "@/lib/discovery/actions";
+import { postLike } from "@/lib/likes/client";
 import { profileUrl, shareProfile } from "@/lib/profile/share";
 import { ReportReasons } from "@/components/safety/report-reasons";
 import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
@@ -15,6 +18,7 @@ import type { SeedProfile } from "@/lib/types";
 
 export function ProfileOverflow({ profile }: { profile: SeedProfile }) {
   const { user, ready } = useAuth();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [report, setReport] = useState(false);
   const [gate, setGate] = useState<AuthIntent | null>(null);
@@ -72,6 +76,18 @@ export function ProfileOverflow({ profile }: { profile: SeedProfile }) {
             }}
           >
             {saved ? "Saved" : "Favorite"}
+          </button>
+          <button
+            type="button"
+            className="flex w-full px-3 py-2.5 text-left"
+            onClick={() => {
+              writeDiscoverAction({ profileId: profile.id, kind: "pass", at: Date.now() });
+              if (user) void postLike(profile.id, "pass");
+              setOpen(false);
+              router.push("/discover");
+            }}
+          >
+            Pass
           </button>
           <button
             type="button"
