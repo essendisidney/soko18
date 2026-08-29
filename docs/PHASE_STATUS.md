@@ -160,5 +160,8 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Me is compact: PWA is a line, not a card, so Looking for and Other cities stay tappable.
 - Looking for lives on Me (`/intent`). Intent still ranks Discover. Blocked people are hidden from Similar and listed at `/blocked` from Me. Profile ⋯ Pass returns you to Discover.
 - Profile Message does not open a thread until there is a match. Guests still hit the auth wall.
+- Matches show the last message, or Say hello. Blocked matches leave the list. Sending refreshes so the preview is there when you return. Guests stay empty + Discover.
+- A new match leaves a gold mark on Matches until you open the thread. Threads keep the Matches tab. After the first hello, Discover is the return. No unread counts, no fake replies.
+- A guest like or Spotlight is held for 30 minutes. After sign-in it finishes on that person. Not now drops it. No fake session.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

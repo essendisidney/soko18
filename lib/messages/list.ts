@@ -1,6 +1,6 @@
 import { currentUser } from "@/lib/auth/user";
 import { listMatches } from "@/lib/likes/list";
-import { isBlockedPair, pageMessages, type ThreadMessage } from "@/lib/messages/engine";
+import { pageMessages } from "@/lib/messages/engine";
 import { resolveThread } from "@/lib/messages/access";
 import { readThreadState } from "@/lib/messages/state";
 import { createClient } from "@/lib/supabase/server";
@@ -66,25 +66,15 @@ export async function listConversations() {
     };
   }
   const matches = await listMatches();
-  const state = await readThreadState(user.id);
-  const lastByConvo = new Map<string, ThreadMessage>();
-  for (const row of state.messages) {
-    const prev = lastByConvo.get(row.conversationId);
-    if (!prev || row.createdAt > prev.createdAt) lastByConvo.set(row.conversationId, row);
-  }
-
-  const items = matches.map((item) => {
-    const last = lastByConvo.get(item.conversationId) ?? null;
-    return {
-      id: item.conversationId,
-      slug: item.slug,
-      name: item.name,
-      photo: item.photo,
-      blocked: isBlockedPair(user.id, item.otherAccountId, state.blocks),
-      lastMessage: last?.body ?? null,
-      createdAt: last?.createdAt ?? item.createdAt,
-    };
-  });
+  const items = matches.map((item) => ({
+    id: item.conversationId,
+    slug: item.slug,
+    name: item.name,
+    photo: item.photo,
+    blocked: false,
+    lastMessage: item.lastMessage,
+    createdAt: item.createdAt,
+  }));
 
   return { ok: true as const, data: { items } };
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { AnimatePresence } from "motion/react";
 import { AppHeader } from "@/components/nav/app-header";
 import { SwipeDeck } from "@/components/discover/swipe-deck";
@@ -16,7 +16,9 @@ import {
 } from "@/lib/discovery/actions";
 import { writeImpression } from "@/lib/discovery/impressions";
 import { discoverQuery } from "@/lib/discovery/prefs";
+import { clearPendingEngage, readPendingEngage, writePendingEngage } from "@/lib/auth/pending-engage";
 import { postLike } from "@/lib/likes/client";
+import { engageProfile } from "@/lib/likes/engage";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { parseIdList } from "@/lib/safety/local-ids";
 import { nairobiPlaceLine } from "@/lib/nairobi/live";
@@ -65,6 +67,25 @@ export function DiscoverDeck({
     }
   }, [raw]);
 
+  const resumed = useRef(false);
+
+  useEffect(() => {
+    if (!ready || !user || resumed.current) return;
+    const pending = readPendingEngage();
+    if (!pending) return;
+    if (parseIdList(blockedRaw).includes(pending.profileId)) {
+      clearPendingEngage();
+      return;
+    }
+    const profile =
+      feed.find((row) => row.id === pending.profileId) ??
+      initial.find((row) => row.id === pending.profileId);
+    if (!profile) return;
+    clearPendingEngage();
+    resumed.current = true;
+    engageProfile(profile, pending.kind, setMatch);
+  }, [ready, user, feed, initial, blockedRaw]);
+
   const onImpression = useCallback((profile: SeedProfile) => {
     writeImpression({ profileId: profile.id, surface: "discover", at: Date.now() });
     void fetch("/api/discover/impressions", {
@@ -98,17 +119,15 @@ export function DiscoverDeck({
             writeDiscoverAction({ profileId: profile.id, kind: "pass", at: Date.now() });
             if (user) void postLike(profile.id, "pass");
           }}
-          onEngage={(_profile, kind) => {
+          onEngage={(profile, kind) => {
             if (!ready) return false;
             if (user) return true;
+            writePendingEngage({ profileId: profile.id, kind, at: Date.now() });
             setGate(kind);
             return false;
           }}
           onLike={(profile, kind) => {
-            writeDiscoverAction({ profileId: profile.id, kind, at: Date.now() });
-            void postLike(profile.id, kind).then((result) => {
-              if (result.ok && result.data.isNew) setMatch(profile);
-            });
+            engageProfile(profile, kind, setMatch);
           }}
         />
       </div>
@@ -127,7 +146,15 @@ export function DiscoverDeck({
             }}
           />
         ) : null}
-        {gate ? <AuthGate intent={gate} onClose={() => setGate(null)} /> : null}
+        {gate ? (
+          <AuthGate
+            intent={gate}
+            onClose={() => {
+              if (gate === "like" || gate === "spotlight") clearPendingEngage();
+              setGate(null);
+            }}
+          />
+        ) : null}
       </AnimatePresence>
     </div>
   );

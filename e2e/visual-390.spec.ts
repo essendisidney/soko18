@@ -10,6 +10,18 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
   });
 
+  test("guest like waits for sign-in then Not now keeps the card", async ({ page }) => {
+    await page.goto("/discover");
+    await page.getByRole("button", { name: "Like" }).click();
+    await expect(page.getByRole("heading", { name: "Sign in to like" })).toBeVisible();
+    const pending = await page.evaluate(() => sessionStorage.getItem("soko18_pending_engage"));
+    expect(pending).toContain("like");
+    await page.getByRole("button", { name: "Not now" }).click();
+    await expect(page.getByRole("heading", { name: "Sign in to like" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Like" })).toBeVisible();
+    expect(await page.evaluate(() => sessionStorage.getItem("soko18_pending_engage"))).toBeNull();
+  });
+
   test("discover header leads with the last area", async ({ page }) => {
     await page.goto("/nairobi/kilimani");
     await expect(page.getByRole("heading", { name: "Kilimani" })).toBeVisible();
@@ -21,6 +33,7 @@ test.describe("390px surfaces", () => {
   test("matches empty sends you back to the card", async ({ page }) => {
     await page.goto("/matches");
     await expect(page.getByRole("heading", { name: "Matches" })).toBeVisible();
+    await expect(page.getByText("No matches yet. A like stays quiet until they like you back.")).toBeVisible();
     await page.getByRole("button", { name: "Discover" }).click();
     await expect(page).toHaveURL(/\/discover/);
   });
@@ -169,6 +182,8 @@ test.describe("390px surfaces", () => {
     await page.goto("/messages/amani-nairobi");
     await expect(page.getByRole("heading", { name: "No thread yet" })).toBeVisible();
     await expect(page.getByText("Conversation unavailable.")).toHaveCount(0);
+    await expect(page.getByRole("navigation").locator('a[href="/matches"]')).toHaveClass(/text-cream/);
+    await expect(page.getByRole("navigation").getByText("New")).toHaveCount(0);
     await page.getByRole("button", { name: "Discover" }).click();
     await expect(page).toHaveURL(/\/discover/);
   });

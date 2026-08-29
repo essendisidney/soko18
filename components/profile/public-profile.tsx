@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { publicPhotos } from "@/lib/media/public";
@@ -20,8 +20,8 @@ import { MatchOverlay } from "@/components/discover/match-overlay";
 import { ProfileBack } from "@/components/profile/profile-back";
 import { ProfileOverflow } from "@/components/profile/profile-overflow";
 import { useAuth } from "@/lib/auth/use-auth";
-import { postLike } from "@/lib/likes/client";
-import { writeDiscoverAction } from "@/lib/discovery/actions";
+import { clearPendingEngage, readPendingEngage, writePendingEngage } from "@/lib/auth/pending-engage";
+import { engageProfile } from "@/lib/likes/engage";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { hideBlocked } from "@/lib/safety/flags";
 import { useLocalIds } from "@/lib/safety/use-id-list";
@@ -45,6 +45,14 @@ export function PublicProfile({
   const more = hideBlocked(similarProfiles(profile), blockedIds);
   const v = profile.verification;
   const photos = publicPhotos(profile);
+
+  useEffect(() => {
+    if (!ready || !user || blocked) return;
+    const pending = readPendingEngage();
+    if (!pending || pending.profileId !== profile.id) return;
+    clearPendingEngage();
+    engageProfile(profile, pending.kind, () => setMatch(true));
+  }, [ready, user, blocked, profile]);
 
   if (!photos[0]) {
     return (
@@ -89,13 +97,11 @@ export function PublicProfile({
             onClick={() => {
               if (blocked) return;
               if (!ready || !user) {
+                writePendingEngage({ profileId: profile.id, kind: "like", at: Date.now() });
                 setGate("like");
                 return;
               }
-              writeDiscoverAction({ profileId: profile.id, kind: "like", at: Date.now() });
-              void postLike(profile.id, "like").then((result) => {
-                if (result.ok && result.data.isNew) setMatch(true);
-              });
+              engageProfile(profile, "like", () => setMatch(true));
             }}
           >
             <Heart className="size-4 fill-bg" /> Like
@@ -201,7 +207,15 @@ export function PublicProfile({
             }}
           />
         ) : null}
-        {gate ? <AuthGate intent={gate} onClose={() => setGate(null)} /> : null}
+        {gate ? (
+          <AuthGate
+            intent={gate}
+            onClose={() => {
+              if (gate === "like" || gate === "spotlight") clearPendingEngage();
+              setGate(null);
+            }}
+          />
+        ) : null}
         {needMatch ? (
           <motion.div
             className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-bg/95 px-8 text-center"

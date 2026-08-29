@@ -27,4 +27,7 @@ test("onboarding → discover swipe → profile → like auth wall", async ({ pa
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page).toHaveURL(/\/login/);
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  expect(await page.evaluate(() => sessionStorage.getItem("soko18_pending_engage"))).toContain("like");
+  await page.getByRole("link", { name: "Not now" }).click();
+  expect(await page.evaluate(() => sessionStorage.getItem("soko18_pending_engage"))).toBeNull();
 });

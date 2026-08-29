@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
+import { clearPendingEngage } from "@/lib/auth/pending-engage";
 import { safeNextPath } from "@/lib/auth/next-path";
 import { useAuth } from "@/lib/auth/use-auth";
 import { createClient } from "@/lib/supabase/client";
@@ -118,7 +119,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {altLabel}
         </Link>
       ) : null}
-      <Link href={next} className="mt-4 text-sm text-muted">
+      <Link href={next} className="mt-4 text-sm text-muted" onClick={() => clearPendingEngage()}>
         Not now
       </Link>
       <p className="mt-8 text-xs leading-relaxed text-muted">

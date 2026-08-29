@@ -2,13 +2,41 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
 import { PresenceDot } from "@/components/soko/presence-dot";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 import { Button } from "@/components/soko/button";
+import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import type { MatchListItem } from "@/lib/likes/list";
+import {
+  isFreshMatch,
+  matchSeenSnapshot,
+  subscribeMatchSeen,
+  writeMatchWaiting,
+} from "@/lib/matches/waiting";
+import { matchPreview } from "@/lib/messages/preview";
+import { useLocalIds } from "@/lib/safety/use-id-list";
 
 export function MatchList({ items }: { items: MatchListItem[] }) {
-  if (items.length === 0) {
+  const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
+  const seen = useLocalIds(subscribeMatchSeen, matchSeenSnapshot);
+  const hidden = new Set(blocked);
+  const seenSet = new Set(seen);
+  const visible = items.filter((item) => !hidden.has(item.profileId));
+
+  useEffect(() => {
+    const blockedIds = new Set(blocked);
+    const opened = new Set(seen);
+    for (const item of items) {
+      if (blockedIds.has(item.profileId)) {
+        writeMatchWaiting(item.profileId, false);
+        continue;
+      }
+      writeMatchWaiting(item.profileId, isFreshMatch(item.lastMessage, opened.has(item.profileId)));
+    }
+  }, [items, blocked, seen]);
+
+  if (visible.length === 0) {
     return (
       <div className="mt-10">
         <p className="text-sm text-muted">No matches yet. A like stays quiet until they like you back.</p>
@@ -23,7 +51,7 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
 
   return (
     <ul className="mt-8 space-y-3">
-      {items.map((item) => (
+      {visible.map((item) => (
         <li key={item.id}>
           <Link
             href={`/messages/${item.slug}`}
@@ -38,9 +66,12 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
               <div className="flex items-center gap-2">
                 <p className="font-medium">{item.name}</p>
                 {item.verified ? <VerificationBadge label="" className="px-1.5" /> : null}
+                {isFreshMatch(item.lastMessage, seenSet.has(item.profileId)) ? (
+                  <span className="size-1.5 shrink-0 rounded-full bg-gold" aria-hidden />
+                ) : null}
               </div>
               <PresenceDot presence={item.presence} className="mt-1 text-xs" />
-              <p className="mt-1 truncate text-sm text-muted">Say hello</p>
+              <p className="mt-1 truncate text-sm text-muted">{matchPreview(item.lastMessage)}</p>
             </div>
           </Link>
         </li>

@@ -15,6 +15,7 @@ import { goBackOr } from "@/components/profile/profile-back";
 import { useAuth } from "@/lib/auth/use-auth";
 import { writeBlock } from "@/lib/blocks/local";
 import { writeFavorite } from "@/lib/favorites/local";
+import { markMatchSeen, writeMatchWaiting } from "@/lib/matches/waiting";
 import { postBlock, postFavorite } from "@/lib/safety/client";
 import { cn } from "@/lib/utils";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -52,6 +53,12 @@ export function ThreadShell({
   const [blocked, setBlocked] = useState(initialBlocked);
   const [notice, setNotice] = useState<string | null>(null);
   const [gate, setGate] = useState<AuthIntent | null>(null);
+  const [justSent, setJustSent] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    markMatchSeen(profile.id);
+  }, [open, profile.id]);
 
   useEffect(() => {
     if (!persisted || !conversationId || !isSupabaseConfigured()) return;
@@ -157,6 +164,7 @@ export function ThreadShell({
             onClick={() => {
               writeBlock(profile.id, true);
               writeFavorite(profile.id, false);
+              writeMatchWaiting(profile.id, false);
               if (user) {
                 void postBlock(profile.id, true);
                 void postFavorite(profile.id, false);
@@ -166,7 +174,11 @@ export function ThreadShell({
               setMenu(false);
               setNotice("Blocked. Hidden from Discover.");
               if (conversationId) {
-                void fetch(`/api/conversations/${conversationId}/block`, { method: "POST" });
+                void fetch(`/api/conversations/${conversationId}/block`, { method: "POST" }).then(() => {
+                  router.refresh();
+                });
+              } else {
+                router.refresh();
               }
             }}
           >
@@ -221,6 +233,14 @@ export function ThreadShell({
         ))}
       </div>
 
+      {justSent ? (
+        <Link href="/discover" className="mb-3 block">
+          <Button className="w-full" variant="gold">
+            Discover
+          </Button>
+        </Link>
+      ) : null}
+
       <form
         className="flex items-center gap-2 border-t border-line pt-3"
         onSubmit={(e) => {
@@ -252,6 +272,8 @@ export function ThreadShell({
             }
             if (json && "data" in json && json.data) {
               setMessages((list) => (list.some((row) => row.id === json.data!.id) ? list : [...list, json.data!]));
+              setJustSent(true);
+              router.refresh();
             }
           });
         }}

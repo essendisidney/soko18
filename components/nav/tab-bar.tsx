@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Compass, Grid2x2, Heart, UserRound } from "lucide-react";
-import { WAITLIST_CITIES } from "@/lib/data/nairobi";
+import { matchWaitingSnapshot, subscribeMatchWaiting } from "@/lib/matches/waiting";
+import { tabActive } from "@/lib/nav/tabs";
+import { useLocalIds } from "@/lib/safety/use-id-list";
 import { cn } from "@/lib/utils";
 
 const tabs = [
@@ -13,40 +15,9 @@ const tabs = [
   { href: "/me", label: "Me", icon: UserRound },
 ];
 
-function tabActive(href: string, pathname: string) {
-  if (href === "/nairobi") {
-    return (
-      pathname === "/nairobi" ||
-      pathname.startsWith("/nairobi/") ||
-      pathname === "/browse" ||
-      pathname.startsWith("/category/") ||
-      WAITLIST_CITIES.some(
-        (city) => pathname === `/${city.slug}` || pathname.startsWith(`/${city.slug}/`),
-      ) ||
-      pathname.startsWith("/city/")
-    );
-  }
-  if (href === "/me") {
-    return (
-      pathname === "/me" ||
-      pathname.startsWith("/me/") ||
-      pathname === "/saved" ||
-      pathname.startsWith("/saved/") ||
-      pathname === "/settings" ||
-      pathname.startsWith("/settings/") ||
-      pathname === "/studio" ||
-      pathname.startsWith("/studio/") ||
-      pathname === "/intent" ||
-      pathname.startsWith("/intent/") ||
-      pathname === "/blocked" ||
-      pathname.startsWith("/blocked/")
-    );
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
 export function TabBar() {
   const pathname = usePathname();
+  const waiting = useLocalIds(subscribeMatchWaiting, matchWaitingSnapshot);
 
   return (
     <nav className="safe-bottom glass fixed inset-x-0 bottom-0 z-40 border-t border-line">
@@ -54,6 +25,7 @@ export function TabBar() {
         {tabs.map((tab) => {
           const active = tabActive(tab.href, pathname);
           const Icon = tab.icon;
+          const fresh = tab.href === "/matches" && waiting.length > 0 && !active;
           return (
             <li key={tab.href}>
               <Link
@@ -63,8 +35,14 @@ export function TabBar() {
                   active ? "text-cream" : "text-muted",
                 )}
               >
-                <Icon className={cn("size-[22px]", active && "text-gold")} strokeWidth={active ? 2.2 : 1.7} />
+                <span className="relative">
+                  <Icon className={cn("size-[22px]", active && "text-gold")} strokeWidth={active ? 2.2 : 1.7} />
+                  {fresh ? (
+                    <span className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-gold" aria-hidden />
+                  ) : null}
+                </span>
                 {tab.label}
+                {fresh ? <span className="sr-only">New</span> : null}
               </Link>
             </li>
           );
