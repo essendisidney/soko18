@@ -163,5 +163,6 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Matches show the last message, or Say hello. Blocked matches leave the list. Sending refreshes so the preview is there when you return. Guests stay empty + Discover.
 - A new match leaves a gold mark on Matches until you open the thread. Threads keep the Matches tab. After the first hello, Discover is the return. No unread counts, no fake replies.
 - A guest like or Spotlight is held for 30 minutes. After sign-in it finishes on that person. Not now drops it. No fake session.
+- Browse, pulse, and profile photo rails scroll on the page. Horizontal chips do not steal the finger. Discover stays a fixed card.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

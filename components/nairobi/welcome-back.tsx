@@ -21,12 +21,12 @@ export function WelcomeBack({ onDone }: { onDone: () => void }) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex flex-col items-center overflow-y-auto overscroll-y-contain bg-bg/96 px-8 py-[max(2.5rem,env(safe-area-inset-top))] text-center [-webkit-overflow-scrolling:touch]"
+      className="flex min-h-dvh flex-col items-center bg-bg/96 px-8 py-[max(2.5rem,env(safe-area-inset-top))] text-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <div className="flex min-h-full w-full max-w-sm flex-col items-center justify-center">
+      <div className="flex w-full max-w-sm flex-1 flex-col items-center justify-center">
         <Wordmark size="sm" />
         <p className="mt-10 font-display text-[13px] tracking-[0.28em] text-gold">SOKO18</p>
         <h1 className="mt-4 font-display text-4xl tracking-tight">{greeting}</h1>

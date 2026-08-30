@@ -142,7 +142,7 @@ export function PublicProfile({
 
         <section className="mt-10">
           <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Photos</h2>
-          <div className="mt-3 flex gap-2 overflow-x-auto">
+          <div className="rail-x mt-3 flex gap-2">
             {photos.map((src, i) => (
               <button
                 key={src}

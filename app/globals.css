@@ -36,6 +36,7 @@
 
 html {
   overflow-x: clip;
+  overscroll-behavior-x: none;
 }
 
 html,
@@ -48,6 +49,15 @@ body {
   min-height: 100dvh;
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  overscroll-behavior-x: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rail-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 ::selection {

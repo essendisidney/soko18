@@ -77,7 +77,7 @@ export function NairobiHome({
         </ul>
       </section>
 
-      <div className="mt-6 flex gap-2 overflow-x-auto pb-1">
+      <div className="rail-x mt-6 flex gap-2 pb-1">
         {NAIROBI_FILTERS.map((f) => (
           <Chip key={f.id} selected={facet === f.id} onClick={() => setFacet(f.id)}>
             {f.label}
@@ -134,7 +134,7 @@ export function NairobiHome({
         <section className="mt-10">
           <h2 className="text-sm text-muted">Featured</h2>
           <p className="mt-1 text-xs text-muted">Paid placement. Not organic Nairobi Now.</p>
-          <div className="mt-4 flex gap-3 overflow-x-auto">
+          <div className="rail-x mt-4 flex gap-3">
             {featured.map((profile) => (
               <div key={profile.id} className="w-36 shrink-0">
                 <ProfileCard profile={profile} compact href={`/profile/${profile.slug}`} />
@@ -162,7 +162,7 @@ export function NairobiHome({
       <section className="mt-10">
         <h2 className="font-display text-2xl tracking-tight">Nairobi Now</h2>
         <p className="mt-1 text-xs text-muted">From real activity. Paid placement is labeled separately.</p>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+        <div className="rail-x mt-4 flex gap-2 pb-1">
           {NAIROBI_NOW.map((item) => (
             <button
               key={item.id}
@@ -177,7 +177,7 @@ export function NairobiHome({
             </button>
           ))}
         </div>
-        <div className="mt-4 flex gap-3 overflow-x-auto">
+        <div className="rail-x mt-4 flex gap-3">
           {hideBlocked(nairobiNow(now), blocked).slice(0, 8).map((profile) => (
             <div key={profile.id} className="w-36 shrink-0">
               <ProfileCard profile={profile} compact href={`/profile/${profile.slug}`} />
