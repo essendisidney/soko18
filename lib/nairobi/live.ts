@@ -2,6 +2,7 @@ import { areaBySlug, NAIROBI_AREAS } from "@/lib/data/nairobi";
 import { DEFAULT_NEAR_AREA } from "@/lib/nairobi/near";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
+import { sokoVerified } from "@/lib/trust/verified";
 import type { SeedProfile } from "@/lib/types";
 
 export type NairobiFilter = "trending" | "active" | "new" | "verified" | "near";
@@ -44,7 +45,7 @@ export function filterNairobi(
     case "new":
       return list.filter((p) => p.newToday);
     case "verified":
-      return list.filter((p) => p.verified);
+      return list.filter((p) => sokoVerified(p));
     case "near":
       return list.filter((p) => p.areaSlug === nearArea);
     case "trending":
@@ -63,7 +64,7 @@ export function nairobiNow(facet: NairobiNowId, profiles?: SeedProfile[]) {
     case "liked":
       return list.sort((a, b) => b.likes - a.likes);
     case "verified":
-      return list.filter((p) => p.verified && p.newToday);
+      return list.filter((p) => sokoVerified(p) && p.newToday);
     case "rising":
       return list.filter((p) => p.rising);
     case "trending":
@@ -76,7 +77,7 @@ export function welcomeBackStats(profiles?: SeedProfile[]) {
   const list = catalog(profiles);
   return {
     newProfiles: list.filter((p) => p.newToday).length,
-    newlyVerified: list.filter((p) => p.verified && p.newToday).length,
+    newlyVerified: list.filter((p) => sokoVerified(p) && p.newToday).length,
     recentlyActive: list.filter((p) => p.presence === "active" || p.presence === "recent").length,
     activeNow: list.filter((p) => p.presence === "active").length,
     live: list.length,

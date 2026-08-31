@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { ChevronRight } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { Wordmark } from "@/components/brand/wordmark";
@@ -12,8 +12,10 @@ import { InstallHome } from "@/components/pwa/install-home";
 import { accountRole, useAuth } from "@/lib/auth/use-auth";
 import { isStaffRole } from "@/lib/admin/roles";
 import { signOutAction } from "@/lib/auth/actions";
-import { nairobiUrl, shareProfile } from "@/lib/profile/share";
+import { areaUrl, nairobiUrl, shareProfile } from "@/lib/profile/share";
 import { useDraftProfile } from "@/lib/profile/use-draft";
+import { areaBySlug } from "@/lib/data/nairobi";
+import { nearAreaSnapshot, subscribeNearArea } from "@/lib/nairobi/near";
 
 const rows = [
   { href: "/saved", label: "Saved" },
@@ -34,6 +36,10 @@ export default function MePage() {
   const [gate, setGate] = useState(false);
   const [shareNotice, setShareNotice] = useState<string | null>(null);
   const router = useRouter();
+  const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
+  const place = near ? areaBySlug(near) : null;
+  const shareName = place?.name ?? "Nairobi";
+  const shareHref = place ? areaUrl(place.slug) : nairobiUrl();
 
   return (
     <div className="pb-8">
@@ -76,7 +82,13 @@ export default function MePage() {
       <InstallHome />
 
       <div className="mt-6">
-        {draft ? (
+        {draft?.status === "pending_review" ? (
+          <Link href="/studio/profile">
+            <Button className="w-full" variant="ghost">
+              In review
+            </Button>
+          </Link>
+        ) : draft ? (
           <Link href="/studio/profile">
             <Button className="w-full" variant="ghost">
               Edit profile
@@ -104,14 +116,14 @@ export default function MePage() {
           type="button"
           className="flex w-full scroll-mb-28 items-center justify-between border-b border-line px-5 py-4 text-left"
           onClick={() => {
-            void shareProfile("Nairobi", nairobiUrl()).then((result) => {
+            void shareProfile(shareName, shareHref).then((result) => {
               setShareNotice(
                 result === "copied" ? "Link copied." : result === "shared" ? "Shared." : "Couldn’t share.",
               );
             });
           }}
         >
-          Share Nairobi
+          Share {shareName}
           <ChevronRight className="size-4 text-muted" />
         </button>
         {rows

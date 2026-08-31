@@ -7,6 +7,7 @@ import type { SeedProfile } from "@/lib/types";
 import { coverPhoto } from "@/lib/media/public";
 import { PresenceDot } from "@/components/soko/presence-dot";
 import { VerificationBadge } from "@/components/soko/verification-badge";
+import { sokoVerified } from "@/lib/trust/verified";
 
 export function ProfileCard({
   profile,
@@ -45,7 +46,7 @@ export function ProfileCard({
         </p>
       ) : null}
       <div className="absolute inset-x-0 bottom-0 p-4">
-        {profile.verified ? (
+        {sokoVerified(profile) ? (
           <VerificationBadge className="mb-2" />
         ) : null}
         <p className={cn("font-display font-semibold tracking-tight text-cream", compact ? "text-lg" : "text-[28px]")}>

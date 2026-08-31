@@ -215,8 +215,15 @@ export function ProfileEditor() {
       <p className="mt-6 text-xs leading-relaxed text-muted">
         Photos stay in review until SOKO18 approves them. They never appear on Discover first.
       </p>
-      <Link href="/studio" className="mt-6 inline-block text-sm text-muted">
-        Back
+      {status === "pending_review" || note.startsWith("In review") ? (
+        <Link href="/discover" className="mt-6 block">
+          <Button className="w-full" variant="gold">
+            Discover
+          </Button>
+        </Link>
+      ) : null}
+      <Link href={status === "pending_review" ? "/me" : "/studio"} className="mt-6 inline-block text-sm text-muted">
+        {status === "pending_review" ? "Me" : "Back"}
       </Link>
       {gate ? <AuthGate intent="profile" onClose={() => setGate(false)} /> : null}
     </div>

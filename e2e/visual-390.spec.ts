@@ -112,6 +112,11 @@ test.describe("390px surfaces", () => {
   test("profile", async ({ page }) => {
     await page.goto("/profile/amani-nairobi");
     await expect(page.getByRole("heading", { name: "Amani" })).toBeVisible();
+    await expect(page.getByText("SOKO18 Verified")).toBeVisible();
+    await expect(page).toHaveTitle(/Amani, 26 · Kilimani, Nairobi/);
+    await page.getByRole("button", { name: "View photos" }).click();
+    await page.getByRole("button", { name: "Close photos" }).click();
+    await expect(page.getByRole("heading", { name: "Amani" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Like" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await expect(page.getByRole("navigation").locator('a[href="/discover"]')).toHaveClass(/text-cream/);
@@ -149,6 +154,19 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("link", { name: "Blocked" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Nairobi" })).toHaveCount(0);
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+  });
+
+  test("me shares the last Nairobi area", async ({ page }) => {
+    await page.goto("/nairobi/westlands");
+    await expect(page.getByRole("heading", { name: "Westlands" })).toBeVisible();
+    await page.goto("/me");
+    await expect(page.getByRole("button", { name: "Share Westlands" })).toBeVisible();
+  });
+
+  test("opted-out profiles stay off the index", async ({ page }) => {
+    await page.goto("/profile/chebet-nairobi");
+    await expect(page.getByRole("heading", { name: "Chebet" })).toBeVisible();
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
   });
 
   test("looking for from Me stays on the Me tab", async ({ page }) => {
@@ -189,6 +207,17 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await page.getByRole("button", { name: "Notify me" }).click();
     await expect(page.getByRole("button", { name: "You’re on the list" })).toBeVisible();
+    await page.goto("/me");
+    const waiting = page.getByRole("link", { name: "Notify me" });
+    await waiting.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await waiting.click();
+    await expect(page.getByRole("heading", { name: "Notify me" })).toBeVisible();
+    await expect(page.getByText("Kisumu", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Remove Kisumu" }).click();
+    await expect(page.getByText("Nothing waiting.")).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
+    await page.goto("/kisumu");
     await page.getByRole("link", { name: "Milimani" }).click();
     await expect(page).toHaveURL(/\/kisumu\/milimani/);
     await expect(page.getByRole("heading", { name: "Milimani" })).toBeVisible();
@@ -220,6 +249,31 @@ test.describe("390px surfaces", () => {
     await page.goto("/eldoret");
     await expect(page.getByRole("link", { name: "Elgon View" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+  });
+
+  test("incomplete checks do not wear SOKO18 Verified", async ({ page }) => {
+    await page.goto("/profile/nia-nairobi");
+    await expect(page.getByRole("heading", { name: "Nia" })).toBeVisible();
+    await expect(page.getByText("SOKO18 Verified")).toHaveCount(0);
+    await expect(page.getByText("✓ Phone verified")).toBeVisible();
+    await expect(page.getByText("○ Identity verified")).toHaveCount(0);
+    await expect(page.getByText("○ Profile reviewed")).toBeVisible();
+  });
+
+  test("create profile in review returns to Discover", async ({ page }) => {
+    await page.goto("/me");
+    await page.getByRole("button", { name: "Create profile" }).click();
+    await expect(page).toHaveURL(/\/studio\/profile/);
+    await page.getByLabel("Name").fill("Sid");
+    await page.getByLabel("Born").fill("2000");
+    await page.getByRole("button", { name: "Kilimani" }).click();
+    await page.getByLabel("About").fill("Kilimani evenings.");
+    await page.getByRole("button", { name: "Submit for review" }).click();
+    await expect(page.getByText("In review. Not public.")).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
+    await page.goto("/me");
+    await expect(page.getByRole("button", { name: "In review" })).toBeVisible();
   });
 
   test("closed thread sends you to Discover", async ({ page }) => {

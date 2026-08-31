@@ -25,6 +25,7 @@ describe("health score", () => {
         verified: false,
         bio: "",
         photos: ["https://images.unsplash.com/photo-one"],
+        verification: { phone: false, identity: false, profile: false, established: false },
       }),
     );
     expect(health.score).toBe(25);

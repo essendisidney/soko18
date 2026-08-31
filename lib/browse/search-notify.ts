@@ -2,6 +2,7 @@ import { applyFlag } from "@/lib/safety/flags";
 import { readLocalIds, snapshotLocalIds, subscribeLocalIds, writeLocalIds } from "@/lib/safety/local-ids";
 import { areaBySlug } from "@/lib/data/nairobi";
 import { categoryBySlug } from "@/lib/browse/categories";
+import { waitlistCity } from "@/lib/data/waitlist";
 
 export const SEARCH_NOTIFY_KEY = "soko18_search_notify";
 
@@ -40,6 +41,9 @@ export function notifyLabel(key: string) {
   }
   if (key.startsWith("category:")) {
     return categoryBySlug(key.slice(9))?.name ?? key.slice(9);
+  }
+  if (key.startsWith("city:")) {
+    return waitlistCity(key.slice(5))?.name ?? key.slice(5);
   }
   return key;
 }

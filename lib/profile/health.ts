@@ -1,12 +1,13 @@
 import type { SeedProfile } from "@/lib/types";
 import type { ProfileDraft } from "@/lib/profile/types";
 import { publicPhotos } from "@/lib/media/public";
+import { sokoVerified } from "@/lib/trust/verified";
 
 export function profileHealth(profile: SeedProfile) {
   const photos = publicPhotos(profile);
   const checks = [
     { ok: photos.length >= 1, label: "Profile photo" },
-    { ok: profile.verified, label: "Verification" },
+    { ok: sokoVerified(profile), label: "Verification" },
     { ok: Boolean(profile.bio), label: "Bio" },
     { ok: photos.length >= 3, label: "Add more photos" },
   ];

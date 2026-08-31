@@ -1,6 +1,7 @@
 import type { SeedProfile } from "@/lib/types";
 import { hasApprovedCover } from "@/lib/media/public";
 import { profileHealth } from "@/lib/profile/health";
+import { sokoVerified } from "@/lib/trust/verified";
 
 const FEATURED_WINDOW = 8;
 const FEATURED_BONUS_CAP = 0.04;
@@ -29,7 +30,7 @@ export function preferenceFit(profile: SeedProfile, intents: string[] = []) {
   let hits = 0;
   if (intents.includes("featured") && profile.featured) hits += 1;
   if (intents.includes("meet") && profile.availability) hits += 1;
-  if (intents.includes("connect") && profile.verified) hits += 1;
+  if (intents.includes("connect") && sokoVerified(profile)) hits += 1;
   if (intents.includes("browse")) hits += 0.5;
   return clamp01(0.35 + hits * 0.25);
 }

@@ -12,11 +12,36 @@ export function readWaitlist(): string[] {
   }
 }
 
-export function joinWaitlist(slug: string) {
-  const next = [...new Set([...readWaitlist(), slug])];
+export function subscribeWaitlist(onChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", onChange);
+  window.addEventListener(WAITLIST_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(WAITLIST_EVENT, onChange);
+  };
+}
+
+export function waitlistSnapshot() {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(WAITLIST_KEY);
+}
+
+function persistWaitlist(next: string[]) {
   localStorage.setItem(WAITLIST_KEY, JSON.stringify(next));
-  localStorage.setItem("soko18_waitlist_city", slug);
   window.dispatchEvent(new Event(WAITLIST_EVENT));
+}
+
+export function joinWaitlist(slug: string) {
+  persistWaitlist([...new Set([...readWaitlist(), slug])]);
+  localStorage.setItem("soko18_waitlist_city", slug);
+}
+
+export function dropWaitlist(slug: string) {
+  persistWaitlist(readWaitlist().filter((city) => city !== slug));
+  if (localStorage.getItem("soko18_waitlist_city") === slug) {
+    localStorage.removeItem("soko18_waitlist_city");
+  }
 }
 
 export function onWaitlist(slug: string) {

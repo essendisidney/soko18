@@ -50,6 +50,7 @@ describe("Nairobi search notify", () => {
     joinSearchNotify("area:south-b");
     expect(notifyLabel("area:south-b")).toBe("South B");
     expect(notifyLabel("category:featured")).toBe("Featured");
+    expect(notifyLabel("city:kisumu")).toBe("Kisumu");
     expect(notifyLabel("kilimani loft")).toBe("kilimani loft");
     dropSearchNotify("area:south-b");
     expect(onSearchNotify("area:south-b")).toBe(false);

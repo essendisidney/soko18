@@ -3,16 +3,14 @@
 import Link from "next/link";
 import { X } from "lucide-react";
 import { Button } from "@/components/soko/button";
-import {
-  dropSearchNotify,
-  notifyLabel,
-  searchNotifySnapshot,
-  subscribeSearchNotify,
-} from "@/lib/browse/search-notify";
+import { dropSearchNotify, notifyLabel, searchNotifySnapshot, subscribeSearchNotify } from "@/lib/browse/search-notify";
+import { dropWaitlist, subscribeWaitlist, waitlistSnapshot } from "@/lib/browse/waitlist";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 
 export default function NotifyPage() {
-  const items = useLocalIds(subscribeSearchNotify, searchNotifySnapshot);
+  const searches = useLocalIds(subscribeSearchNotify, searchNotifySnapshot);
+  const cities = useLocalIds(subscribeWaitlist, waitlistSnapshot).map((slug) => `city:${slug}`);
+  const items = [...cities, ...searches];
 
   return (
     <div>
@@ -38,7 +36,10 @@ export default function NotifyPage() {
                 type="button"
                 aria-label={`Remove ${notifyLabel(key)}`}
                 className="grid size-8 shrink-0 place-items-center rounded-full text-cream/80"
-                onClick={() => dropSearchNotify(key)}
+                onClick={() => {
+                  if (key.startsWith("city:")) dropWaitlist(key.slice(5));
+                  else dropSearchNotify(key);
+                }}
               >
                 <X className="size-4" />
               </button>

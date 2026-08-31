@@ -20,6 +20,7 @@ import { MatchOverlay } from "@/components/discover/match-overlay";
 import { TabBar } from "@/components/nav/tab-bar";
 import { ProfileBack } from "@/components/profile/profile-back";
 import { ProfileOverflow } from "@/components/profile/profile-overflow";
+import { PhotoViewer } from "@/components/profile/photo-viewer";
 import { useAuth } from "@/lib/auth/use-auth";
 import { clearPendingEngage, readPendingEngage, writePendingEngage } from "@/lib/auth/pending-engage";
 import { engageProfile } from "@/lib/likes/engage";
@@ -27,6 +28,7 @@ import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { hideBlocked } from "@/lib/safety/flags";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 import { cn } from "@/lib/utils";
+import { sokoVerified } from "@/lib/trust/verified";
 
 export function PublicProfile({
   profile,
@@ -68,22 +70,30 @@ export function PublicProfile({
     <main className="mx-auto min-h-dvh max-w-md bg-bg pb-24">
       <ImpressionBeacon profileId={profile.id} surface="profile" />
       <div className="relative aspect-[3/4]">
-        <Image
-          src={photos[0]}
-          alt={`${profile.name}, ${profile.age}`}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-bg via-transparent to-black/30" />
-        <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4">
+        <button
+          type="button"
+          aria-label="View photos"
+          className="absolute inset-0"
+          onClick={() => setPhoto(0)}
+        >
+          <Image
+            src={photos[0]}
+            alt={`${profile.name}, ${profile.age}`}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+        </button>
+        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-bg via-transparent to-black/30" />
+        <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-4">
           <ProfileBack />
           <ProfileOverflow profile={profile} />
         </div>
       </div>
 
       <div className="-mt-16 relative px-5">
-        {profile.verified ? <VerificationBadge label="SOKO18 Verified" /> : null}
+        {sokoVerified(profile) ? <VerificationBadge label="SOKO18 Verified" /> : null}
         <h1 className="mt-3 font-display text-4xl tracking-tight">{profile.name}</h1>
         <p className="mt-1 text-cream/80">
           {profile.age} · Nairobi · {profile.area}
@@ -152,14 +162,14 @@ export function PublicProfile({
                 onClick={() => setPhoto(i)}
                 className="relative h-28 w-24 shrink-0 overflow-hidden rounded-2xl"
               >
-                <Image src={src} alt="" fill className="object-cover" />
+                <Image src={src} alt="" fill className="object-cover" sizes="96px" />
               </button>
             ))}
           </div>
         </section>
 
         <section className="mt-10">
-          <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">SOKO18 Verified</h2>
+          <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Verification</h2>
           <p className="mt-2 text-xs text-muted">Not a decorative tick. Each line is a real check.</p>
           <ul className="mt-3 space-y-2 text-sm">
             <li className={cn(v.phone ? "text-cream" : "text-muted")}>
@@ -190,9 +200,13 @@ export function PublicProfile({
       </div>
 
       {photo !== null ? (
-        <div className="fixed inset-0 z-50 bg-black" onClick={() => setPhoto(null)}>
-          <Image src={photos[photo]} alt="" fill className="object-contain" />
-        </div>
+        <PhotoViewer
+          photos={photos}
+          index={photo}
+          alt={`${profile.name}, ${profile.age}`}
+          onIndex={setPhoto}
+          onClose={() => setPhoto(null)}
+        />
       ) : null}
       <AnimatePresence>
         {match ? (

@@ -120,9 +120,6 @@ export function ProfileOverflow({ profile }: { profile: SeedProfile }) {
           >
             {blocked ? "Unblock" : "Block"}
           </button>
-          <p className="px-3 py-2 text-xs text-muted">
-            Public search indexing is {profile.indexPublic ? "on" : "off"} for this profile.
-          </p>
         </div>
       ) : null}
 

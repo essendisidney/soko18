@@ -1,31 +1,14 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { Button } from "@/components/soko/button";
-import { joinWaitlist, onWaitlist, WAITLIST_EVENT } from "@/lib/browse/waitlist";
-
-function subscribe(onChange: () => void) {
-  window.addEventListener("storage", onChange);
-  window.addEventListener(WAITLIST_EVENT, onChange);
-  return () => {
-    window.removeEventListener("storage", onChange);
-    window.removeEventListener(WAITLIST_EVENT, onChange);
-  };
-}
+import { joinWaitlist, subscribeWaitlist, waitlistSnapshot } from "@/lib/browse/waitlist";
+import { useLocalIds } from "@/lib/safety/use-id-list";
 
 export function WaitlistButton({ slug }: { slug: string }) {
-  const listed = useSyncExternalStore(
-    subscribe,
-    () => onWaitlist(slug),
-    () => false,
-  );
+  const listed = useLocalIds(subscribeWaitlist, waitlistSnapshot).includes(slug);
 
   return (
-    <Button
-      className="mt-8 w-full"
-      variant={listed ? "ghost" : "gold"}
-      onClick={() => joinWaitlist(slug)}
-    >
+    <Button className="mt-8 w-full" variant={listed ? "ghost" : "gold"} onClick={() => joinWaitlist(slug)}>
       {listed ? "You’re on the list" : "Notify me"}
     </Button>
   );

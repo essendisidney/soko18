@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { NAIROBI_AREAS, areaBySlug } from "@/lib/data/nairobi";
 import { profilesInArea } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
+import { areaMetadata } from "@/lib/profile/seo";
 import { AreaHome } from "@/components/nairobi/area-home";
 
 export function generateStaticParams() {
@@ -17,10 +18,7 @@ export async function generateMetadata({
   const { area } = await params;
   const meta = areaBySlug(area);
   if (!meta) return { title: "Nairobi" };
-  return {
-    title: `${meta.name}, Nairobi`,
-    description: `Discover people around ${meta.name}, Nairobi.`,
-  };
+  return areaMetadata(meta.name, meta.slug);
 }
 
 export default async function NairobiAreaPage({

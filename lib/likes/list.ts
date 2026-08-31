@@ -3,6 +3,7 @@ import { nairobiProfiles } from "@/lib/data/seed";
 import { seedAccountId, UUID } from "@/lib/likes/ids";
 import { readLikeState } from "@/lib/likes/state";
 import { coverPhoto } from "@/lib/media/public";
+import { sokoVerified } from "@/lib/trust/verified";
 import { applyThreadPreview, lastMessageMap, mergeLastPreview } from "@/lib/messages/preview";
 import { readThreadState } from "@/lib/messages/state";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -47,7 +48,7 @@ export async function listMatches(): Promise<MatchListItem[]> {
         slug: profile.slug,
         name: profile.name,
         area: profile.area,
-        verified: profile.verified,
+        verified: sokoVerified(profile),
         presence: profile.presence,
         photo: coverPhoto(profile),
         createdAt: row.createdAt,

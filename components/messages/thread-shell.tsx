@@ -18,6 +18,7 @@ import { writeFavorite } from "@/lib/favorites/local";
 import { markMatchSeen, writeMatchWaiting } from "@/lib/matches/waiting";
 import { postBlock, postFavorite } from "@/lib/safety/client";
 import { cn } from "@/lib/utils";
+import { sokoVerified } from "@/lib/trust/verified";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/client";
 import type { SeedProfile } from "@/lib/types";
@@ -132,7 +133,7 @@ export function ThreadShell({
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-medium">
-            {profile.name} {profile.verified ? "✓" : ""}
+            {profile.name} {sokoVerified(profile) ? "✓" : ""}
           </p>
           <PresenceDot presence={profile.presence} className="text-xs" />
         </div>

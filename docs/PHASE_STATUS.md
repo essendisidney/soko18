@@ -169,5 +169,11 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Empty area or category after hide/block: Notify me for that place. Discover stays the return.
 - Me → Notify me lists those waits on-device. Remove anytime. No email promise, no invented people.
 - Me can share Nairobi (the live city URL). No invite counts, no referral invent.
+- City waitlist Notify me appears on Me → Notify me. Remove anytime. Discover stays the return.
+- SOKO18 Verified is phone + identity + profile reviewed. Incomplete checks do not wear the badge. Established is extra.
+- Create profile stays a draft until review. In review is not public. Me says In review. Discover is the return.
+- Public profiles are landing pages: name · area · Nairobi in the title. Index only with owner consent. Waitlist cities stay off the sitemap.
+- Me shares the last Nairobi area opened, or Nairobi. No invite counts.
+- Profile photos open full-screen. Close returns to the card. Indexing stays in Studio, not in ⋯.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.
