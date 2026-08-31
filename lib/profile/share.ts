@@ -24,3 +24,8 @@ export function areaUrl(slug: string) {
   if (typeof window === "undefined") return `/nairobi/${slug}`;
   return `${window.location.origin}/nairobi/${slug}`;
 }
+
+export function nairobiUrl() {
+  if (typeof window === "undefined") return "/nairobi";
+  return `${window.location.origin}/nairobi`;
+}

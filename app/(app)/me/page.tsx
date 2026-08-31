@@ -12,6 +12,7 @@ import { InstallHome } from "@/components/pwa/install-home";
 import { accountRole, useAuth } from "@/lib/auth/use-auth";
 import { isStaffRole } from "@/lib/admin/roles";
 import { signOutAction } from "@/lib/auth/actions";
+import { nairobiUrl, shareProfile } from "@/lib/profile/share";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 
 const rows = [
@@ -30,6 +31,7 @@ export default function MePage() {
   const role = accountRole(user);
   const draft = useDraftProfile();
   const [gate, setGate] = useState(false);
+  const [shareNotice, setShareNotice] = useState<string | null>(null);
   const router = useRouter();
 
   return (
@@ -97,6 +99,20 @@ export default function MePage() {
       </div>
 
       <div className="mt-8 overflow-hidden rounded-3xl border border-line">
+        <button
+          type="button"
+          className="flex w-full scroll-mb-28 items-center justify-between border-b border-line px-5 py-4 text-left"
+          onClick={() => {
+            void shareProfile("Nairobi", nairobiUrl()).then((result) => {
+              setShareNotice(
+                result === "copied" ? "Link copied." : result === "shared" ? "Shared." : "Couldn’t share.",
+              );
+            });
+          }}
+        >
+          Share Nairobi
+          <ChevronRight className="size-4 text-muted" />
+        </button>
         {rows
           .filter((row) => row.href !== "/admin" || isStaffRole(role))
           .map((row) => (
@@ -110,6 +126,7 @@ export default function MePage() {
           </Link>
         ))}
       </div>
+      {shareNotice ? <p className="mt-3 text-xs text-muted">{shareNotice}</p> : null}
       <p className="mt-8 text-xs leading-relaxed text-muted">
         SOKO18 is 18+. Report, block, and privacy controls are always available from a profile or thread.
       </p>

@@ -165,5 +165,6 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - A guest like or Spotlight is held for 30 minutes. After sign-in it finishes on that person. Not now drops it. No fake session.
 - Browse, pulse, and profile photo rails scroll on the page. Horizontal chips do not steal the finger. Discover stays a fixed card.
 - Public profiles keep the tab bar. The last hub stays selected (Discover, Browse, Saved). Cold landings highlight Discover.
+- Me can share Nairobi (the live city URL). No invite counts, no referral invent.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

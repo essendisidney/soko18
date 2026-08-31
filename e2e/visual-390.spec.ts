@@ -102,6 +102,7 @@ test.describe("390px surfaces", () => {
   test("me keeps Safety and does not duplicate Nairobi", async ({ page }) => {
     await page.goto("/me");
     await expect(page.getByRole("heading", { name: "Me" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Share Nairobi" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Saved" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Looking for" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Safety" })).toBeVisible();
