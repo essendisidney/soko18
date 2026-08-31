@@ -5,6 +5,7 @@ import { BROWSE_CATEGORIES, categoryBySlug } from "@/lib/browse/categories";
 import { browseFeed } from "@/lib/browse/feed";
 import { Button } from "@/components/soko/button";
 import { ProfileGrid } from "@/components/profile/profile-grid";
+import { categoryMetadata } from "@/lib/profile/seo";
 
 export function generateStaticParams() {
   return BROWSE_CATEGORIES.map((c) => ({ category: c.slug }));
@@ -18,10 +19,7 @@ export async function generateMetadata({
   const { category } = await params;
   const meta = categoryBySlug(category);
   if (!meta) return { title: "Nairobi" };
-  return {
-    title: `${meta.name} · Nairobi`,
-    description: meta.line,
-  };
+  return categoryMetadata(meta.name, meta.slug, meta.line);
 }
 
 export default async function CategoryPage({

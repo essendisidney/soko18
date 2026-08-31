@@ -175,5 +175,8 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Public profiles are landing pages: name · area · Nairobi in the title. Index only with owner consent. Waitlist cities stay off the sitemap.
 - Me shares the last Nairobi area opened, or Nairobi. No invite counts.
 - Profile photos open full-screen. Close returns to the card. Indexing stays in Studio, not in ⋯.
+- Studio does not sell Boost until the profile is live. Discover is the return while you wait. Nairobi Now is still not for sale.
+- Crawlers get Nairobi, categories, and consented profiles. Waitlist cities stay off robots allow.
+- Verified browse is phone + identity + profile reviewed. Similar empty sends you to Discover.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

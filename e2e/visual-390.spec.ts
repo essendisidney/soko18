@@ -107,6 +107,9 @@ test.describe("390px surfaces", () => {
     await expect(page.getByText("From real activity in Nairobi.")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
+    await page.goto("/category/verified");
+    await expect(page.getByText("Phone, identity, and profile reviewed.")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
   });
 
   test("profile", async ({ page }) => {
@@ -303,6 +306,10 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("heading", { name: "Your studio" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Me")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
+    await expect(page.getByText("Boost your profile")).toHaveCount(0);
+    await expect(page.getByText("Boost after you’re live in Nairobi.")).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
   });
 
   test("admin is 404 for guests", async ({ page }) => {

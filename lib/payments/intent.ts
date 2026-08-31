@@ -2,6 +2,7 @@ import { z } from "zod";
 import { currentUser } from "@/lib/auth/user";
 import { PROMOTION_CATALOG, PROMOTION_KINDS } from "@/lib/payments/ledger";
 import { requestedProfileAllowed } from "@/lib/studio/own";
+import { profileCanPromote } from "@/lib/studio/promote";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -24,12 +25,19 @@ export async function createPaymentIntent(input: unknown) {
   const supabase = await createClient();
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, account_id")
+    .select("id, account_id, status")
     .eq("account_id", user.id)
     .maybeSingle();
 
   if (!profile || profile.account_id !== user.id) {
     return { ok: false as const, status: 404, error: { code: "not_found", message: "Create a profile first." } };
+  }
+  if (!profileCanPromote(profile.status)) {
+    return {
+      ok: false as const,
+      status: 403,
+      error: { code: "forbidden", message: "Boost after you’re live in Nairobi." },
+    };
   }
   if (!requestedProfileAllowed(parsed.data.profileId ?? null, profile.id)) {
     return { ok: false as const, status: 403, error: { code: "forbidden", message: "You can only promote your own profile." } };

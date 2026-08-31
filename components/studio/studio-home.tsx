@@ -8,6 +8,7 @@ import { BoostPay } from "@/components/studio/promotion-pay";
 import { draftHealth } from "@/lib/profile/health";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 import { NAIROBI_AREAS } from "@/lib/data/nairobi";
+import { profileCanPromote } from "@/lib/studio/promote";
 import type { StudioOverview } from "@/lib/studio/overview";
 
 export function StudioHome({
@@ -22,6 +23,7 @@ export function StudioHome({
   const name = overview?.profile?.displayName ?? draft?.displayName;
   const area = draft ? NAIROBI_AREAS.find((a) => a.slug === draft.areaSlug)?.name : null;
   const status = overview?.profile?.status ?? (draft ? (draft.status === "pending_review" ? "In review" : "Draft") : null);
+  const live = profileCanPromote(overview?.profile?.status);
 
   return (
     <div>
@@ -85,10 +87,23 @@ export function StudioHome({
       )}
 
       <section className="mt-8">
-        <h2 className="px-1 text-[11px] tracking-[0.18em] text-muted uppercase">Promote</h2>
-        <p className="mt-2 px-1 font-display text-2xl">Boost your profile</p>
-        <p className="mt-2 mb-4 px-1 text-sm text-muted">Paid placement. Organic Nairobi Now stays earned.</p>
-        <BoostPay live={overview?.boost.active} />
+        {live ? (
+          <>
+            <h2 className="px-1 text-[11px] tracking-[0.18em] text-muted uppercase">Promote</h2>
+            <p className="mt-2 px-1 font-display text-2xl">Boost your profile</p>
+            <p className="mt-2 mb-4 px-1 text-sm text-muted">Paid placement. Organic Nairobi Now stays earned.</p>
+            <BoostPay live={overview?.boost.active} />
+          </>
+        ) : (
+          <>
+            <p className="px-1 text-sm text-muted">Boost after you’re live in Nairobi.</p>
+            <Link href="/discover" className="mt-4 block px-1">
+              <Button variant="gold" className="w-full">
+                Discover
+              </Button>
+            </Link>
+          </>
+        )}
       </section>
 
       <nav className="mt-10 flex flex-col gap-2 text-sm text-muted">

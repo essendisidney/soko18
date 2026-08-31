@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { profileHeading, profileMetadata } from "@/lib/profile/seo";
 import { sitemapPaths } from "@/lib/seo/sitemap";
+import { crawlAllow } from "@/lib/seo/robots";
 
 describe("Nairobi landing SEO", () => {
   it("indexes only owner-consented live profiles", () => {
@@ -19,5 +20,12 @@ describe("Nairobi landing SEO", () => {
     expect(paths).toContain("/profile/amani-nairobi");
     expect(paths).not.toContain("/profile/chebet-nairobi");
     expect(paths.some((path) => path.startsWith("/kisumu") || path.includes("/mombasa"))).toBe(false);
+  });
+
+  it("does not list waitlist cities as crawl targets", () => {
+    const allow = crawlAllow();
+    expect(allow).toContain("/nairobi");
+    expect(allow).toContain("/category/");
+    expect(allow.some((path) => path.includes("kisumu") || path.includes("mombasa"))).toBe(false);
   });
 });

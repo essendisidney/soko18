@@ -1,6 +1,6 @@
 export const BROWSE_CATEGORIES = [
   { slug: "trending", name: "Trending", line: "From real activity in Nairobi." },
-  { slug: "verified", name: "Verified", line: "Phone, identity, or profile reviewed." },
+  { slug: "verified", name: "Verified", line: "Phone, identity, and profile reviewed." },
   { slug: "featured", name: "Featured", line: "Paid placement. Not organic Nairobi Now." },
   { slug: "rising", name: "Rising", line: "Moving in Nairobi this week." },
 ] as const;

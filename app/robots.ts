@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { crawlAllow, crawlDisallow } from "@/lib/seo/robots";
 import { siteUrl } from "@/lib/site";
 
 export default function robots(): MetadataRoute.Robots {
@@ -6,8 +7,8 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/nairobi", "/kisumu", "/mombasa", "/nakuru", "/eldoret", "/browse", "/city/", "/category/", "/profile/", "/terms", "/privacy", "/safety"],
-      disallow: ["/admin", "/studio", "/messages", "/login", "/signup", "/dev", "/settings", "/me", "/matches"],
+      allow: crawlAllow(),
+      disallow: crawlDisallow(),
     },
     sitemap: `${base}/sitemap.xml`,
   };

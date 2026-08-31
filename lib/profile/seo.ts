@@ -43,3 +43,13 @@ export function areaMetadata(name: string, slug: string): Metadata {
     openGraph: { title, description, url },
   };
 }
+
+export function categoryMetadata(name: string, slug: string, line: string): Metadata {
+  const title = `${name} · Nairobi`;
+  const url = `${siteUrl()}/category/${slug}`;
+  return {
+    title,
+    description: line,
+    openGraph: { title, description: line, url },
+  };
+}

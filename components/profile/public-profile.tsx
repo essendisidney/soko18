@@ -187,16 +187,25 @@ export function PublicProfile({
           </ul>
         </section>
 
-        {more.length > 0 ? (
-          <section className="mt-10">
-            <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Similar</h2>
+        <section className="mt-10">
+          <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Similar</h2>
+          {more.length > 0 ? (
             <div className="mt-3 grid grid-cols-3 gap-2">
               {more.map((p) => (
                 <ProfileCard key={p.id} profile={p} compact href={`/profile/${p.slug}`} />
               ))}
             </div>
-          </section>
-        ) : null}
+          ) : (
+            <>
+              <p className="mt-3 text-sm text-muted">No one similar nearby.</p>
+              <Link href="/discover" className="mt-4 inline-block">
+                <Button variant="gold" size="sm">
+                  Discover
+                </Button>
+              </Link>
+            </>
+          )}
+        </section>
       </div>
 
       {photo !== null ? (
