@@ -74,6 +74,8 @@ test.describe("390px surfaces", () => {
     await page.goto("/profile/amani-nairobi");
     await expect(page.getByRole("heading", { name: "Amani" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Like" })).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
+    await expect(page.getByRole("navigation").locator('a[href="/discover"]')).toHaveClass(/text-cream/);
   });
 
   test("profile message without a match stays on the profile", async ({ page }) => {
@@ -91,6 +93,7 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
     await page.getByRole("link", { name: /Amani, 26/ }).first().click();
     await expect(page).toHaveURL(/\/profile\/amani-nairobi/);
+    await expect(page.getByRole("navigation").locator('a[href="/nairobi"]')).toHaveClass(/text-cream/);
     await page.getByRole("button", { name: "Back" }).click();
     await expect(page).toHaveURL(/\/nairobi/);
     await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();

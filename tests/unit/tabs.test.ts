@@ -14,4 +14,12 @@ describe("tab bar", () => {
     expect(tabActive("/me", "/blocked")).toBe(true);
     expect(tabActive("/matches", "/blocked")).toBe(false);
   });
+
+  it("keeps the last hub on a public profile", () => {
+    expect(tabActive("/discover", "/profile/amani-nairobi")).toBe(true);
+    expect(tabActive("/nairobi", "/profile/amani-nairobi")).toBe(false);
+    expect(tabActive("/nairobi", "/profile/amani-nairobi", "/nairobi")).toBe(true);
+    expect(tabActive("/discover", "/profile/amani-nairobi", "/nairobi")).toBe(false);
+    expect(tabActive("/me", "/profile/amani-nairobi", "/saved")).toBe(true);
+  });
 });

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { Compass, Grid2x2, Heart, UserRound } from "lucide-react";
+import { RETURN_KEY } from "@/components/nav/remember-return";
 import { matchWaitingSnapshot, subscribeMatchWaiting } from "@/lib/matches/waiting";
 import { tabActive } from "@/lib/nav/tabs";
 import { useLocalIds } from "@/lib/safety/use-id-list";
@@ -15,15 +17,20 @@ const tabs = [
   { href: "/me", label: "Me", icon: UserRound },
 ];
 
+function returnSnapshot() {
+  return sessionStorage.getItem(RETURN_KEY);
+}
+
 export function TabBar() {
   const pathname = usePathname();
   const waiting = useLocalIds(subscribeMatchWaiting, matchWaitingSnapshot);
+  const returnTo = useSyncExternalStore(() => () => {}, returnSnapshot, () => null);
 
   return (
     <nav className="safe-bottom glass fixed inset-x-0 bottom-0 z-40 border-t border-line">
       <ul className="mx-auto grid max-w-md grid-cols-4 px-2 pt-2">
         {tabs.map((tab) => {
-          const active = tabActive(tab.href, pathname);
+          const active = tabActive(tab.href, pathname, returnTo);
           const Icon = tab.icon;
           const fresh = tab.href === "/matches" && waiting.length > 0 && !active;
           return (

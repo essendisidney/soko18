@@ -1,6 +1,13 @@
 import { WAITLIST_CITIES } from "@/lib/data/nairobi";
 
-export function tabActive(href: string, pathname: string) {
+export function tabActive(href: string, pathname: string, returnTo?: string | null) {
+  if (pathname.startsWith("/profile/")) {
+    const hub =
+      returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//") && !returnTo.startsWith("/profile/")
+        ? returnTo
+        : "/discover";
+    return tabActive(href, hub);
+  }
   if (href === "/nairobi") {
     return (
       pathname === "/nairobi" ||

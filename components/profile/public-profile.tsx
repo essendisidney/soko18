@@ -17,6 +17,7 @@ import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ImpressionBeacon } from "@/components/analytics/impression-beacon";
 import { MatchOverlay } from "@/components/discover/match-overlay";
+import { TabBar } from "@/components/nav/tab-bar";
 import { ProfileBack } from "@/components/profile/profile-back";
 import { ProfileOverflow } from "@/components/profile/profile-overflow";
 import { useAuth } from "@/lib/auth/use-auth";
@@ -56,14 +57,15 @@ export function PublicProfile({
 
   if (!photos[0]) {
     return (
-      <main className="grid min-h-dvh place-items-center bg-bg text-muted">
-        This profile isn’t available.
+      <main className="min-h-dvh bg-bg pb-24">
+        <p className="grid min-h-[70dvh] place-items-center text-muted">This profile isn’t available.</p>
+        <TabBar />
       </main>
     );
   }
 
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-bg pb-16">
+    <main className="mx-auto min-h-dvh max-w-md bg-bg pb-24">
       <ImpressionBeacon profileId={profile.id} surface="profile" />
       <div className="relative aspect-[3/4]">
         <Image
@@ -237,6 +239,7 @@ export function PublicProfile({
           </motion.div>
         ) : null}
       </AnimatePresence>
+      <TabBar />
     </main>
   );
 }
