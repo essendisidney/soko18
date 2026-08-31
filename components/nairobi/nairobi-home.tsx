@@ -22,6 +22,7 @@ import { ProfileCard } from "@/components/soko/profile-card";
 import { Chip } from "@/components/soko/chip";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
+import { SearchNotifyButton } from "@/components/nairobi/search-notify";
 import { nearAreaName } from "@/lib/nairobi/near";
 import { useNearArea } from "@/lib/nairobi/use-near-area";
 import { cn } from "@/lib/utils";
@@ -109,9 +110,12 @@ export function NairobiHome({
           <ProfileCard key={profile.id} profile={profile} compact href={`/profile/${profile.slug}`} />
         ))}
         {grid.length === 0 ? (
-          <p className="col-span-2 text-sm text-muted">
-            {q ? "No one in Nairobi matches that." : "No live profiles in this view yet."}
-          </p>
+          <div className="col-span-2">
+            <p className="text-sm text-muted">
+              {q ? "No one in Nairobi matches that." : "No live profiles in this view yet."}
+            </p>
+            {q.trim() ? <SearchNotifyButton query={q} /> : null}
+          </div>
         ) : null}
       </div>
 

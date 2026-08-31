@@ -60,6 +60,45 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("link", { name: /Nia, 24/ }).first()).toBeVisible();
   });
 
+  test("empty Nairobi search can notify without inventing people", async ({ page }) => {
+    await page.goto("/nairobi");
+    await page.getByPlaceholder("Search Nairobi").fill("zzzznotaperson");
+    await expect(page.getByText("No one in Nairobi matches that.")).toBeVisible();
+    await page.getByRole("button", { name: "Notify me" }).click();
+    await expect(page.getByRole("button", { name: "You’re on the list" })).toBeVisible();
+  });
+
+  test("notify me from Me lists the wait", async ({ page }) => {
+    await page.goto("/nairobi");
+    await page.getByPlaceholder("Search Nairobi").fill("zzzznotaperson");
+    await page.getByRole("button", { name: "Notify me" }).click();
+    await page.goto("/me");
+    const waiting = page.getByRole("link", { name: "Notify me" });
+    await waiting.evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await waiting.click();
+    await expect(page).toHaveURL(/\/notify/);
+    await expect(page.getByRole("heading", { name: "Notify me" })).toBeVisible();
+    await expect(page.getByText("zzzznotaperson")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Me")).toBeVisible();
+    await page.getByRole("button", { name: "Remove zzzznotaperson" }).click();
+    await expect(page.getByText("Nothing waiting.")).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
+  });
+
+  test("empty area after block can notify", async ({ page }) => {
+    await page.goto("/nairobi/south-b");
+    await expect(page.getByRole("heading", { name: "South B" })).toBeVisible();
+    await page.getByRole("link", { name: /Chebet/ }).first().click();
+    await page.getByRole("button", { name: "More" }).click();
+    await page.getByRole("button", { name: "Block" }).click();
+    await page.getByRole("button", { name: "Back" }).click();
+    await expect(page).toHaveURL(/\/nairobi\/south-b/);
+    await expect(page.getByText("No one in South B yet.")).toBeVisible();
+    await page.getByRole("button", { name: "Notify me" }).click();
+    await expect(page.getByRole("button", { name: "You’re on the list" })).toBeVisible();
+  });
+
   test("category stays in the Browse tab", async ({ page }) => {
     await page.goto("/nairobi");
     await page.getByRole("link", { name: "Trending" }).click();
@@ -104,6 +143,7 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("heading", { name: "Me" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Share Nairobi" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Saved" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Notify me" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Looking for" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Safety" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Blocked" })).toBeVisible();

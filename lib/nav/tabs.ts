@@ -41,7 +41,9 @@ export function tabActive(href: string, pathname: string, returnTo?: string | nu
       pathname === "/intent" ||
       pathname.startsWith("/intent/") ||
       pathname === "/blocked" ||
-      pathname.startsWith("/blocked/")
+      pathname.startsWith("/blocked/") ||
+      pathname === "/notify" ||
+      pathname.startsWith("/notify/")
     );
   }
   return pathname === href || pathname.startsWith(`${href}/`);

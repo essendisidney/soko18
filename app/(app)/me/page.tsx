@@ -17,6 +17,7 @@ import { useDraftProfile } from "@/lib/profile/use-draft";
 
 const rows = [
   { href: "/saved", label: "Saved" },
+  { href: "/notify", label: "Notify me" },
   { href: "/intent", label: "Looking for" },
   { href: "/studio", label: "SOKO18 Studio" },
   { href: "/admin", label: "Admin" },

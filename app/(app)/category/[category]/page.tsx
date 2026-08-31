@@ -44,7 +44,7 @@ export default async function CategoryPage({
         <Button variant="gold">Discover</Button>
       </Link>
       <div className="mt-8 grid grid-cols-2 gap-3">
-        <ProfileGrid profiles={items} />
+        <ProfileGrid profiles={items} emptyNotify={`category:${meta.slug}`} />
       </div>
       <Link href="/nairobi" className="mt-8 inline-block text-sm text-muted">
         All of Nairobi

@@ -12,6 +12,7 @@ describe("tab bar", () => {
   it("does not steal Discover or Me", () => {
     expect(tabActive("/discover", "/discover")).toBe(true);
     expect(tabActive("/me", "/blocked")).toBe(true);
+    expect(tabActive("/me", "/notify")).toBe(true);
     expect(tabActive("/matches", "/blocked")).toBe(false);
   });
 

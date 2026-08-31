@@ -35,7 +35,11 @@ export function AreaHome({
         </Button>
       </Link>
       <div className="mt-8 grid grid-cols-2 gap-3">
-        <ProfileGrid profiles={people} emptyText={`No one in ${name} yet.`} />
+        <ProfileGrid
+          profiles={people}
+          emptyText={`No one in ${name} yet.`}
+          emptyNotify={`area:${slug}`}
+        />
       </div>
       <section className="mt-10">
         <h2 className="text-sm text-muted">Other areas</h2>
