@@ -18,7 +18,7 @@ export async function generateMetadata({
   if (!meta) return { title: "City" };
   return {
     title: meta.name,
-    description: `SOKO18 is live in Nairobi first. ${meta.name} opens when Nairobi has density.`,
+    description: `Men around you in ${meta.name}. Area-level only.`,
     robots: { index: false, follow: true },
   };
 }

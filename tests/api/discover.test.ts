@@ -15,11 +15,11 @@ describe("GET /api/discover", () => {
     expect(body.data.items.length).toBeGreaterThan(0);
   });
 
-  it("returns an empty deck outside Nairobi", async () => {
-    const res = await GET(new Request("http://soko18.test/api/discover?city=kisumu"));
-    const body = (await res.json()) as { data: { items: unknown[]; nextCursor: null } };
-    expect(body.data.items).toEqual([]);
-    expect(body.data.nextCursor).toBeNull();
+  it("returns men around you even when the city has no local catalog", async () => {
+    const res = await GET(new Request("http://soko18.test/api/discover?city=kisumu&gender=man"));
+    const body = (await res.json()) as { data: { items: { gender?: string }[]; nextCursor: null } };
+    expect(body.data.items.length).toBeGreaterThan(0);
+    expect(body.data.items.every((item) => item.gender === "man")).toBe(true);
   });
 
   it("accepts intent from the query string", async () => {

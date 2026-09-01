@@ -7,6 +7,7 @@ import { coverPhoto } from "@/lib/media/public";
 import type { SeedProfile } from "@/lib/types";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
+import { BothSidesLine } from "@/components/trust/both-sides-line";
 
 export function MatchOverlay({
   profile,
@@ -43,6 +44,8 @@ export function MatchOverlay({
         ) : null}
       </div>
       <p className="mt-8 text-sm text-muted">You both liked each other.</p>
+      <BothSidesLine themIdentity={profile.verification.identity} />
+      <p className="mt-2 text-xs text-muted">See reviews in chat before you continue.</p>
       <Link
         href={`/messages/${profile.slug}`}
         className="mt-10 w-full max-w-xs"

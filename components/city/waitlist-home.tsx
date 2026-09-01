@@ -18,13 +18,12 @@ export function WaitlistHome({
   return (
     <div>
       <p className="text-[13px] tracking-[0.22em] text-gold uppercase">{name}</p>
-      <h1 className="mt-3 font-display text-4xl tracking-tight">Coming after Nairobi.</h1>
+      <h1 className="mt-3 font-display text-4xl tracking-tight">Local discovery</h1>
       <p className="mt-3 text-sm leading-relaxed text-muted">
-        SOKO18 launches city by city. We will not dilute Nairobi to look national.
+        Men around you in {name}. Area-level only. Never a precise location.
       </p>
-      <p className="mt-2 text-xs text-muted">Area-level only. Never a precise location.</p>
-      <WaitlistButton slug={slug} />
       <WaitlistDiscover slug={slug} />
+      <WaitlistButton slug={slug} />
       {areas.length > 0 ? (
         <section className="mt-10">
           <h2 className="text-sm text-muted">Popular areas</h2>
@@ -41,7 +40,7 @@ export function WaitlistHome({
           </div>
         </section>
       ) : null}
-      <PlaceShare shareName="Nairobi" path="/nairobi" shareLabel="Share Nairobi" />
+      <PlaceShare shareName={name} path={base} shareLabel={`Share ${name}`} />
     </div>
   );
 }

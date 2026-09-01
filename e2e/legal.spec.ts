@@ -11,10 +11,15 @@ test.describe("legal pages", () => {
     await page.goto("/privacy");
     await expect(page.getByRole("heading", { name: "Privacy" })).toBeVisible();
     await expect(page.getByText("area-level only", { exact: false })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Discretion" })).toBeVisible();
 
     await page.goto("/safety");
     await expect(page.getByRole("heading", { name: "Safety" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "What you pay for" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "ID verification" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Report and block" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Panic" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Share location" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toHaveCount(0);
     await page.getByRole("link", { name: "Discover" }).click();
     await expect(page).toHaveURL(/\/discover/);

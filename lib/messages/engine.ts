@@ -9,6 +9,7 @@ export type ThreadMessage = {
   senderId: string;
   body: string;
   createdAt: string;
+  readAt?: string | null;
 };
 
 export function otherAccount(actorId: string, accountA: string, accountB: string) {
@@ -74,8 +75,37 @@ export function appendMessage(input: {
     senderId: input.actorId,
     body,
     createdAt: input.now ?? new Date().toISOString(),
+    readAt: null,
   };
   return { ok: true, message, messages: [...input.messages, message] };
+}
+
+export function markThreadRead(
+  messages: ThreadMessage[],
+  conversationId: string,
+  readerId: string,
+  now: string,
+) {
+  let changed = false;
+  const next = messages.map((row) => {
+    if (row.conversationId !== conversationId) return row;
+    if (row.senderId === readerId) return row;
+    if (row.readAt) return row;
+    changed = true;
+    return { ...row, readAt: now };
+  });
+  return { messages: next, changed };
+}
+
+export function lastOwnReceipt(
+  messages: ThreadMessage[],
+  conversationId: string,
+  actorId: string,
+): "none" | "sent" | "read" {
+  const own = messages.filter((row) => row.conversationId === conversationId && row.senderId === actorId);
+  const last = own[own.length - 1];
+  if (!last) return "none";
+  return last.readAt ? "read" : "sent";
 }
 
 export function pageMessages(

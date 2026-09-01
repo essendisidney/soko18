@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/components/soko/button";
+import { DiscretionTools } from "@/components/privacy/discretion-tools";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -52,7 +52,7 @@ export default function SettingsPage() {
   return (
     <div>
       <h1 className="font-display text-[34px] tracking-tight">Settings</h1>
-      <p className="mt-2 text-sm text-muted">Privacy is part of the product.</p>
+      <p className="mt-2 text-sm text-muted">Privacy is part of the product. Nickname. Hashed contacts. Incognito.</p>
       <div className="mt-8 space-y-3 text-sm">
         <button
           type="button"
@@ -73,6 +73,7 @@ export default function SettingsPage() {
         </button>
       </div>
       {note ? <p className="mt-4 text-xs text-muted">{note}</p> : null}
+      <DiscretionTools />
       <p className="mt-6 text-xs leading-relaxed text-muted">
         Location is shown at area level only (Kilimani, Westlands). SOKO18 never shows a live pin.
       </p>

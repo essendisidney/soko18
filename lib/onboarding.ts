@@ -8,6 +8,11 @@ export const ONBOARDING = {
   nearArea: "soko18_near_area",
 } as const;
 
+/** Guest 18+ flag only. Date of birth is not stored on the device. */
+export function confirmAge() {
+  localStorage.setItem(ONBOARDING.age, "1");
+}
+
 export function readOnboarding() {
   if (typeof window === "undefined") {
     return {

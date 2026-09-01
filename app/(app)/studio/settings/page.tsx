@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { Button } from "@/components/soko/button";
+import { IdentitySubmit } from "@/components/trust/identity-submit";
 
 export default function StudioSettingsPage() {
   return (
     <div>
       <p className="text-[11px] tracking-[0.22em] text-gold uppercase">Studio</p>
       <h1 className="mt-3 font-display text-3xl tracking-tight">Settings</h1>
-      <p className="mt-2 text-sm text-muted">Indexing is off until you turn it on.</p>
+      <p className="mt-2 text-sm text-muted">Indexing is off until you turn it on. ID review is both sides.</p>
+
+      <IdentitySubmit />
 
       <div className="mt-8 overflow-hidden rounded-3xl border border-line">
         <Link

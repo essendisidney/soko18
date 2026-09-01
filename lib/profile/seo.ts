@@ -7,6 +7,18 @@ export function profileHeading(profile: Pick<SeedProfile, "name" | "age" | "area
   return `${profile.name}, ${profile.age} · ${profile.area}, Nairobi`;
 }
 
+function placeBreadcrumb(items: { name: string; path: string }[]) {
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      item: `${siteUrl()}${item.path}`,
+    })),
+  };
+}
+
 function absUrl(path: string) {
   if (path.startsWith("http://") || path.startsWith("https://")) return path;
   return `${siteUrl()}${path.startsWith("/") ? path : `/${path}`}`;
@@ -75,6 +87,11 @@ export function profileJsonLd(profile: SeedProfile) {
     "@type": "ProfilePage",
     name: profileHeading(profile),
     url: `${siteUrl()}/profile/${profile.slug}`,
+    breadcrumb: placeBreadcrumb([
+      { name: "Nairobi", path: "/nairobi" },
+      { name: profile.area, path: `/nairobi/${profile.areaSlug}` },
+      { name: profile.name, path: `/profile/${profile.slug}` },
+    ]),
     mainEntity: {
       "@type": "Person",
       name: profile.name,
@@ -113,6 +130,10 @@ export function areaJsonLd(name: string, slug: string) {
       name,
       containedInPlace: { "@type": "City", name: "Nairobi" },
     },
+    breadcrumb: placeBreadcrumb([
+      { name: "Nairobi", path: "/nairobi" },
+      { name, path: `/nairobi/${slug}` },
+    ]),
   };
 }
 
@@ -124,5 +145,9 @@ export function categoryJsonLd(name: string, slug: string, line: string) {
     description: line,
     url: `${siteUrl()}/category/${slug}`,
     about: { "@type": "City", name: "Nairobi" },
+    breadcrumb: placeBreadcrumb([
+      { name: "Nairobi", path: "/nairobi" },
+      { name, path: `/category/${slug}` },
+    ]),
   };
 }

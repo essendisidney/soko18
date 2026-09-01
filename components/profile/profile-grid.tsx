@@ -3,6 +3,7 @@
 import { SearchNotifyButton } from "@/components/nairobi/search-notify";
 import { hideBlocked } from "@/lib/safety/flags";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
+import { useHiddenByReports } from "@/lib/reports/use-hidden";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 import { ProfileCard } from "@/components/soko/profile-card";
 import type { SeedProfile } from "@/lib/types";
@@ -16,7 +17,10 @@ export function ProfileGrid({
   emptyText?: string;
   emptyNotify?: string;
 }) {
-  const visible = hideBlocked(profiles, useLocalIds(subscribeBlocks, blocksSnapshot));
+  const visible = hideBlocked(
+    hideBlocked(profiles, useLocalIds(subscribeBlocks, blocksSnapshot)),
+    useHiddenByReports(),
+  );
   if (visible.length === 0) {
     return (
       <div className="col-span-2">

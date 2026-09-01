@@ -5,6 +5,7 @@ import { requestedProfileAllowed } from "@/lib/studio/own";
 import { profileCanPromote } from "@/lib/studio/promote";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { mpesaConfigured } from "@/lib/payments/daraja";
 
 const bodySchema = z.object({
   kind: z.enum(PROMOTION_KINDS).default("boost"),
@@ -44,7 +45,7 @@ export async function createPaymentIntent(input: unknown) {
   }
 
   const catalog = PROMOTION_CATALOG[parsed.data.kind];
-  const provider = process.env.MPESA_SHORTCODE ? "mpesa" : "sandbox";
+  const provider = mpesaConfigured() ? "mpesa" : "sandbox";
   const { data: tx, error } = await supabase
     .from("transactions")
     .insert({

@@ -63,6 +63,16 @@ describe("ranking", () => {
     );
   });
 
+  it("ranks men in the same area first", () => {
+    const ranked = rankProfiles(nairobiProfiles(), {
+      citySlug: "nairobi",
+      nearArea: "kilimani",
+      gender: "man",
+    });
+    expect(ranked[0]?.gender).toBe("man");
+    expect(ranked[0]?.areaSlug).toBe("kilimani");
+  });
+
   it("returns a Nairobi seed deck after exclusions", () => {
     const all = nairobiProfiles();
     const ranked = rankProfiles(all, { citySlug: "nairobi", excludeIds: ["p1"] });

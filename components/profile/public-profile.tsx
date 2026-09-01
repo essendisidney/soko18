@@ -27,8 +27,11 @@ import { engageProfile } from "@/lib/likes/engage";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { hideBlocked } from "@/lib/safety/flags";
 import { useLocalIds } from "@/lib/safety/use-id-list";
+import { useHiddenByReports } from "@/lib/reports/use-hidden";
 import { cn } from "@/lib/utils";
 import { sokoVerified } from "@/lib/trust/verified";
+import { RatePanel } from "@/components/ratings/rate-panel";
+import { BothSidesLine } from "@/components/trust/both-sides-line";
 
 export function PublicProfile({
   profile,
@@ -44,8 +47,9 @@ export function PublicProfile({
   const [match, setMatch] = useState(false);
   const [needMatch, setNeedMatch] = useState(false);
   const blockedIds = useLocalIds(subscribeBlocks, blocksSnapshot);
+  const reported = useHiddenByReports();
   const blocked = blockedIds.includes(profile.id);
-  const more = hideBlocked(similarProfiles(profile), blockedIds);
+  const more = hideBlocked(similarProfiles(profile), [...blockedIds, ...reported]);
   const v = profile.verification;
   const photos = publicPhotos(profile);
 
@@ -174,7 +178,10 @@ export function PublicProfile({
 
         <section className="mt-10">
           <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Verification</h2>
-          <p className="mt-2 text-xs text-muted">Not a decorative tick. Each line is a real check.</p>
+          <p className="mt-2 text-xs text-muted">Not a decorative tick. Each line is a real check. ID is both sides.</p>
+          <div className="mt-2">
+            <BothSidesLine themIdentity={v.identity} />
+          </div>
           <ul className="mt-3 space-y-2 text-sm">
             <li className={cn(v.phone ? "text-cream" : "text-muted")}>
               {v.phone ? "✓" : "○"} Phone verified
@@ -190,6 +197,10 @@ export function PublicProfile({
             </li>
           </ul>
         </section>
+
+        {matched ? <RatePanel profileId={profile.id} name={profile.name} /> : (
+          <p className="mt-6 text-xs text-muted">Reviews after a match — two-way, before you continue.</p>
+        )}
 
         <section className="mt-10">
           <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Similar</h2>

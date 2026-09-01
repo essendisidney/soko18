@@ -1,11 +1,13 @@
 import { nairobiProfiles } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
 import { filterNairobi, nairobiNow, type NairobiFilter, type NairobiNowId } from "@/lib/nairobi/live";
+import { filterGhosts, seedIncognitoIds } from "@/lib/privacy/incognito";
+import { SEED_INBOUND_IDS } from "@/lib/likes/ids";
 import type { SeedProfile } from "@/lib/types";
 
 export function searchNairobi(query: string, profiles: SeedProfile[] = nairobiProfiles()) {
   const q = query.trim().toLowerCase();
-  const live = profiles.filter(hasApprovedCover);
+  const live = filterGhosts(profiles.filter(hasApprovedCover), seedIncognitoIds(profiles), SEED_INBOUND_IDS);
   if (!q) return live;
   return live.filter((p) => `${p.name} ${p.area} ${p.bio}`.toLowerCase().includes(q));
 }
@@ -27,8 +29,8 @@ export function browseFeed({
     return {
       items: [] as SeedProfile[],
       nextCursor: null as number | null,
-      live: false,
-      waitlist: true,
+      live: true,
+      waitlist: false,
     };
   }
 

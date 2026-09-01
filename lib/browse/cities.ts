@@ -11,7 +11,7 @@ export type CityRecord = {
 export function allCities(): CityRecord[] {
   return [
     { slug: LAUNCH_CITY.slug, name: LAUNCH_CITY.name, live: true },
-    ...WAITLIST_CITIES.map((city) => ({ ...city, live: false })),
+    ...WAITLIST_CITIES.map((city) => ({ ...city, live: true })),
   ];
 }
 
@@ -22,10 +22,10 @@ export function getCity(slug: string) {
 export function cityPayload(slug: string) {
   const city = getCity(slug);
   if (!city) return null;
-  if (!city.live) {
+  if (city.slug !== LAUNCH_CITY.slug) {
     return {
       ...city,
-      waitlist: true,
+      waitlist: false,
       activeNow: 0,
       areas: waitlistAreas(city.slug).map((area) => ({ slug: area.slug, name: area.name })),
     };

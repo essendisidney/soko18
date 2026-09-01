@@ -10,5 +10,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # SOKO18
 
-Build from `docs/SOKO18_MASTER_DEVELOPMENT.md`. Check `docs/PHASE_STATUS.md` before starting work. Do not skip phases.
+Build from `docs/SOKO18_MASTER_DEVELOPMENT.md`. Check `docs/PHASE_STATUS.md` before starting work. For Cursor, @ `docs/architecture.md`, `docs/contracts.md`, `docs/ui-design.md`, `docs/prompts.md`, `docs/business-model.md`, and `docs/anonymity.md`. Do not skip phases.
 

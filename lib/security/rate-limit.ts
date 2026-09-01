@@ -8,6 +8,9 @@ export const RATE_LIMITS = {
   messages: { limit: 30, windowMs: 10 * 60 * 1000 },
   reports: { limit: 8, windowMs: 60 * 60 * 1000 },
   uploads: { limit: 12, windowMs: 60 * 60 * 1000 },
+  ratings: { limit: 20, windowMs: 60 * 60 * 1000 },
+  panic: { limit: 6, windowMs: 60 * 60 * 1000 },
+  share: { limit: 30, windowMs: 60 * 60 * 1000 },
 } as const;
 
 export type RateBucket = keyof typeof RATE_LIMITS;

@@ -40,3 +40,25 @@ describe("RLS contract", () => {
     expect(foundation).toMatch(/role in \('moderator', 'admin', 'support'\)/);
   });
 });
+
+describe("safety ratings RLS", () => {
+  const sql = migration("00008_ratings.sql");
+
+  it("enables RLS and keeps ratings on a match", () => {
+    expect(sql).toContain("alter table public.ratings enable row level security");
+    expect(sql).toContain("constraint ratings_not_self");
+    expect(policy(sql, "ratings_insert")).toContain("rater_id = auth.uid()");
+    expect(policy(sql, "ratings_select")).toMatch(/account_a = auth\.uid\(\) or m\.account_b = auth\.uid\(\)/);
+  });
+
+  it("lets a participant mark the other person’s messages read", () => {
+    expect(policy(sql, "messages_update_read")).toContain("sender_id <> auth.uid()");
+  });
+
+  it("queues identity as pending only — never self-verified", () => {
+    const insert = policy(sql, "verification_insert_own");
+    expect(insert).toContain("account_id = auth.uid()");
+    expect(insert).toContain("status = 'pending'");
+    expect(insert).not.toContain("verified");
+  });
+});

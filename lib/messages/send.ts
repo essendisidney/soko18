@@ -41,7 +41,7 @@ export async function sendMessage(conversationKey: string, input: unknown) {
         sender_id: access.userId,
         body: parsed.data.body,
       })
-      .select("id, conversation_id, sender_id, body, created_at")
+      .select("id, conversation_id, sender_id, body, created_at, read_at")
       .maybeSingle();
     if (error || !data) {
       return {
@@ -56,8 +56,9 @@ export async function sendMessage(conversationKey: string, input: unknown) {
         id: data.id,
         conversationId: data.conversation_id,
         senderId: data.sender_id,
-        body: data.body,
+        body: data.body ?? "",
         createdAt: data.created_at,
+        readAt: data.read_at,
         persisted: true,
       },
     };

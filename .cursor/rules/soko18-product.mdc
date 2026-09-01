@@ -5,9 +5,9 @@ alwaysApply: true
 
 # SOKO18
 
-Source of truth: `docs/SOKO18_MASTER_DEVELOPMENT.md`. Do not invent product behavior that contradicts it.
+Source of truth: `docs/SOKO18_MASTER_DEVELOPMENT.md`. Cursor context: `docs/architecture.md`, `docs/contracts.md`, `docs/ui-design.md`, `docs/prompts.md`, `docs/business-model.md`, `docs/anonymity.md`. Do not invent product behavior that contradicts them.
 
-Positioning: Nairobi-first 18+ local discovery. Not Kenya-wide until Nairobi has density. Not classifieds. Not African Tinder. SOKO18 owns local discovery; Tinder owns dating.
+Positioning: Kenya 18+ local discovery. Use my area snaps to a Kenyan city and neighborhood. Discover shows men around you. Presence is area-level only — never a live GPS pin of other people. Not classifieds. Not a map radar. Empty cities stay empty; do not invent people.
 
 Brand: dark, glassy, cinematic, minimal, high-contrast, mobile-first. Wordmark `SOKO` + gold `18`. No flames, lips, or adult-cliché imagery.
 

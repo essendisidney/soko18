@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { hideBlocked } from "@/lib/safety/flags";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { useLocalIds } from "@/lib/safety/use-id-list";
+import { useHiddenByReports } from "@/lib/reports/use-hidden";
 import { Search } from "lucide-react";
 import { BROWSE_CATEGORIES } from "@/lib/browse/categories";
 import { searchNairobi } from "@/lib/browse/feed";
-import { NAIROBI_AREAS, NAIROBI_FILTERS, NAIROBI_NOW } from "@/lib/data/nairobi";
+import { NAIROBI_AREAS, NAIROBI_FILTERS, NAIROBI_NOW, WAITLIST_CITIES } from "@/lib/data/nairobi";
 import {
   activeNow,
   filterNairobi,
@@ -26,6 +27,9 @@ import { SearchNotifyButton } from "@/components/nairobi/search-notify";
 import { nairobiUrl, shareProfile } from "@/lib/profile/share";
 import { nearAreaName } from "@/lib/nairobi/near";
 import { useNearArea } from "@/lib/nairobi/use-near-area";
+import { tonightAreaNames } from "@/lib/nairobi/tonight";
+import { readImpressions } from "@/lib/discovery/impressions";
+import { nairobiProfiles } from "@/lib/data/seed";
 import { cn } from "@/lib/utils";
 
 export function NairobiHome({
@@ -39,14 +43,21 @@ export function NairobiHome({
   const [facet, setFacet] = useState<NairobiFilter>("trending");
   const [now, setNow] = useState<NairobiNowId>("trending");
   const [shareNotice, setShareNotice] = useState<string | null>(null);
+  const [tonight, setTonight] = useState<string[]>([]);
   const near = useNearArea(nearArea);
   const nearName = nearAreaName(near);
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
+  const reported = useHiddenByReports();
+  const hidden = [...blocked, ...reported];
   const live = activeNow();
   const inventory = nairobiInventoryLine();
   const dense = Boolean(inventory);
-  const featured = hideBlocked(searchNairobi("").filter((p) => p.featured), blocked);
-  const grid = hideBlocked(q ? searchNairobi(q) : filterNairobi(facet, near), blocked);
+  const featured = hideBlocked(searchNairobi("").filter((p) => p.featured), hidden);
+  const grid = hideBlocked(q ? searchNairobi(q) : filterNairobi(facet, near), hidden);
+
+  useEffect(() => {
+    setTonight(tonightAreaNames(readImpressions(), nairobiProfiles()));
+  }, []);
 
   return (
     <div className="pb-6">
@@ -65,6 +76,9 @@ export function NairobiHome({
       <p className={cn("text-[13px] tracking-[0.22em] text-gold uppercase", showChrome ? "mt-6" : null)}>Nairobi</p>
       <h1 className="mt-2 font-display text-4xl tracking-tight">Local discovery</h1>
       <p className="mt-2 text-sm text-muted">{inventory ?? nairobiPlaceLine()}</p>
+      {tonight.length > 0 ? (
+        <p className="mt-1 text-xs text-muted">Tonight · {tonight.join(" · ")}</p>
+      ) : null}
 
       <section className="glass mt-6 rounded-3xl p-4">
         <p className="text-[11px] tracking-[0.16em] text-gold uppercase">Active now</p>
@@ -88,7 +102,7 @@ export function NairobiHome({
         ))}
       </div>
       {facet === "near" ? (
-        <p className="mt-2 text-xs text-muted">{nearName}. Area-level only.</p>
+        <p className="mt-2 text-xs text-muted">Men around you · {nearName}. Area-level only.</p>
       ) : null}
 
       <label className="glass mt-4 flex items-center gap-3 rounded-full px-4 py-3">
@@ -160,6 +174,21 @@ export function NairobiHome({
               className="rounded-full border border-line px-3 py-1.5 text-sm"
             >
               {area.name}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-sm text-muted">Kenya</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {WAITLIST_CITIES.map((city) => (
+            <Link
+              key={city.slug}
+              href={`/${city.slug}`}
+              className="rounded-full border border-line px-3 py-1.5 text-sm"
+            >
+              {city.name}
             </Link>
           ))}
         </div>

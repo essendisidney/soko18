@@ -2,6 +2,8 @@ import type { SeedProfile } from "@/lib/types";
 import { hasApprovedCover } from "@/lib/media/public";
 import { profileHealth } from "@/lib/profile/health";
 import { sokoVerified } from "@/lib/trust/verified";
+import { goldenRankBonus } from "@/lib/visibility/golden-hour";
+import { hideFromPublic, ratingFit, safetyPenalty } from "@/lib/reports/tally";
 
 const FEATURED_WINDOW = 8;
 const FEATURED_BONUS_CAP = 0.04;
@@ -9,9 +11,14 @@ const FEATURED_BONUS_CAP = 0.04;
 export type RankContext = {
   citySlug?: string | null;
   nearArea?: string | null;
+  gender?: "man" | "woman" | "any";
   intents?: string[];
   impressedIds?: string[];
   excludeIds?: string[];
+  goldenHour?: boolean;
+  goldenPinnedIds?: string[];
+  reportCounts?: Record<string, number>;
+  ratingAverages?: Record<string, number | null>;
 };
 
 function clamp01(n: number) {
@@ -19,10 +26,11 @@ function clamp01(n: number) {
 }
 
 export function locationProximity(profile: SeedProfile, ctx: RankContext) {
-  if (ctx.citySlug && profile.citySlug !== ctx.citySlug) return 0;
-  if (ctx.nearArea && profile.areaSlug === ctx.nearArea) return 1;
-  if (profile.citySlug === "nairobi") return 0.45;
-  return 0;
+  if (ctx.nearArea && profile.areaSlug === ctx.nearArea && (!ctx.citySlug || profile.citySlug === ctx.citySlug)) {
+    return 1;
+  }
+  if (ctx.citySlug && profile.citySlug === ctx.citySlug) return 0.45;
+  return 0.15;
 }
 
 export function preferenceFit(profile: SeedProfile, intents: string[] = []) {
@@ -62,7 +70,8 @@ export function interactionHistory(profile: SeedProfile, impressedIds: string[] 
 }
 
 export function rankScore(profile: SeedProfile, ctx: RankContext) {
-  const safetyPenalty = 0;
+  const reports = ctx.reportCounts?.[profile.id] ?? 0;
+  const rating = ctx.ratingAverages?.[profile.id] ?? null;
   return (
     locationProximity(profile, ctx) * 0.28 +
     preferenceFit(profile, ctx.intents) * 0.12 +
@@ -71,8 +80,12 @@ export function rankScore(profile: SeedProfile, ctx: RankContext) {
     verificationScore(profile) * 0.12 +
     freshness(profile) * 0.08 +
     interactionHistory(profile, ctx.impressedIds) * 0.08 -
-    safetyPenalty * 0.06 +
-    Math.min(profile.featured ? 0.04 : 0, FEATURED_BONUS_CAP)
+    safetyPenalty(reports) * 0.06 +
+    (rating == null ? 0 : (ratingFit(rating) - 0.5) * 0.06) +
+    Math.min(profile.featured ? 0.04 : 0, FEATURED_BONUS_CAP) +
+    (ctx.goldenHour
+      ? goldenRankBonus(profile.presence, true, Boolean(ctx.goldenPinnedIds?.includes(profile.id)))
+      : 0)
   );
 }
 
@@ -104,8 +117,11 @@ export function capFeatured(profiles: SeedProfile[], windowSize = FEATURED_WINDO
 
 export function rankProfiles(profiles: SeedProfile[], ctx: RankContext = {}) {
   const exclude = new Set(ctx.excludeIds ?? []);
+  const gender = ctx.gender ?? "any";
   const ranked = profiles
     .filter((p) => !exclude.has(p.id) && hasApprovedCover(p))
+    .filter((p) => gender === "any" || p.gender === gender)
+    .filter((p) => !hideFromPublic(ctx.reportCounts?.[p.id] ?? 0))
     .map((profile) => ({ profile, score: rankScore(profile, ctx) }))
     .sort((a, b) => b.score - a.score || a.profile.slug.localeCompare(b.profile.slug))
     .map((row) => row.profile);

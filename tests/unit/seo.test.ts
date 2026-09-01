@@ -31,6 +31,11 @@ describe("Nairobi landing SEO", () => {
         addressCountry: "KE",
       },
     });
+    expect(profileJsonLd(amani)?.breadcrumb.itemListElement.map((item: { name: string }) => item.name)).toEqual([
+      "Nairobi",
+      "Kilimani",
+      "Amani",
+    ]);
     expect(profileJsonLd(chebet)).toBeNull();
   });
 
@@ -57,11 +62,14 @@ describe("Nairobi landing SEO", () => {
     expect(area.name).toBe("Westlands, Nairobi");
     expect(area.about.name).toBe("Westlands");
     expect(area).not.toHaveProperty("numberOfItems");
+    expect(area.breadcrumb.itemListElement.map((item: { name: string }) => item.name)).toEqual(["Nairobi", "Westlands"]);
+    expect(area.breadcrumb).not.toHaveProperty("numberOfItems");
 
     const category = categoryJsonLd("Trending", "trending", "From real activity in Nairobi.");
     expect(category.name).toBe("Trending · Nairobi");
     expect(category.about).toEqual({ "@type": "City", name: "Nairobi" });
     expect(category).not.toHaveProperty("numberOfItems");
+    expect(category.breadcrumb.itemListElement.map((item: { name: string }) => item.name)).toEqual(["Nairobi", "Trending"]);
   });
 
   it("gives Nairobi landings a canonical URL", () => {

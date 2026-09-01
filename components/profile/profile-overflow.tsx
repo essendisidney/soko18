@@ -8,6 +8,7 @@ import { blocksSnapshot, subscribeBlocks, writeBlock } from "@/lib/blocks/local"
 import { favoritesSnapshot, subscribeFavorites, writeFavorite } from "@/lib/favorites/local";
 import { parseIdList } from "@/lib/safety/local-ids";
 import { postBlock, postFavorite, postProfileReport } from "@/lib/safety/client";
+import { writeReportFlag } from "@/lib/reports/local";
 import { writeDiscoverAction } from "@/lib/discovery/actions";
 import { postLike } from "@/lib/likes/client";
 import { profileUrl, shareProfile } from "@/lib/profile/share";
@@ -133,9 +134,11 @@ export function ProfileOverflow({ profile }: { profile: SeedProfile }) {
                   return;
                 }
                 if (!result.ok) return;
+                writeReportFlag(profile.id, user?.id ?? "local", reason);
+                writeDiscoverAction({ profileId: profile.id, kind: "pass", at: Date.now() });
                 setReport(false);
                 setOpen(false);
-                setNotice("Report received.");
+                setNotice("Report received. Hidden from Discover.");
               });
             }}
             onCancel={() => setReport(false)}

@@ -6,6 +6,7 @@ export function testProfile(overrides: Partial<SeedProfile> = {}): SeedProfile {
     slug: "test-nairobi",
     name: "Test",
     age: 24,
+    gender: "woman",
     city: "Nairobi",
     citySlug: "nairobi",
     area: "Kilimani",

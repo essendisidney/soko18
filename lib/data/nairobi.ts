@@ -22,13 +22,29 @@ export const WAITLIST_CITIES = [
   { slug: "kisumu", name: "Kisumu" },
   { slug: "nakuru", name: "Nakuru" },
   { slug: "eldoret", name: "Eldoret" },
+  { slug: "thika", name: "Thika" },
+  { slug: "machakos", name: "Machakos" },
+  { slug: "kitale", name: "Kitale" },
+  { slug: "kakamega", name: "Kakamega" },
+  { slug: "kisii", name: "Kisii" },
+  { slug: "nyeri", name: "Nyeri" },
+  { slug: "meru", name: "Meru" },
+  { slug: "malindi", name: "Malindi" },
+  { slug: "naivasha", name: "Naivasha" },
+  { slug: "kericho", name: "Kericho" },
+  { slug: "embu", name: "Embu" },
+  { slug: "nanyuki", name: "Nanyuki" },
+  { slug: "garissa", name: "Garissa" },
+  { slug: "kitui", name: "Kitui" },
+  { slug: "homa-bay", name: "Homa Bay" },
+  { slug: "migori", name: "Migori" },
 ] as const;
 
 export const INTENTS = [
   { id: "connect", label: "Connect" },
   { id: "meet", label: "Meet" },
   { id: "browse", label: "Browse" },
-  { id: "featured", label: "Featured in Nairobi" },
+  { id: "featured", label: "Featured" },
 ] as const;
 
 export const NAIROBI_FILTERS = [

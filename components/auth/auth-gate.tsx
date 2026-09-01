@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
 
-export type AuthIntent = "like" | "spotlight" | "message" | "profile" | "report";
+export type AuthIntent = "like" | "spotlight" | "message" | "profile" | "report" | "panic" | "share" | "rate" | "verify";
 
 const copy: Record<AuthIntent, { title: string; line: string }> = {
   like: { title: "Sign in to like", line: "Pass stays open. Likes need an account." },
@@ -14,6 +14,10 @@ const copy: Record<AuthIntent, { title: string; line: string }> = {
   message: { title: "Sign in to message", line: "You can keep browsing Nairobi as a guest." },
   profile: { title: "Sign in to continue", line: "Create a profile once you’re in." },
   report: { title: "Sign in to report", line: "A report opens a staff case. You can keep browsing." },
+  panic: { title: "Sign in to send a panic alert", line: "The alert goes to your trusted contact only." },
+  share: { title: "Sign in to share location", line: "Live location goes to your trusted contact only." },
+  rate: { title: "Sign in to rate", line: "Reviews are two-way after a match." },
+  verify: { title: "Sign in to verify ID", line: "Identity review is both sides. No ID number in the app." },
 };
 
 export function AuthGate({

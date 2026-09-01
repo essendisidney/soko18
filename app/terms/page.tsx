@@ -10,8 +10,8 @@ export default function TermsPage() {
   return (
     <LegalPage kicker="18+" title="Terms">
       <LegalSection title="Who this is for">
-        <p>SOKO18 is an 18+ local discovery product for Nairobi. You must be 18 or older to use it. By continuing, you confirm that.</p>
-        <p>It is not a classifieds board and not a dating app. We own local discovery. Dating products own dating.</p>
+        <p>SOKO18 is an 18+ local discovery product for Kenya. You must be 18 or older to use it. On first open you confirm that with your date of birth. We do not keep that date on this device.</p>
+        <p>Use my area finds men around you at area-level only. A public profile is not Verified until phone, identity, and profile review. It is not a classifieds board and not a dating map. We own local discovery.</p>
       </LegalSection>
       <LegalSection title="The product">
         <p>v1 is live in Nairobi only. Other cities are waitlist until Nairobi has density.</p>

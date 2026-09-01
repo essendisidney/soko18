@@ -1,14 +1,9 @@
+import { PROMOTION_CATALOG } from "@/lib/payments/catalog";
+
 export const PROMOTION_KINDS = ["boost", "spotlight", "featured"] as const;
 export type PromotionKind = (typeof PROMOTION_KINDS)[number];
 
-export const PROMOTION_CATALOG: Record<
-  PromotionKind,
-  { amountKes: number; hours: number; ledgerType: PromotionKind; title: string; line: string }
-> = {
-  boost: { amountKes: 500, hours: 24, ledgerType: "boost", title: "Boost", line: "24 hours on Discover." },
-  spotlight: { amountKes: 1200, hours: 4, ledgerType: "spotlight", title: "Spotlight", line: "4 hours of extra reach." },
-  featured: { amountKes: 3500, hours: 168, ledgerType: "featured", title: "Featured", line: "7 days, labeled paid." },
-};
+export { PROMOTION_CATALOG };
 
 export type LedgerRow = {
   id: string;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { ChevronRight } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { Wordmark } from "@/components/brand/wordmark";
@@ -16,12 +16,15 @@ import { areaUrl, nairobiUrl, shareProfile } from "@/lib/profile/share";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 import { areaBySlug } from "@/lib/data/nairobi";
 import { nearAreaSnapshot, subscribeNearArea } from "@/lib/nairobi/near";
+import { HereNowButton } from "@/components/presence/here-now";
+import { readIncognito } from "@/lib/privacy/local";
 
 const rows = [
   { href: "/saved", label: "Saved" },
   { href: "/notify", label: "Notify me" },
   { href: "/intent", label: "Looking for" },
   { href: "/studio", label: "SOKO18 Studio" },
+  { href: "/invite", label: "Friend pass" },
   { href: "/admin", label: "Admin" },
   { href: "/settings", label: "Settings" },
   { href: "/safety", label: "Safety" },
@@ -35,11 +38,16 @@ export default function MePage() {
   const draft = useDraftProfile();
   const [gate, setGate] = useState(false);
   const [shareNotice, setShareNotice] = useState<string | null>(null);
+  const [ghost, setGhost] = useState(false);
   const router = useRouter();
   const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
   const place = near ? areaBySlug(near) : null;
   const shareName = place?.name ?? "Nairobi";
   const shareHref = place ? areaUrl(place.slug) : nairobiUrl();
+
+  useEffect(() => {
+    setGhost(readIncognito());
+  }, []);
 
   return (
     <div className="pb-8">
@@ -48,6 +56,8 @@ export default function MePage() {
       <p className="mt-2 text-sm text-muted">
         {user ? "Account, safety, and business tools." : "Discovering as a guest."}
       </p>
+      {ghost ? <p className="mt-2 text-xs text-gold">You’re invisible</p> : null}
+      <HereNowButton />
 
       {ready && user ? (
         <div className="mt-6 rounded-3xl border border-line px-5 py-4">

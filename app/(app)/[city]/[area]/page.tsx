@@ -21,7 +21,7 @@ export async function generateMetadata({
   if (!meta || !place) return { title: "City" };
   return {
     title: `${place.name}, ${meta.name}`,
-    description: `SOKO18 is live in Nairobi first. ${place.name}, ${meta.name} opens when Nairobi has density.`,
+    description: `Men around you in ${place.name}, ${meta.name}. Area-level only.`,
     robots: { index: false, follow: true },
   };
 }
@@ -36,5 +36,5 @@ export default async function WaitlistAreaPage({
   const place = waitlistArea(city, area);
   if (!meta || !place) notFound();
 
-  return <WaitlistArea cityName={meta.name} citySlug={meta.slug} areaName={place.name} />;
+  return <WaitlistArea cityName={meta.name} citySlug={meta.slug} areaName={place.name} areaSlug={place.slug} />;
 }

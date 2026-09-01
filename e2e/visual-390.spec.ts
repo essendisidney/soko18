@@ -39,7 +39,17 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("heading", { name: "Kilimani" })).toBeVisible();
     await page.goto("/discover");
     await expect(page.getByRole("heading", { name: "Nairobi" })).toBeVisible();
-    await expect(page.getByText(/^Kilimani ·/)).toBeVisible();
+    await expect(page.getByText(/Kilimani ·/)).toBeVisible();
+  });
+
+  test("mystery is one card not a swipe", async ({ page }) => {
+    await page.goto("/discover");
+    await page.getByRole("button", { name: /Mystery/ }).click();
+    await page.getByRole("button", { name: /Settle sandbox/ }).click();
+    await expect(page.getByRole("heading", { name: "One card" })).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page.getByRole("heading", { name: "One card" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Nairobi" })).toBeVisible();
   });
 
   test("matches empty sends you back to the card", async ({ page }) => {
@@ -59,6 +69,12 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("button", { name: "Share" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Kisumu" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Mombasa" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Nakuru" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Eldoret" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Thika", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Kakamega" })).toBeVisible();
     const nairobiLd = page.locator('script[type="application/ld+json"]');
     await expect(nairobiLd).toHaveCount(1);
     expect(JSON.parse((await nairobiLd.textContent()) ?? "{}").about.name).toBe("Nairobi");
@@ -69,7 +85,11 @@ test.describe("390px surfaces", () => {
     expect(JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) ?? "{}").about.name).toBe(
       "Westlands",
     );
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/nairobi\/westlands$/);
+    expect(
+      JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) ?? "{}").breadcrumb.itemListElement[1]
+        .name,
+    ).toBe("Westlands");
+    await expect(page.locator('link[rel="canonical"][href$="/nairobi/westlands"]')).toHaveCount(1);
     await expect(page.getByRole("link", { name: "Kilimani" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Share" })).toBeVisible();
     await expect(page.getByRole("link", { name: "All of Nairobi" })).toBeVisible();
@@ -131,7 +151,11 @@ test.describe("390px surfaces", () => {
     expect(JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) ?? "{}").name).toBe(
       "Trending · Nairobi",
     );
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/category\/trending$/);
+    expect(
+      JSON.parse((await page.locator('script[type="application/ld+json"]').textContent()) ?? "{}").breadcrumb.itemListElement[1]
+        .name,
+    ).toBe("Trending");
+    await expect(page.locator('link[rel="canonical"][href$="/category/trending"]')).toHaveCount(1);
     await expect(page.getByRole("button", { name: "Share" })).toBeVisible();
     await expect(page.getByRole("link", { name: "All of Nairobi" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
@@ -145,6 +169,7 @@ test.describe("390px surfaces", () => {
     await page.goto("/profile/amani-nairobi");
     await expect(page.getByRole("heading", { name: "Amani" })).toBeVisible();
     await expect(page.getByText("SOKO18 Verified")).toBeVisible();
+    await expect(page.getByText("Reviews after a match — two-way, before you continue.")).toBeVisible();
     await expect(page).toHaveTitle(/Amani, 26 · Kilimani, Nairobi/);
     await page.getByRole("button", { name: "View photos" }).click();
     await page.getByRole("button", { name: "Close photos" }).click();
@@ -155,6 +180,9 @@ test.describe("390px surfaces", () => {
     const jsonLd = page.locator('script[type="application/ld+json"]');
     await expect(jsonLd).toHaveCount(1);
     expect(JSON.parse((await jsonLd.textContent()) ?? "{}").mainEntity.name).toBe("Amani");
+    expect(JSON.parse((await jsonLd.textContent()) ?? "{}").breadcrumb.itemListElement.map((item: { name: string }) => item.name)).toEqual(
+      ["Nairobi", "Kilimani", "Amani"],
+    );
   });
 
   test("profile message without a match stays on the profile", async ({ page }) => {
@@ -182,13 +210,27 @@ test.describe("390px surfaces", () => {
     await page.goto("/me");
     await expect(page.getByRole("heading", { name: "Me" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Share Nairobi" })).toBeVisible();
+    await page.getByRole("button", { name: "I’m here" }).click();
+    await expect(page.getByText("Kilimani · here now")).toBeVisible();
     await expect(page.getByRole("link", { name: "Saved" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Notify me" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Looking for" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Friend pass" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Safety" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Blocked" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Nairobi" })).toHaveCount(0);
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+  });
+
+  test("me friend pass opens invite", async ({ page }) => {
+    await page.goto("/me");
+    await page.locator('a[href="/invite"]').evaluate((el) => el.scrollIntoView({ block: "center" }));
+    await page.locator('a[href="/invite"]').click();
+    await expect(page).toHaveURL(/\/invite/);
+    await expect(page.getByRole("heading", { name: "Friend pass", level: 1 })).toBeVisible();
+    await expect(page.getByText("WhatsApp a real person. Staff review first. Empty stays empty.")).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
   });
 
   test("me shares the last Nairobi area", async ({ page }) => {
@@ -223,13 +265,16 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("link", { name: "Other cities" })).toHaveAttribute("href", "/onboarding/city");
     await page.evaluate(() => localStorage.setItem("soko18_onboarded", "1"));
     await page.goto("/onboarding/city");
-    await expect(page.getByRole("heading", { name: "SOKO18 is live in Nairobi." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "SOKO18 is live in Kenya." })).toBeVisible();
+    await expect(page.getByText("Use my area finds men around you. Area-level only. Never a precise location.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Thika" })).toBeVisible();
     await page.getByRole("button", { name: "Discover Nairobi" }).click();
     await expect(page).toHaveURL(/\/discover/);
     await expect(page.getByRole("heading", { name: "What are you looking for?" })).toHaveCount(0);
   });
 
   test("city waitlist first open still continues to intent", async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("soko18_age_ok", "1"));
     await page.goto("/onboarding/city");
     await page.getByRole("button", { name: "Continue in Nairobi" }).click();
     await expect(page).toHaveURL(/\/onboarding\/intent/);
@@ -238,18 +283,21 @@ test.describe("390px surfaces", () => {
   test("kisumu is waitlist with areas and tabs", async ({ page }) => {
     await page.goto("/city/kisumu");
     await expect(page).toHaveURL(/\/kisumu$/);
-    await expect(page.getByRole("heading", { name: "Coming after Nairobi." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
     await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
     await expect(page.getByText("Kisumu").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /Amani/ })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Share Nairobi" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Share Kisumu" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Milimani" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await page.getByRole("button", { name: "Notify me" }).click();
     await expect(page.getByRole("button", { name: "You’re on the list" })).toBeVisible();
-    await page.getByRole("button", { name: "Discover Nairobi" }).click();
+    await page.getByRole("button", { name: /Skip the line/ }).click();
+    await page.getByRole("button", { name: /Settle sandbox/ }).click();
+    await expect(page.getByRole("button", { name: "Review next" })).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
     await expect(page).toHaveURL(/\/discover/);
     await page.goto("/me");
     const waiting = page.getByRole("link", { name: "Notify me" });
@@ -265,16 +313,18 @@ test.describe("390px surfaces", () => {
     await page.getByRole("link", { name: "Milimani" }).click();
     await expect(page).toHaveURL(/\/kisumu\/milimani/);
     await expect(page.getByRole("heading", { name: "Milimani" })).toBeVisible();
-    await expect(page.getByText("Coming after Nairobi. Area-level only.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Share Nairobi" })).toBeVisible();
-    await page.getByRole("button", { name: "Discover Nairobi" }).click();
+    await expect(page.getByText("Men around you. Area-level only.")).toBeVisible();
+    await page.getByRole("button", { name: "I’m here" }).click();
+    await expect(page.getByText("Milimani · here now")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Share Milimani" })).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
     await expect(page).toHaveURL(/\/discover/);
   });
 
   test("mombasa is waitlist with areas and tabs", async ({ page }) => {
     await page.goto("/city/mombasa");
     await expect(page).toHaveURL(/\/mombasa$/);
-    await expect(page.getByRole("heading", { name: "Coming after Nairobi." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
     await expect(page.getByText("Mombasa").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /Amani/ })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Nyali" })).toBeVisible();
@@ -288,12 +338,37 @@ test.describe("390px surfaces", () => {
 
   test("nakuru and eldoret are waitlist doors", async ({ page }) => {
     await page.goto("/nakuru");
-    await expect(page.getByRole("heading", { name: "Coming after Nairobi." })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
+    await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/);
     await expect(page.getByRole("link", { name: "Section 58" })).toBeVisible();
     await expect(page.getByRole("link", { name: /Amani/ })).toHaveCount(0);
+    await page.getByRole("button", { name: "Notify me" }).click();
+    await expect(page.getByRole("button", { name: "You’re on the list" })).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
     await page.goto("/eldoret");
     await expect(page.getByRole("link", { name: "Elgon View" })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Amani/ })).toHaveCount(0);
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+    await page.getByRole("link", { name: "Elgon View" }).click();
+    await expect(page).toHaveURL(/\/eldoret\/elgon-view/);
+    await expect(page.getByRole("heading", { name: "Elgon View" })).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
+  });
+
+  test("thika is a Kenya waitlist door without a fake catalog", async ({ page }) => {
+    await page.goto("/thika");
+    await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
+    await expect(page.getByText("Men around you in Thika. Area-level only. Never a precise location.")).toBeVisible();
+    await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /Amani/ })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Makongeni" })).toBeVisible();
+    await page.getByRole("button", { name: "Notify me" }).click();
+    await expect(page.getByRole("button", { name: "You’re on the list" })).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
   });
 
   test("incomplete checks do not wear SOKO18 Verified", async ({ page }) => {
@@ -317,7 +392,7 @@ test.describe("390px surfaces", () => {
     await page.goto("/me");
     await page.getByRole("button", { name: "Create profile" }).click();
     await expect(page).toHaveURL(/\/studio\/profile/);
-    await page.getByLabel("Name").fill("Sid");
+    await page.getByLabel("Username").fill("Sid");
     await page.getByLabel("Born").fill("2000");
     await page.getByRole("button", { name: "Kilimani" }).click();
     await page.getByLabel("About").fill("Kilimani evenings.");
@@ -381,6 +456,16 @@ test.describe("390px surfaces", () => {
     await page.goto("/studio/analytics");
     await expect(page.getByRole("heading", { name: "Analytics" })).toBeVisible();
     await expect(page.getByText("Sign in to see your studio stats.")).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
+  });
+
+  test("studio promotions unsigned sends you to Discover", async ({ page }) => {
+    await page.goto("/studio/promotions");
+    await expect(page.getByRole("heading", { name: "Promotions" })).toBeVisible();
+    await expect(page.getByText("Boost after you’re live. Nairobi Now is not for sale.")).toBeVisible();
+    await expect(page.getByText("Golden Hour")).toBeVisible();
+    await expect(page.getByText("8–9pm EAT pin. Not a discounted meet.")).toBeVisible();
     await page.getByRole("button", { name: "Discover" }).click();
     await expect(page).toHaveURL(/\/discover/);
   });

@@ -44,6 +44,7 @@ export function SwipeDeck({
   canUndo,
   browseHref = "/nairobi",
   browseLabel = "Browse",
+  emptyTitle = "That’s everyone around you",
   onEngage,
   onImpression,
 }: {
@@ -55,6 +56,7 @@ export function SwipeDeck({
   canUndo?: boolean;
   browseHref?: string;
   browseLabel?: string;
+  emptyTitle?: string;
   onEngage?: (profile: SeedProfile, kind: "like" | "spotlight") => boolean;
   onImpression?: (profile: SeedProfile) => void;
 }) {
@@ -178,8 +180,8 @@ export function SwipeDeck({
   if (!current && exits.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-        <p className="font-display text-2xl">That’s everyone in Nairobi</p>
-        <p className="mt-2 text-sm text-muted">A pass stays off Discover for 30 days. Browse still open.</p>
+        <p className="font-display text-2xl">{emptyTitle}</p>
+        <p className="mt-2 text-sm text-muted">A pass stays off Discover for 30 days. Browse still open. Empty stays empty.</p>
         <Link href={browseHref} className="mt-8 w-full max-w-xs">
           <Button className="w-full" variant="gold">
             {browseLabel}

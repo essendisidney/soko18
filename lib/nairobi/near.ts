@@ -1,4 +1,5 @@
 import { areaBySlug } from "@/lib/data/nairobi";
+import { waitlistAreas } from "@/lib/data/waitlist";
 import { ONBOARDING } from "@/lib/onboarding";
 
 export const DEFAULT_NEAR_AREA = "kilimani";
@@ -36,5 +37,8 @@ export function writeNearArea(slug: string) {
 }
 
 export function nearAreaName(slug: string) {
-  return areaBySlug(slug)?.name ?? "Nairobi";
+  const nairobi = areaBySlug(slug)?.name;
+  if (nairobi) return nairobi;
+  const city = typeof window === "undefined" ? "nairobi" : localStorage.getItem(ONBOARDING.city) || "nairobi";
+  return waitlistAreas(city).find((area) => area.slug === slug)?.name ?? "Around you";
 }

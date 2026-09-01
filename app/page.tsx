@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useSyncExternalStore } from "react";
-import { ONBOARDING, bumpVisit, markWelcomeSeen } from "@/lib/onboarding";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { ageGateMaxDate, isAdultBirthDate, MIN_BIRTH_DATE } from "@/lib/age";
+import { locateHere } from "@/lib/geo/locate";
+import { ONBOARDING, bumpVisit, confirmAge, markWelcomeSeen } from "@/lib/onboarding";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
 import { WelcomeBack } from "@/components/nairobi/welcome-back";
@@ -21,6 +23,10 @@ function openMode() {
 export default function WelcomePage() {
   const router = useRouter();
   const mode = useSyncExternalStore(subscribe, openMode, () => "age");
+  const [dob, setDob] = useState("");
+  const [locating, setLocating] = useState(false);
+  const adult = isAdultBirthDate(dob);
+  const underage = Boolean(dob) && !adult;
 
   useEffect(() => {
     if (mode === "age") return;
@@ -32,14 +38,28 @@ export default function WelcomePage() {
     router.replace("/discover");
   }, [mode, router]);
 
+  async function useMyArea() {
+    if (!adult) return;
+    confirmAge();
+    setLocating(true);
+    const result = await locateHere();
+    setLocating(false);
+    if (!result.ok) {
+      localStorage.setItem(ONBOARDING.city, "nairobi");
+    }
+    router.push("/onboarding/intent");
+  }
+
   function continueInNairobi() {
-    localStorage.setItem(ONBOARDING.age, "1");
+    if (!adult) return;
+    confirmAge();
     localStorage.setItem(ONBOARDING.city, "nairobi");
     router.push("/onboarding/intent");
   }
 
   function otherCities() {
-    localStorage.setItem(ONBOARDING.age, "1");
+    if (!adult) return;
+    confirmAge();
     router.push("/onboarding/city");
   }
 
@@ -68,24 +88,52 @@ export default function WelcomePage() {
           <br />
           Verify.
         </p>
-        <p className="mt-6 text-sm text-muted">Nairobi</p>
+        <p className="mt-6 text-sm text-muted">Kenya. Men around you.</p>
       </div>
       <div className="relative z-10 w-full max-w-sm pb-4">
-        <p className="mb-5 text-center text-xs leading-relaxed text-muted">
-          You must be 18 or older to continue. SOKO18 is a private discovery product for adults.{" "}
-          <Link href="/terms" className="text-cream/70">
-            Terms
-          </Link>
-          {" · "}
-          <Link href="/privacy" className="text-cream/70">
-            Privacy
-          </Link>
+        <label className="block text-left" htmlFor="birthDate">
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Date of birth</span>
+          <input
+            id="birthDate"
+            type="date"
+            name="birthDate"
+            autoComplete="bday"
+            min={MIN_BIRTH_DATE}
+            max={ageGateMaxDate()}
+            value={dob}
+            onChange={(e) => setDob(e.target.value)}
+            className="mt-2 h-12 w-full rounded-full border border-line bg-glass px-4 text-sm text-cream outline-none [color-scheme:dark]"
+          />
+        </label>
+        <p className="mt-4 mb-5 text-center text-xs leading-relaxed text-muted">
+          {underage
+            ? "SOKO18 is 18+. You cannot continue."
+            : "You must be 18 or older to continue. SOKO18 is a private discovery product for adults. "}
+          {underage ? null : (
+            <>
+              <Link href="/terms" className="text-cream/70">
+                Terms
+              </Link>
+              {" · "}
+              <Link href="/privacy" className="text-cream/70">
+                Privacy
+              </Link>
+            </>
+          )}
         </p>
-        <Button className="w-full" variant="gold" onClick={continueInNairobi}>
+        <Button className="w-full" variant="gold" disabled={!adult || locating} onClick={() => void useMyArea()}>
+          {locating ? "Finding your area…" : "Use my area"}
+        </Button>
+        <Button className="mt-3 w-full" variant="ghost" disabled={!adult} onClick={continueInNairobi}>
           Continue in Nairobi
         </Button>
-        <button type="button" onClick={otherCities} className="mt-4 w-full text-sm text-muted">
-          Other cities
+        <button
+          type="button"
+          disabled={!adult}
+          onClick={otherCities}
+          className="mt-4 w-full text-sm text-muted disabled:opacity-40 disabled:pointer-events-none"
+        >
+          Other cities in Kenya
         </button>
       </div>
     </main>

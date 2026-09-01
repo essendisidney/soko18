@@ -23,9 +23,9 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 
 ## Decisions
 
-- **Nairobi first, not Kenya first.** Other cities are waitlist until Nairobi has liquidity (1k → 5k → 10k quality profiles).
-- Presence is **area-level only**. No live GPS.
-- Organic Nairobi Now is activity-ranked; paid Boost/Spotlight/Featured are labeled and cannot buy organic trending.
+- **Kenya is open.** Use my area snaps to a city + neighborhood. Discover shows men around you. Empty cities stay empty.
+- Presence is **area-level only**. Device location is one-shot. No live GPS pins.
+- Organic Nairobi Now is activity-ranked; paid Boost/Spotlight/Featured are labeled and cannot buy organic trending. Membership is Basic 5,000 / Premium 10,000 KES per month. M-Pesa STK is the rail.
 - Public profile indexing is **opt-in** (`indexPublic`). Sitemap respects it.
 - Ship **PWA** before native stores.
 - Seed counts are real seed density (16 Nairobi profiles), not fake 2,847. The 2,847 figure is the density *target*, not a lying KPI.
@@ -35,7 +35,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Discover ranking uses onboarding intent + last area opened. Empty deck: Browse (primary), Saved (secondary). Pulse once per session.
 - Discover tab stays Discover. The screen title is Nairobi plus active areas. The card is the product.
 - Profile ⋯ is live: Share, Favorite, Report, Block. Favorite/Block work for guests on-device. Report is auth-walled. `/saved` lists on-device favorites.
-- Unicorn surfaces (SOKO Ads, consumer Premium, SOKO Verify as a second company, Kenya-wide / Africa) wait until Nairobi has liquidity (1k → 5k → 10k quality profiles).
+- Unicorn surfaces (SOKO Ads, SOKO Verify as a second company) wait. Membership + Boost catalog is the money model. No booking cut.
 - Package name is `soko18`.
 - **Ship now:** Git + Vercel, seed data, no Supabase required.
 - **Supabase later:** when the project is paid. Schema is already in `supabase/migrations/`. Auth UI and walls ship before that; they do not fake a logged-in user.
@@ -69,7 +69,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 ## Phase 07 notes
 
 - Nairobi is the only live market (`GET /api/cities/nairobi`, `/nairobi`). `/browse` redirects to `/nairobi`.
-- Kisumu, Mombasa, Nakuru, and Eldoret are waitlist doors at `/{city}` and `/{city}/[area]`. `/city/[slug]` redirects there. Browse for those cities returns empty + `waitlist: true`.
+- Kenya city doors at `/{city}` and `/{city}/[area]`. `/city/[slug]` redirects there. Browse for those cities returns empty, not a fake catalog.
 - Categories (`/category/trending|verified|featured|rising`) are Nairobi grids. Featured is labeled paid and is not mixed into organic Nairobi Now.
 - Search empty state: “No one in Nairobi matches that.” Notify me persists locally and confirms on the city page.
 
@@ -85,7 +85,8 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 
 - `GET/POST /api/conversations/:id/messages` require a session and a match. Non-participants get 404, not the thread.
 - Block (`POST /api/conversations/:id/block`) severs send both ways. History stays readable. Report stays in the thread menu.
-- Live send is RLS + `00003_message_blocks.sql` (insert denied if either party blocked). Realtime listens to `messages` INSERTs after RLS.
+- Live send is RLS + `00003_message_blocks.sql` (insert denied if either party blocked). Realtime listens to `messages` INSERTs after RLS. Read receipts: open thread marks the other person’s messages `read_at`. Report and Panic stay in the thread menu.
+- Two-way ratings after a match (`POST /api/ratings`). Migration `00008_ratings.sql`. Apply with the live database.
 - Seed threads persist in an httpOnly cookie until live conversation UUIDs exist. No fake logged-in user.
 
 ## Phase 10 notes
@@ -121,7 +122,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 
 ## Phase 14 notes
 
-- Rate limits (429 `rate_limited`): likes 40/10m, messages 30/10m, reports 8/h, uploads 12/h.
+- Rate limits (429 `rate_limited`): likes 40/10m, messages 30/10m, reports 8/h, uploads 12/h, ratings 20/h, panic 6/h, share 30/h.
 - `POST /api/account/export` and `POST /api/account/delete` require a session. Delete is a soft `deleted_at` + profile `removed` + global sign-out.
 - Logout already uses `signOut({ scope: "global" })`. Ban sets `is_banned` and revokes via `SUPABASE_SERVICE_ROLE_KEY` when present (`ban_duration`). Banned/deleted accounts are signed out on the next `currentUser()` check. Never put service_role in `NEXT_PUBLIC_`.
 - Migration `00007_security.sql`: private `profile-media` bucket (signed reads only, owner folder = auth uid); `soft_delete_own_account`. Apply with the live database.
@@ -148,7 +149,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Profile ⋯ (MDD 5.5): Share copies/shares the public URL. Favorite is guest-local (`soko18_favorites`) and listed at `/saved` from Me. Report requires a session (`POST /api/reports` with `profileId`). Block hides on Discover/Browse immediately; session persists via `POST /api/blocks`.
 - Empty room: open/ready/Discover/Browse lead with active areas until live inventory ≥ 200. Studio still shows own stats only — never Amani’s seed views, never a fake “24% better.”
 - Discover ranks from onboarding intent, last Nairobi area, passes, and impressions. Empty deck primary is Browse; Undo last pass is secondary. Returning `/` shows Nairobi pulse once per session, then goes to Discover.
-- First open: Continue in Nairobi (age + city) → intent → Discover. City and Ready stay as waitlist / bookmark. Matches empty has a gold Discover button. Discover header has no bell or menu.
+- First open: date of birth (18+), then Continue in Nairobi → intent → Discover. Other cities in Kenya after age. City and Ready stay as waitlist / bookmark. Matches empty has a gold Discover button. Discover header has no bell or menu.
 - PWA: standalone manifest, 192/512 icons, apple-touch icon, `/sw.js`, Me “Add to Home Screen.” Start URL is `/` so age still gates. No web push yet.
 - Browse tab opens `/nairobi`. `/browse` redirects. Area and category pages (`/category/trending` …) use the same tab bar. No Supabase this increment.
 - Profile ← returns to the last app screen (Discover, Nairobi, Saved). Cold landings go to Discover. Me no longer duplicates Nairobi; Safety is a row.
@@ -156,7 +157,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Studio, Saved, and Settings stay in the tab bar. Me is the active tab. No Supabase this increment.
 - Browse “Near you” is the last Nairobi area opened (area-level, never GPS). Empty Discover Browse opens that area. Area pages have other areas and Share. Saved can remove a person from the grid.
 - Discover header leads with that last area. Me → Other cities is waitlist, not a second onboarding.
-- Kisumu, Mombasa, Nakuru, and Eldoret are waitlist cities at `/{city}` with real areas and no fake catalog. `/city/{city}` redirects there.
+- Kenya cities at `/{city}` have real areas and no fake catalog. `/city/{city}` redirects there. Discover shows men around you.
 - Me is compact: PWA is a line, not a card, so Looking for and Other cities stay tappable.
 - Looking for lives on Me (`/intent`). Intent still ranks Discover. Blocked people are hidden from Similar and listed at `/blocked` from Me. Profile ⋯ Pass returns you to Discover.
 - Profile Message does not open a thread until there is a match. Guests still hit the auth wall.
@@ -192,5 +193,8 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Matches keep gold Discover even when the list isn’t empty. Nairobi landings have a canonical URL. Waitlist doors stay noindex.
 - A blocked profile’s primary is Discover, not a dead Like. A blocked thread also returns to Discover.
 - Sign-in walls can return to Discover. Continue stays gold. A held like is not dropped.
+- Studio analytics and promotions keep Discover even when you have numbers or Boost. Boost stays the paid primary.
+- Area, category, and consented profiles trail Nairobi in JSON-LD breadcrumbs. No inventory counts. Waitlist cities stay unmarked.
+- Kenya city doors are open at `/{city}` with real areas and no fake catalog. Membership is 5,000 / 10,000 KES. Boost 500, Spotlight 1,200, Featured 3,500. Incognito 1,500/mo actually hides you unless they already liked you. Skip the line 5,000 speeds staff review only after a ledger row — sandbox settle until STK. Mystery 200 is one card. Golden Hour 500 (8–9pm EAT pin, not a discounted meet). Friend pass speeds staff review. Coins after STK — invites do not mint credit. Live photo or voice proof stays in a matched thread. Unmask extra photos after ID on both sides. ID both sides, two-way ratings, panic and live location to a trusted contact, chat receipts and report. One report hides them from your Discover. Three unique reports go to staff and drop from the public feed. Rank penalizes reports and only uses real rating averages. I’m here is an area-level ping (active ~15m, recent ~4h) — never a live GPS pin of other people. M-Pesa STK is the rail. Never invent a waitlist count or a 4.8. Tonight’s areas on Discover and Nairobi come from real impressions.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
-- Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.
+- Do not start Ads, Premium-as-a-second-company, or fake density KPIs. **Post-16 product waves are complete** on this PWA: trust, Discover loop, area-level I’m here, paid flags only after a sandbox ledger row, 24h chat extend both sides. Remaining launch work is ops — paid Supabase, Daraja KYC, staff review, real listings. Empty stays empty.

@@ -15,8 +15,8 @@ Do not start Phase N+1 until Phase N acceptance criteria are green. Track progre
 
 Cursor (and humans) must:
 
-1. Read the current phase in `docs/PHASE_STATUS.md`.
-2. Implement only that phase.
+1. Read `docs/PHASE_STATUS.md`, then @ `docs/architecture.md`, `docs/contracts.md`, `docs/ui-design.md`. Feature prompts: `docs/prompts.md`. Money: `docs/business-model.md`.
+2. Implement from those files. The long contract is `docs/SOKO18_MASTER_DEVELOPMENT.md`.
 3. Stop and mark acceptance criteria when done.
 4. Never skip moderation, RLS, ledger, or age-gating to “move faster.”
 
@@ -36,52 +36,43 @@ Non-negotiables:
 
 ### 1.1 Positioning
 
-SOKO18 is a **Nairobi-first** 18+ local discovery product.
+SOKO18 is a **Kenya** 18+ local discovery product.
 
 Line: **Discover. Connect. Verify.**
 
-It is not “another escort website.” It is not African Tinder. Tinder owns dating. SOKO18 owns **local discovery** — density, trust, and a loop of open → swipe → match → message → return.
+It is not “another escort website.” It is not a live map of people. Tinder owns dating. SOKO18 owns **local discovery** — density, trust, and a loop of open → swipe → match → message → return.
 
 Directory economics sit underneath (areas, featured, boosts, studio). The experience on top must feel like a premium consumer app.
 
 Launch identity:
 
-- Do not launch as Kenya.
-- Launch as: **we are going to dominate Nairobi.**
-- Expand a city only after that city has liquidity.
+- One app for Kenya. A woman can open it from any listed city.
+- **Use my area** reads the device once and snaps to a city + area. Never store raw coordinates. Never show another person’s pin.
+- Discover shows **men around you** (same area first, then city, then Nairobi supply). Do not invent men in empty cities.
+- Nairobi is the live catalog today. Other cities are open doors with real areas. Empty stays empty.
 
 It is **not**:
 
 - A WordPress directory with a new coat of paint
 - A Tinder skin
 - A cheap classifieds site
-- “Nairobi Hot, but prettier” (that is a 4/10 opportunity)
+- A GPS radar of men around you
 
-Target sentence in Nairobi: **“If you're looking for this kind of discovery in Nairobi, you check SOKO18.”**
+Target sentence: **“If you're looking for this kind of discovery in Kenya, you check SOKO18.”**
 
 Target feeling on first screenshot: **“What app is that?”** then **“This looks like a serious, premium app.”**
 
-### 1.1.1 Nairobi first (non-negotiable GTM)
+### 1.1.1 Kenya open, area-level locate
 
-Density creates the network effect. 2,847 live Nairobi profiles beats 17 profiles scattered across Kenya.
+v1 is open in listed Kenyan cities. Do not wait for Nairobi density to let someone use the app.
 
-Never display a fake city-wide count (1,842, 2,847, “183 new”). Until Nairobi crosses real density, open/browse/discover lead with **place** (active areas), not a small inventory integer. 1,842 / 2,847 are density *targets*, not KPIs to invent on screen.
+Never display a fake city-wide count (1,842, 2,847, “183 new”). Empty rooms lead with **place**, not a lying inventory integer.
 
-v1 live market: **Nairobi only.**
+Device location is **coarse and one-shot**: snap to Westlands, Nyali, Milimani — not a live pin. Photos, location, biometrics, and sexual data are sensitive under Kenya ODPC rules — minimize collection. Do not persist lat/lng.
 
-Mombasa, Kisumu, Nakuru, Eldoret are waitlist until Nairobi has:
+SEO stays Nairobi + consented profiles. Other city doors stay noindex until they have real density.
 
-1. ~1,000 quality profiles  
-2. Then 5,000  
-3. Then 10,000  
-
-Do not spend generic national ads. Recruit Nairobi supply ethically (100 → 500 → 1,000), then consumer acquisition (TikTok / Instagram / X, city-specific, policy-compliant). SEO is the second engine: `/nairobi`, `/nairobi/westlands`, indexable profiles **only with owner consent**.
-
-Ship as a **PWA** first. Then Android. Then iOS subject to store policy.
-
-Presence is **area-level only** (Westlands, Kilimani). Never precise real-time coordinates. Photos, location, biometrics, and sexual data are sensitive under Kenya ODPC rules — minimize collection, encrypt evidence, make privacy a brand feature.
-
-Organic “Nairobi Now” rankings must be activity-based with anti-manipulation caps. Featured/Boost are paid and labeled. Never sell organic trending.
+Organic rankings must be activity-based with anti-manipulation caps. Featured/Boost are paid and labeled. Never sell organic trending.
 
 Profile health may say complete profiles **tend** to get more engagement. Never promise guaranteed results.
 
@@ -216,7 +207,7 @@ Never animate for the sake of animation.
 /nairobi                      Nairobi city home (Browse tab)
 /nairobi/[area]               Westlands, Kilimani, …
 /category/[facet]             Trending, Verified, Featured, Rising (Browse tab)
-/kisumu /mombasa /nakuru /eldoret   waitlist city + area doors
+/{city}                      waitlist city + area doors (Kenya). Live catalog is Nairobi.
 /city/[city]                  redirects to /{city} (Nairobi → /nairobi)
 /profile/[slug]               public profile (index only if opted in)
 /studio                   owner home
@@ -251,25 +242,28 @@ Desktop: same IA, expanded. Discover card is centered. Browse becomes a rich dir
 
 ### 5.1 Launch / onboarding
 
-No 17-step registration wall. Age + Nairobi as one tap, then intent, then a real card.
+No 17-step registration wall. Date of birth (18+), then Nairobi, then intent, then a real card.
 
 **Screen 1 — Welcome**
 
 - Black field
 - Wordmark SOKO + gold 18
 - Discover. Connect. Verify.
+- Kenya first. Men around you.
+- Date of birth. Continue stays off until the date is 18+. Under 18 cannot continue.
 - Age line: “You must be 18 or older to continue.”
-- Primary: Continue in Nairobi (stores age + Nairobi)
-- Other cities: waitlist only, not an equal market. Link, not a required step.
+- Primary: Use my area (18+ flag + city/area snap). Date of birth is not kept on the device. Coordinates are not stored.
+- Continue in Nairobi: if she skips locate.
+- Other cities in Kenya: open doors, after age.
 
 **Screen 2 — Intent**
 
 - “What are you looking for?”
-- Chips, multi-select, max 3: Connect · Meet · Browse · Featured in Nairobi
+- Chips, multi-select, max 3: Connect · Meet · Browse · Featured
 - Keep this non-sleazy and short.
 - Primary: Discover → `/discover`
 
-`/onboarding/city` stays for waitlist. `/onboarding/ready` is not on the main path.
+`/onboarding/city` is Kenya city pick + Use my area. `/onboarding/ready` is not on the main path.
 
 Auth is prompted at the first like, message, or “create profile” — not before.
 
@@ -761,19 +755,21 @@ Underage report: freeze profile immediately, hide media, escalate. Zero toleranc
 
 ## 14. Monetization
 
-Build the rails in Phase 12, even if flags stay off.
+People pay for **trust and safety**, not matching. A free site can connect people.
 
-Ladder: Free → Premium → Boost → Spotlight → Featured → Business → Advertising
+Ladder: Free discover → **Basic 5,000/mo** → **Premium 10,000/mo** → Boost 500/24h → Spotlight 1,200/4h → Featured 3,500/7d → bundle 1,500 → Incognito 1,500/mo → Skip the line 5,000 → Mystery 200 → Golden Hour 500 (8–9pm EAT pin). Coins later (KES 1,000 = 100).
 
-Every paid action:
+M-Pesa Daraja **STK Push** is mandatory in Kenya. Sandbox until KYC + shortcode. Fees ~1.5–2.5%. Register the business. Keep a ledger for every STK or Safaricom will freeze the till.
 
-`payment → transaction → ledger → receipt → analytics → reconciliation`
+Every paid action: `payment → transaction → ledger → receipt → analytics → reconciliation`
 
-No “just set featured_until in the dashboard” without a ledger row (admin comps still write `ledger_type = adjustment`).
+No paid flag without a ledger row (admin comps use `adjustment`). No booking commission. No fake waitlist counts.
 
-Currency: **KES**. Amounts are integer cents? No — store integer **KES** for v1 (no decimals in M-Pesa) plus `amount_minor` int for future.
+Currency: integer **KES**.
 
-Providers: M-Pesa first (Phase 12), card later.
+Paid safety in the subscription: ID verify both sides, two-way ratings, panic + location to a trusted contact, chat receipts + report.
+
+Discretion: username not legal name, hashed contact blocks, incognito, 24-hour chats. See `docs/anonymity.md`.
 
 ---
 

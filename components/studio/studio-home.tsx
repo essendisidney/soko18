@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/soko/button";
 import { StatCard } from "@/components/soko/stat-card";
 import { HealthBar } from "@/components/soko/health-bar";
@@ -9,6 +10,7 @@ import { draftHealth } from "@/lib/profile/health";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 import { NAIROBI_AREAS } from "@/lib/data/nairobi";
 import { profileCanPromote } from "@/lib/studio/promote";
+import { reviewPriority, reviewPriorityLine } from "@/lib/growth/review";
 import type { StudioOverview } from "@/lib/studio/overview";
 
 export function StudioHome({
@@ -24,6 +26,11 @@ export function StudioHome({
   const area = draft ? NAIROBI_AREAS.find((a) => a.slug === draft.areaSlug)?.name : null;
   const status = overview?.profile?.status ?? (draft ? (draft.status === "pending_review" ? "In review" : "Draft") : null);
   const live = profileCanPromote(overview?.profile?.status);
+  const [priority, setPriority] = useState<string | null>(null);
+
+  useEffect(() => {
+    setPriority(reviewPriority() ? reviewPriorityLine() : null);
+  }, []);
 
   return (
     <div>
@@ -38,6 +45,9 @@ export function StudioHome({
             ? `${area ?? "Nairobi"} · ${status}`
             : "Create a profile. It stays a draft until review."}
       </p>
+      {draft?.status === "pending_review" && priority ? (
+        <p className="mt-2 text-xs text-gold">{priority}</p>
+      ) : null}
 
       {overview?.profile ? (
         <div className="mt-8 space-y-3">
@@ -93,6 +103,11 @@ export function StudioHome({
             <p className="mt-2 px-1 font-display text-2xl">Boost your profile</p>
             <p className="mt-2 mb-4 px-1 text-sm text-muted">Paid placement. Organic Nairobi Now stays earned.</p>
             <BoostPay live={overview?.boost.active} />
+            <Link href="/discover" className="mt-4 block px-1">
+              <Button variant="ghost" className="w-full">
+                Discover
+              </Button>
+            </Link>
           </>
         ) : (
           <>

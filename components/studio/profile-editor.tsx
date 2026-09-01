@@ -120,13 +120,15 @@ export function ProfileEditor() {
         }}
       >
         <label className="block">
-          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Name</span>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Username</span>
           <input
             required
+            aria-label="Username"
             value={displayName}
             onChange={(e) => patch({ displayName: e.target.value })}
             className="mt-2 h-12 w-full rounded-full border border-line bg-glass px-4 text-sm outline-none"
           />
+          <p className="mt-2 text-xs text-muted">A nickname. Not your legal name.</p>
         </label>
 
         <label className="block">

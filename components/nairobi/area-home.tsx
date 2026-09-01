@@ -6,6 +6,7 @@ import { NAIROBI_AREAS } from "@/lib/data/nairobi";
 import { nairobiInventoryLine } from "@/lib/nairobi/live";
 import { areaUrl, shareProfile } from "@/lib/profile/share";
 import { RememberArea } from "@/components/nairobi/remember-area";
+import { HereNowButton } from "@/components/presence/here-now";
 import { ProfileGrid } from "@/components/profile/profile-grid";
 import { Button } from "@/components/soko/button";
 import type { SeedProfile } from "@/lib/types";
@@ -34,6 +35,7 @@ export function AreaHome({
           Discover
         </Button>
       </Link>
+      <HereNowButton areaSlug={slug} citySlug="nairobi" />
       <div className="mt-8 grid grid-cols-2 gap-3">
         <ProfileGrid
           profiles={people}

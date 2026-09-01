@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { listAdminReports } from "@/lib/admin/reports";
+import { LocalSafetyQueue } from "@/components/admin/local-safety-queue";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +13,7 @@ export default async function AdminReportsPage() {
       <p className="text-[11px] tracking-[0.22em] text-gold uppercase">Admin</p>
       <h1 className="mt-3 font-display text-4xl tracking-tight">Reports</h1>
       <p className="mt-2 text-sm text-muted">Safety queue. Decide lives on the case, not in this list.</p>
-      {items.length === 0 ? (
-        <p className="mt-8 text-sm text-muted">No reports yet.</p>
-      ) : (
+      {items.length === 0 ? <LocalSafetyQueue /> : (
         <ul className="mt-8 max-w-2xl space-y-2">
           {items.map((row) => (
             <li key={row.id} className="rounded-2xl border border-line px-4 py-3 text-sm">

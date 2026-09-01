@@ -3,6 +3,8 @@ import { DEFAULT_NEAR_AREA } from "@/lib/nairobi/near";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
 import { sokoVerified } from "@/lib/trust/verified";
+import { filterGhosts, seedIncognitoIds } from "@/lib/privacy/incognito";
+import { SEED_INBOUND_IDS } from "@/lib/likes/ids";
 import type { SeedProfile } from "@/lib/types";
 
 export type NairobiFilter = "trending" | "active" | "new" | "verified" | "near";
@@ -11,7 +13,8 @@ export type NairobiNowId = "trending" | "joined" | "viewed" | "liked" | "verifie
 const ORGANIC_FEATURED_CAP = 0.15;
 
 function catalog(profiles?: SeedProfile[]) {
-  return (profiles ?? nairobiProfiles()).filter(hasApprovedCover);
+  const live = (profiles ?? nairobiProfiles()).filter(hasApprovedCover);
+  return filterGhosts(live, seedIncognitoIds(live), SEED_INBOUND_IDS);
 }
 
 function organicScore(p: SeedProfile) {
@@ -47,7 +50,7 @@ export function filterNairobi(
     case "verified":
       return list.filter((p) => sokoVerified(p));
     case "near":
-      return list.filter((p) => p.areaSlug === nearArea);
+      return list.filter((p) => p.areaSlug === nearArea && p.gender === "man");
     case "trending":
     default:
       return nairobiNow("trending", list);

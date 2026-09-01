@@ -1,14 +1,32 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+async function fillAdultDob(page: Page) {
+  const input = page.locator("#birthDate");
+  await input.waitFor();
+  await input.evaluate((el) => {
+    const node = el as HTMLInputElement & { _valueTracker?: { setValue: (value: string) => void } };
+    node._valueTracker?.setValue("");
+    const native = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+    native?.call(node, "1998-04-12");
+    node.dispatchEvent(new Event("input", { bubbles: true }));
+    node.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
 
 test("onboarding → discover swipe → profile → like auth wall", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("You must be 18 or older to continue.")).toBeVisible();
+  await fillAdultDob(page);
+  await expect(page.getByRole("button", { name: "Continue in Nairobi" })).toBeEnabled();
   await page.getByRole("button", { name: "Continue in Nairobi" }).click();
   await page.waitForURL("**/onboarding/intent", { timeout: 90_000 });
 
   await expect(page.getByRole("heading", { name: "What are you looking for?" })).toBeVisible();
   await page.getByRole("button", { name: "Connect" }).click();
-  await page.getByRole("button", { name: "Discover" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.waitForURL("**/onboarding/privacy", { timeout: 90_000 });
+  await expect(page.getByRole("heading", { name: "Stay unseen" })).toBeVisible();
+  await page.getByRole("button", { name: "Skip" }).click();
   await page.waitForURL("**/discover", { timeout: 90_000 });
   await expect(page.getByRole("heading", { name: "Nairobi" })).toBeVisible();
 

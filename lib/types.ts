@@ -7,11 +7,14 @@ export type Verification = {
   established: boolean;
 };
 
+export type ProfileGender = "man" | "woman";
+
 export type SeedProfile = {
   id: string;
   slug: string;
   name: string;
   age: number;
+  gender: ProfileGender;
   city: string;
   citySlug: string;
   area: string;
@@ -23,6 +26,7 @@ export type SeedProfile = {
   photos: string[];
   verification: Verification;
   featured?: boolean;
+  incognito?: boolean;
   newToday?: boolean;
   rising?: boolean;
   views: number;
