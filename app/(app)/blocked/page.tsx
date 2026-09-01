@@ -22,12 +22,7 @@ export default function BlockedPage() {
       <p className="mt-2 text-sm text-muted">Hidden from Discover and Browse. Unblock anytime.</p>
 
       {items.length === 0 ? (
-        <div className="mt-10">
-          <p className="text-sm text-muted">No one blocked.</p>
-          <Link href="/discover" className="mt-6 inline-block">
-            <Button variant="gold">Discover</Button>
-          </Link>
-        </div>
+        <p className="mt-10 text-sm text-muted">No one blocked.</p>
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-3">
           {items.map((profile) => (
@@ -48,6 +43,9 @@ export default function BlockedPage() {
           ))}
         </div>
       )}
+      <Link href="/discover" className="mt-8 inline-block">
+        <Button variant="gold">Discover</Button>
+      </Link>
     </div>
   );
 }

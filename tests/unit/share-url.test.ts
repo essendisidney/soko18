@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { areaUrl, nairobiUrl, profileUrl } from "@/lib/profile/share";
+import { areaUrl, categoryUrl, nairobiUrl, profileUrl } from "@/lib/profile/share";
 
 describe("share urls", () => {
   afterEach(() => {
@@ -10,6 +10,7 @@ describe("share urls", () => {
   it("points guests at Nairobi, not a fake city count", () => {
     expect(nairobiUrl()).toBe("/nairobi");
     expect(areaUrl("kilimani")).toBe("/nairobi/kilimani");
+    expect(categoryUrl("verified")).toBe("/category/verified");
     expect(profileUrl("amani-nairobi")).toBe("/profile/amani-nairobi");
   });
 

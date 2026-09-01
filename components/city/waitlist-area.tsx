@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { WaitlistButton } from "@/components/nairobi/waitlist-button";
+import { PlaceShare } from "@/components/nairobi/place-share";
 import { Button } from "@/components/soko/button";
 
 export function WaitlistArea({
@@ -22,9 +23,13 @@ export function WaitlistArea({
           Discover Nairobi
         </Button>
       </Link>
-      <Link href={`/${citySlug}`} className="mt-8 inline-block text-sm text-muted">
-        All of {cityName}
-      </Link>
+      <PlaceShare
+        backHref={`/${citySlug}`}
+        backLabel={`All of ${cityName}`}
+        shareName="Nairobi"
+        path="/nairobi"
+        shareLabel="Share Nairobi"
+      />
     </div>
   );
 }

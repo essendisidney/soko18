@@ -178,5 +178,11 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Studio does not sell Boost until the profile is live. Discover is the return while you wait. Nairobi Now is still not for sale.
 - Crawlers get Nairobi, categories, and consented profiles. Waitlist cities stay off robots allow.
 - Verified browse is phone + identity + profile reviewed. Similar empty sends you to Discover.
+- Browse city home can share Nairobi. Area pages already share the area.
+- Studio settings is indexing + account privacy, not a placeholder. Unsigned analytics Discover.
+- Category pages can share that Nairobi view. Waitlist cities share Nairobi, not a fake catalog.
+- Settings Discover is the return. Saved empty after the last unsave goes back to Discover.
+- Sign in and create account can return to Discover. No tab bar there. A sent link still lets you browse.
+- Notify and Blocked keep Discover even when the list isn’t empty.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

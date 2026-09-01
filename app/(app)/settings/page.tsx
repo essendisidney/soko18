@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/soko/button";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -83,7 +84,12 @@ export default function SettingsPage() {
         <Link href="/privacy">Privacy</Link>
         <Link href="/safety">Safety</Link>
       </div>
-      <Link href="/me" className="mt-8 inline-block text-sm text-muted">
+      <Link href="/discover" className="mt-8 block">
+        <Button variant="gold" className="w-full">
+          Discover
+        </Button>
+      </Link>
+      <Link href="/me" className="mt-6 inline-block text-sm text-muted">
         Back
       </Link>
     </div>

@@ -61,6 +61,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const heading = mode === "signup" ? "Create account" : "Sign in";
   const altHref = mode === "signup" ? `/login?next=${encodeURIComponent(next)}` : `/signup?next=${encodeURIComponent(next)}`;
   const altLabel = mode === "signup" ? "Already have an account? Sign in" : "New here? Create an account";
+  const discoverPrimary = status === "sent" || status === "offline" || !configured;
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center bg-bg px-6">
@@ -94,7 +95,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             autoComplete="email"
             className="h-12 w-full rounded-full border border-line bg-glass px-4 text-sm outline-none"
           />
-          <Button className="w-full" variant="gold" disabled={busy}>
+          <Button className="w-full" variant={discoverPrimary ? "ghost" : "gold"} disabled={busy}>
             {busy ? "Sending…" : "Continue"}
           </Button>
         </form>
@@ -119,9 +120,22 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {altLabel}
         </Link>
       ) : null}
-      <Link href={next} className="mt-4 text-sm text-muted" onClick={() => clearPendingEngage()}>
-        Not now
-      </Link>
+      {discoverPrimary ? (
+        <Link href="/discover" className="mt-8 block">
+          <Button variant="gold" className="w-full">
+            Discover
+          </Button>
+        </Link>
+      ) : (
+        <Link href="/discover" className="mt-4 text-sm text-muted">
+          Discover
+        </Link>
+      )}
+      {status !== "sent" ? (
+        <Link href={next} className="mt-5 text-sm text-muted" onClick={() => clearPendingEngage()}>
+          Not now
+        </Link>
+      ) : null}
       <p className="mt-8 text-xs leading-relaxed text-muted">
         18+ only.{" "}
         <Link href="/terms" className="text-cream/70">

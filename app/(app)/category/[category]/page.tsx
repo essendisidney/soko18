@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { BROWSE_CATEGORIES, categoryBySlug } from "@/lib/browse/categories";
 import { browseFeed } from "@/lib/browse/feed";
 import { Button } from "@/components/soko/button";
+import { PlaceShare } from "@/components/nairobi/place-share";
 import { ProfileGrid } from "@/components/profile/profile-grid";
 import { categoryMetadata } from "@/lib/profile/seo";
 
@@ -44,9 +45,12 @@ export default async function CategoryPage({
       <div className="mt-8 grid grid-cols-2 gap-3">
         <ProfileGrid profiles={items} emptyNotify={`category:${meta.slug}`} />
       </div>
-      <Link href="/nairobi" className="mt-8 inline-block text-sm text-muted">
-        All of Nairobi
-      </Link>
+      <PlaceShare
+        backHref="/nairobi"
+        backLabel="All of Nairobi"
+        shareName={`${meta.name}, Nairobi`}
+        path={`/category/${meta.slug}`}
+      />
     </div>
   );
 }

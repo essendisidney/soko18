@@ -18,12 +18,7 @@ export default function NotifyPage() {
       <p className="mt-2 text-sm text-muted">On this device. No invented people.</p>
 
       {items.length === 0 ? (
-        <div className="mt-10">
-          <p className="text-sm text-muted">Nothing waiting.</p>
-          <Link href="/discover" className="mt-6 inline-block">
-            <Button variant="gold">Discover</Button>
-          </Link>
-        </div>
+        <p className="mt-10 text-sm text-muted">Nothing waiting.</p>
       ) : (
         <ul className="mt-8 overflow-hidden rounded-3xl border border-line">
           {items.map((key) => (
@@ -47,6 +42,9 @@ export default function NotifyPage() {
           ))}
         </ul>
       )}
+      <Link href="/discover" className="mt-8 inline-block">
+        <Button variant="gold">Discover</Button>
+      </Link>
     </div>
   );
 }

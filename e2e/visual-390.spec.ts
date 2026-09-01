@@ -43,6 +43,7 @@ test.describe("390px surfaces", () => {
     await expect(page).toHaveURL(/\/nairobi$/);
     await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
     await expect(page.getByText("Area-level only. Never a precise location.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Share" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await page.getByRole("link", { name: "Westlands" }).first().click();
@@ -80,6 +81,7 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("heading", { name: "Notify me" })).toBeVisible();
     await expect(page.getByText("zzzznotaperson")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Me")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Discover" })).toBeVisible();
     await page.getByRole("button", { name: "Remove zzzznotaperson" }).click();
     await expect(page.getByText("Nothing waiting.")).toBeVisible();
     await page.getByRole("button", { name: "Discover" }).click();
@@ -105,6 +107,8 @@ test.describe("390px surfaces", () => {
     await expect(page).toHaveURL(/\/category\/trending/);
     await expect(page.getByRole("heading", { name: "Trending" })).toBeVisible();
     await expect(page.getByText("From real activity in Nairobi.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Share" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "All of Nairobi" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await page.goto("/category/verified");
@@ -205,6 +209,7 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("heading", { name: "Coming after Nairobi." })).toBeVisible();
     await expect(page.getByText("Kisumu").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /Amani/ })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Share Nairobi" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Milimani" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
@@ -225,6 +230,7 @@ test.describe("390px surfaces", () => {
     await expect(page).toHaveURL(/\/kisumu\/milimani/);
     await expect(page.getByRole("heading", { name: "Milimani" })).toBeVisible();
     await expect(page.getByText("Coming after Nairobi. Area-level only.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Share Nairobi" })).toBeVisible();
     await page.getByRole("button", { name: "Discover Nairobi" }).click();
     await expect(page).toHaveURL(/\/discover/);
   });
@@ -298,6 +304,8 @@ test.describe("390px surfaces", () => {
     await expect(page.getByText("Allow public search indexing")).toHaveCount(0);
     await expect(page.getByText("Public search indexing lives on your profile in Studio.")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Me")).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
   });
 
   test("studio stays on the Me tab", async ({ page }) => {
@@ -309,6 +317,35 @@ test.describe("390px surfaces", () => {
     await expect(page.getByText("Boost your profile")).toHaveCount(0);
     await expect(page.getByText("Boost after you’re live in Nairobi.")).toBeVisible();
     await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
+  });
+
+  test("studio settings send you to Discover", async ({ page }) => {
+    await page.goto("/studio/settings");
+    await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
+    await page.getByRole("link", { name: "Public search indexing" }).click();
+    await expect(page).toHaveURL(/\/studio\/profile/);
+    await page.goto("/studio/settings");
+    await page.getByRole("link", { name: "Account privacy" }).click();
+    await expect(page).toHaveURL(/\/settings/);
+    await page.goto("/studio/settings");
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
+  });
+
+  test("studio analytics unsigned sends you to Discover", async ({ page }) => {
+    await page.goto("/studio/analytics");
+    await expect(page.getByRole("heading", { name: "Analytics" })).toBeVisible();
+    await expect(page.getByText("Sign in to see your studio stats.")).toBeVisible();
+    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
+  });
+
+  test("sign in can send you back to Discover", async ({ page }) => {
+    await page.goto("/login");
+    await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+    await expect(page.getByRole("navigation")).toHaveCount(0);
+    await page.getByRole("link", { name: "Discover" }).click();
     await expect(page).toHaveURL(/\/discover/);
   });
 

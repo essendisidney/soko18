@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { WaitlistButton } from "@/components/nairobi/waitlist-button";
+import { PlaceShare } from "@/components/nairobi/place-share";
 import { Button } from "@/components/soko/button";
 
 export function WaitlistHome({
@@ -45,6 +46,7 @@ export function WaitlistHome({
           </div>
         </section>
       ) : null}
+      <PlaceShare shareName="Nairobi" path="/nairobi" shareLabel="Share Nairobi" />
     </div>
   );
 }

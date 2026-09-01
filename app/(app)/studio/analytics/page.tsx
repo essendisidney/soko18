@@ -44,7 +44,14 @@ export default async function StudioAnalyticsPage() {
           ) : null}
         </>
       ) : (
-        <p className="mt-8 text-sm text-muted">Sign in to see your studio stats.</p>
+        <div className="mt-8">
+          <p className="text-sm text-muted">Sign in to see your studio stats.</p>
+          <Link href="/discover" className="mt-6 block">
+            <Button variant="gold" className="w-full">
+              Discover
+            </Button>
+          </Link>
+        </div>
       )}
       <Link href="/studio" className="mt-10 inline-block">
         <Button variant="ghost" size="sm">

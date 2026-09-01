@@ -23,6 +23,7 @@ import { Chip } from "@/components/soko/chip";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SearchNotifyButton } from "@/components/nairobi/search-notify";
+import { nairobiUrl, shareProfile } from "@/lib/profile/share";
 import { nearAreaName } from "@/lib/nairobi/near";
 import { useNearArea } from "@/lib/nairobi/use-near-area";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,7 @@ export function NairobiHome({
   const [q, setQ] = useState("");
   const [facet, setFacet] = useState<NairobiFilter>("trending");
   const [now, setNow] = useState<NairobiNowId>("trending");
+  const [shareNotice, setShareNotice] = useState<string | null>(null);
   const near = useNearArea(nearArea);
   const nearName = nearAreaName(near);
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
@@ -189,6 +191,22 @@ export function NairobiHome({
           ))}
         </div>
       </section>
+
+      <div className="mt-10 flex items-center justify-between">
+        <p className="text-sm text-muted">Nairobi</p>
+        <button
+          type="button"
+          className="text-sm text-cream/80"
+          onClick={() => {
+            void shareProfile("Nairobi", nairobiUrl()).then((result) => {
+              setShareNotice(result === "copied" ? "Link copied." : result === "failed" ? "Couldn’t share." : null);
+            });
+          }}
+        >
+          Share
+        </button>
+      </div>
+      {shareNotice ? <p className="mt-3 text-xs text-muted">{shareNotice}</p> : null}
     </div>
   );
 }

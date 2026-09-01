@@ -29,3 +29,8 @@ export function nairobiUrl() {
   if (typeof window === "undefined") return "/nairobi";
   return `${window.location.origin}/nairobi`;
 }
+
+export function categoryUrl(slug: string) {
+  if (typeof window === "undefined") return `/category/${slug}`;
+  return `${window.location.origin}/category/${slug}`;
+}
