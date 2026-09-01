@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
 import { NairobiHome } from "@/components/nairobi/nairobi-home";
-import { siteUrl } from "@/lib/site";
+import { JsonLd } from "@/components/seo/json-ld";
+import { nairobiJsonLd, nairobiMetadata } from "@/lib/profile/seo";
 
-export const metadata: Metadata = {
-  title: "Nairobi",
-  description: "Discover people around Nairobi. Local discovery, verified.",
-  openGraph: {
-    title: "Nairobi",
-    description: "Discover people around Nairobi. Local discovery, verified.",
-    url: `${siteUrl()}/nairobi`,
-  },
-};
+export const metadata: Metadata = nairobiMetadata();
 
 export default function NairobiPage() {
-  return <NairobiHome />;
+  return (
+    <>
+      <JsonLd data={nairobiJsonLd()} />
+      <NairobiHome />
+    </>
+  );
 }

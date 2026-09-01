@@ -27,12 +27,7 @@ export default function SavedPage() {
       <p className="mt-2 text-sm text-muted">People you want to come back to.</p>
 
       {items.length === 0 ? (
-        <div className="mt-10">
-          <p className="text-sm text-muted">Nothing saved yet.</p>
-          <Link href="/discover" className="mt-6 inline-block">
-            <Button variant="gold">Discover</Button>
-          </Link>
-        </div>
+        <p className="mt-10 text-sm text-muted">Nothing saved yet.</p>
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-3">
           {items.map((profile) => (
@@ -50,6 +45,9 @@ export default function SavedPage() {
           ))}
         </div>
       )}
+      <Link href="/discover" className="mt-8 inline-block">
+        <Button variant="gold">Discover</Button>
+      </Link>
     </div>
   );
 }

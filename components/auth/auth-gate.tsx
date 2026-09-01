@@ -19,9 +19,11 @@ const copy: Record<AuthIntent, { title: string; line: string }> = {
 export function AuthGate({
   intent,
   onClose,
+  onDiscover,
 }: {
   intent: AuthIntent;
   onClose: () => void;
+  onDiscover?: () => void;
 }) {
   const pathname = usePathname();
   const next = encodeURIComponent(pathname || "/discover");
@@ -41,6 +43,15 @@ export function AuthGate({
       <Link href={`/login?next=${next}`} className="mt-10 w-full max-w-xs">
         <Button className="w-full" variant="gold">
           Continue
+        </Button>
+      </Link>
+      <Link
+        href="/discover"
+        className="mt-4 block w-full max-w-xs"
+        onClick={() => (onDiscover ?? onClose)()}
+      >
+        <Button className="w-full" variant="ghost">
+          Discover
         </Button>
       </Link>
       <button type="button" onClick={onClose} className="mt-5 text-sm text-muted">

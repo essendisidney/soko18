@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { WaitlistButton } from "@/components/nairobi/waitlist-button";
+import { WaitlistButton, WaitlistDiscover } from "@/components/nairobi/waitlist-button";
 import { PlaceShare } from "@/components/nairobi/place-share";
-import { Button } from "@/components/soko/button";
 
 export function WaitlistHome({
   name,
@@ -25,11 +24,7 @@ export function WaitlistHome({
       </p>
       <p className="mt-2 text-xs text-muted">Area-level only. Never a precise location.</p>
       <WaitlistButton slug={slug} />
-      <Link href="/discover" className="mt-4 block">
-        <Button variant="ghost" className="w-full">
-          Discover Nairobi
-        </Button>
-      </Link>
+      <WaitlistDiscover slug={slug} />
       {areas.length > 0 ? (
         <section className="mt-10">
           <h2 className="text-sm text-muted">Popular areas</h2>

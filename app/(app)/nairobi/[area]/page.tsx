@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { NAIROBI_AREAS, areaBySlug } from "@/lib/data/nairobi";
 import { profilesInArea } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
-import { areaMetadata } from "@/lib/profile/seo";
+import { areaJsonLd, areaMetadata } from "@/lib/profile/seo";
 import { AreaHome } from "@/components/nairobi/area-home";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export function generateStaticParams() {
   return NAIROBI_AREAS.map((area) => ({ area: area.slug }));
@@ -31,5 +32,10 @@ export default async function NairobiAreaPage({
   if (!meta) notFound();
   const people = profilesInArea(meta.slug).filter(hasApprovedCover);
 
-  return <AreaHome name={meta.name} slug={meta.slug} people={people} />;
+  return (
+    <>
+      <JsonLd data={areaJsonLd(meta.name, meta.slug)} />
+      <AreaHome name={meta.name} slug={meta.slug} people={people} />
+    </>
+  );
 }

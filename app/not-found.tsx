@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/soko/button";
 
 export default function NotFound() {
   return (
@@ -6,8 +7,8 @@ export default function NotFound() {
       <div>
         <p className="font-display text-3xl tracking-tight">Not here</p>
         <p className="mt-3 text-sm text-muted">This profile isn’t available.</p>
-        <Link href="/discover" className="mt-8 inline-block text-sm text-gold">
-          Discover
+        <Link href="/discover" className="mt-8 inline-block">
+          <Button variant="gold">Discover</Button>
         </Link>
       </div>
     </main>

@@ -81,7 +81,7 @@ export default function WelcomePage() {
             Privacy
           </Link>
         </p>
-        <Button className="w-full" onClick={continueInNairobi}>
+        <Button className="w-full" variant="gold" onClick={continueInNairobi}>
           Continue in Nairobi
         </Button>
         <button type="button" onClick={otherCities} className="mt-4 w-full text-sm text-muted">

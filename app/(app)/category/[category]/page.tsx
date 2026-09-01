@@ -6,7 +6,8 @@ import { browseFeed } from "@/lib/browse/feed";
 import { Button } from "@/components/soko/button";
 import { PlaceShare } from "@/components/nairobi/place-share";
 import { ProfileGrid } from "@/components/profile/profile-grid";
-import { categoryMetadata } from "@/lib/profile/seo";
+import { categoryJsonLd, categoryMetadata } from "@/lib/profile/seo";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export function generateStaticParams() {
   return BROWSE_CATEGORIES.map((c) => ({ category: c.slug }));
@@ -36,6 +37,7 @@ export default async function CategoryPage({
 
   return (
     <div>
+      <JsonLd data={categoryJsonLd(meta.name, meta.slug, meta.line)} />
       <p className="text-[13px] tracking-[0.22em] text-gold uppercase">Nairobi</p>
       <h1 className="mt-3 font-display text-4xl tracking-tight">{meta.name}</h1>
       <p className="mt-2 text-sm text-muted">{meta.line}</p>

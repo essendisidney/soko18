@@ -234,7 +234,7 @@ export function ThreadShell({
         ))}
       </div>
 
-      {justSent ? (
+      {justSent || blocked ? (
         <Link href="/discover" className="mb-3 block">
           <Button className="w-full" variant="gold">
             Discover

@@ -15,5 +15,8 @@ test.describe("legal pages", () => {
     await page.goto("/safety");
     await expect(page.getByRole("heading", { name: "Safety" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Report and block" })).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Browse")).toHaveCount(0);
+    await page.getByRole("link", { name: "Discover" }).click();
+    await expect(page).toHaveURL(/\/discover/);
   });
 });

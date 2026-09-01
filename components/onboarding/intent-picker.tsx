@@ -46,7 +46,7 @@ export function IntentPicker({
         ))}
       </div>
       <div className="mt-auto pt-10">
-        <Button type="button" className="w-full" disabled={selected.length === 0} onClick={onDone}>
+        <Button type="button" className="w-full" variant="gold" disabled={selected.length === 0} onClick={onDone}>
           {doneLabel}
         </Button>
       </div>

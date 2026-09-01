@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getLiveProfile } from "@/lib/profile/live";
-import { profileMetadata } from "@/lib/profile/seo";
+import { profileJsonLd, profileMetadata } from "@/lib/profile/seo";
 import { hasMatch } from "@/lib/likes/list";
 import { PublicProfile } from "@/components/profile/public-profile";
+import { JsonLd } from "@/components/seo/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -27,5 +28,11 @@ export default async function PublicProfilePage({
   const profile = getLiveProfile(slug);
   if (!profile) notFound();
   const matched = await hasMatch(slug);
-  return <PublicProfile profile={profile} matched={matched} />;
+  const jsonLd = profileJsonLd(profile);
+  return (
+    <>
+      <JsonLd data={jsonLd} />
+      <PublicProfile profile={profile} matched={matched} />
+    </>
+  );
 }

@@ -101,43 +101,47 @@ export function PublicProfile({
         <PresenceDot presence={profile.presence} className="mt-2" />
         {blocked ? <p className="mt-3 text-sm text-muted">You blocked them. They won’t appear in Discover or Browse.</p> : null}
 
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <Button
-            variant="gold"
-            className="w-full"
-            disabled={blocked}
-            onClick={() => {
-              if (blocked) return;
-              if (!ready || !user) {
-                writePendingEngage({ profileId: profile.id, kind: "like", at: Date.now() });
-                setGate("like");
-                return;
-              }
-              engageProfile(profile, "like", () => setMatch(true));
-            }}
-          >
-            <Heart className="size-4 fill-bg" /> Like
-          </Button>
-          <Button
-            variant="ghost"
-            className="w-full"
-            disabled={blocked}
-            onClick={() => {
-              if (blocked) return;
-              if (!ready || !user) {
-                setGate("message");
-                return;
-              }
-              if (!matched) {
-                setNeedMatch(true);
-                return;
-              }
-              router.push(`/messages/${profile.slug}`);
-            }}
-          >
-            Message
-          </Button>
-        </div>
+        {blocked ? (
+          <Link href="/discover" className="mt-6 block">
+            <Button variant="gold" className="w-full">
+              Discover
+            </Button>
+          </Link>
+        ) : (
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <Button
+              variant="gold"
+              className="w-full"
+              onClick={() => {
+                if (!ready || !user) {
+                  writePendingEngage({ profileId: profile.id, kind: "like", at: Date.now() });
+                  setGate("like");
+                  return;
+                }
+                engageProfile(profile, "like", () => setMatch(true));
+              }}
+            >
+              <Heart className="size-4 fill-bg" /> Like
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={() => {
+                if (!ready || !user) {
+                  setGate("message");
+                  return;
+                }
+                if (!matched) {
+                  setNeedMatch(true);
+                  return;
+                }
+                router.push(`/messages/${profile.slug}`);
+              }}
+            >
+              Message
+            </Button>
+          </div>
+        )}
 
         <section className="mt-10">
           <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">About</h2>
@@ -198,11 +202,13 @@ export function PublicProfile({
           ) : (
             <>
               <p className="mt-3 text-sm text-muted">No one similar nearby.</p>
-              <Link href="/discover" className="mt-4 inline-block">
-                <Button variant="gold" size="sm">
-                  Discover
-                </Button>
-              </Link>
+              {blocked ? null : (
+                <Link href="/discover" className="mt-4 inline-block">
+                  <Button variant="gold" size="sm">
+                    Discover
+                  </Button>
+                </Link>
+              )}
             </>
           )}
         </section>
@@ -239,6 +245,7 @@ export function PublicProfile({
               if (gate === "like" || gate === "spotlight") clearPendingEngage();
               setGate(null);
             }}
+            onDiscover={() => setGate(null)}
           />
         ) : null}
         {needMatch ? (

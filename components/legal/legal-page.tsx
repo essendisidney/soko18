@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
+import { Button } from "@/components/soko/button";
 
 export function LegalPage({
   kicker,
@@ -21,8 +22,12 @@ export function LegalPage({
         <Link href="/terms">Terms</Link>
         <Link href="/privacy">Privacy</Link>
         <Link href="/safety">Safety</Link>
-        <Link href="/discover">Discover</Link>
       </nav>
+      <Link href="/discover" className="mt-8 block">
+        <Button variant="gold" className="w-full">
+          Discover
+        </Button>
+      </Link>
     </main>
   );
 }

@@ -184,5 +184,13 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Settings Discover is the return. Saved empty after the last unsave goes back to Discover.
 - Sign in and create account can return to Discover. No tab bar there. A sent link still lets you browse.
 - Notify and Blocked keep Discover even when the list isn’t empty.
+- Looking for Discover is gold. A profile draft can leave to Discover before review.
+- Saved keeps Discover even when someone is in the grid. A missing profile gold Discover — no tab bar there.
+- Terms, Privacy, and Safety gold Discover. Continue in Nairobi is gold on first open.
+- After a city waitlist Notify, Discover Nairobi is gold. Consented profiles expose area-level JSON-LD. Opted-out do not.
+- Nairobi, area, and category landings describe the place in JSON-LD. No inventory counts. Waitlist cities stay unmarked.
+- Matches keep gold Discover even when the list isn’t empty. Nairobi landings have a canonical URL. Waitlist doors stay noindex.
+- A blocked profile’s primary is Discover, not a dead Like. A blocked thread also returns to Discover.
+- Sign-in walls can return to Discover. Continue stays gold. A held like is not dropped.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium, Kenya-wide, or fake density KPIs. Next product work stays Nairobi liquidity, trust, and the Discover loop.

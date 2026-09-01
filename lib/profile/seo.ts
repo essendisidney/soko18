@@ -33,6 +33,18 @@ export function profileMetadata(profile: SeedProfile): Metadata {
   };
 }
 
+export function nairobiMetadata(): Metadata {
+  const title = "Nairobi";
+  const description = "Discover people around Nairobi. Local discovery, verified.";
+  const url = `${siteUrl()}/nairobi`;
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { title, description, url },
+  };
+}
+
 export function areaMetadata(name: string, slug: string): Metadata {
   const title = `${name}, Nairobi`;
   const description = `Discover people around ${name}, Nairobi.`;
@@ -40,6 +52,7 @@ export function areaMetadata(name: string, slug: string): Metadata {
   return {
     title,
     description,
+    alternates: { canonical: url },
     openGraph: { title, description, url },
   };
 }
@@ -50,6 +63,66 @@ export function categoryMetadata(name: string, slug: string, line: string): Meta
   return {
     title,
     description: line,
+    alternates: { canonical: url },
     openGraph: { title, description: line, url },
+  };
+}
+
+export function profileJsonLd(profile: SeedProfile) {
+  if (!profile.indexPublic) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    name: profileHeading(profile),
+    url: `${siteUrl()}/profile/${profile.slug}`,
+    mainEntity: {
+      "@type": "Person",
+      name: profile.name,
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: profile.area,
+        addressRegion: "Nairobi",
+        addressCountry: "KE",
+      },
+    },
+  };
+}
+
+export function nairobiJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Nairobi",
+    url: `${siteUrl()}/nairobi`,
+    about: {
+      "@type": "City",
+      name: "Nairobi",
+      containedInPlace: { "@type": "Country", name: "Kenya" },
+    },
+  };
+}
+
+export function areaJsonLd(name: string, slug: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${name}, Nairobi`,
+    url: `${siteUrl()}/nairobi/${slug}`,
+    about: {
+      "@type": "Place",
+      name,
+      containedInPlace: { "@type": "City", name: "Nairobi" },
+    },
+  };
+}
+
+export function categoryJsonLd(name: string, slug: string, line: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${name} · Nairobi`,
+    description: line,
+    url: `${siteUrl()}/category/${slug}`,
+    about: { "@type": "City", name: "Nairobi" },
   };
 }

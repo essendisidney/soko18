@@ -36,46 +36,44 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
     }
   }, [items, blocked, seen]);
 
-  if (visible.length === 0) {
-    return (
-      <div className="mt-10">
-        <p className="text-sm text-muted">No matches yet. A like stays quiet until they like you back.</p>
-        <Link href="/discover" className="mt-8 inline-block w-full">
-          <Button className="w-full" variant="gold">
-            Discover
-          </Button>
-        </Link>
-      </div>
-    );
-  }
-
   return (
-    <ul className="mt-8 space-y-3">
-      {visible.map((item) => (
-        <li key={item.id}>
-          <Link
-            href={`/messages/${item.slug}`}
-            className="flex items-center gap-4 rounded-3xl border border-line bg-glass p-3"
-          >
-            <div className="relative size-16 overflow-hidden rounded-2xl bg-bg-elevated">
-              {item.photo ? (
-                <Image src={item.photo} alt={item.name} fill sizes="64px" className="object-cover" />
-              ) : null}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <p className="font-medium">{item.name}</p>
-                {item.verified ? <VerificationBadge label="" className="px-1.5" /> : null}
-                {isFreshMatch(item.lastMessage, seenSet.has(item.profileId)) ? (
-                  <span className="size-1.5 shrink-0 rounded-full bg-gold" aria-hidden />
-                ) : null}
-              </div>
-              <PresenceDot presence={item.presence} className="mt-1 text-xs" />
-              <p className="mt-1 truncate text-sm text-muted">{matchPreview(item.lastMessage)}</p>
-            </div>
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <>
+      {visible.length === 0 ? (
+        <p className="mt-10 text-sm text-muted">No matches yet. A like stays quiet until they like you back.</p>
+      ) : (
+        <ul className="mt-8 space-y-3">
+          {visible.map((item) => (
+            <li key={item.id}>
+              <Link
+                href={`/messages/${item.slug}`}
+                className="flex items-center gap-4 rounded-3xl border border-line bg-glass p-3"
+              >
+                <div className="relative size-16 overflow-hidden rounded-2xl bg-bg-elevated">
+                  {item.photo ? (
+                    <Image src={item.photo} alt={item.name} fill sizes="64px" className="object-cover" />
+                  ) : null}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium">{item.name}</p>
+                    {item.verified ? <VerificationBadge label="" className="px-1.5" /> : null}
+                    {isFreshMatch(item.lastMessage, seenSet.has(item.profileId)) ? (
+                      <span className="size-1.5 shrink-0 rounded-full bg-gold" aria-hidden />
+                    ) : null}
+                  </div>
+                  <PresenceDot presence={item.presence} className="mt-1 text-xs" />
+                  <p className="mt-1 truncate text-sm text-muted">{matchPreview(item.lastMessage)}</p>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+      <Link href="/discover" className="mt-8 inline-block w-full">
+        <Button className="w-full" variant="gold">
+          Discover
+        </Button>
+      </Link>
+    </>
   );
 }

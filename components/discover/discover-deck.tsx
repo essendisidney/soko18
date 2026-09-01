@@ -153,6 +153,7 @@ export function DiscoverDeck({
               if (gate === "like" || gate === "spotlight") clearPendingEngage();
               setGate(null);
             }}
+            onDiscover={() => setGate(null)}
           />
         ) : null}
       </AnimatePresence>
