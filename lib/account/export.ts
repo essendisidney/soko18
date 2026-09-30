@@ -21,7 +21,7 @@ export async function exportOwnAccount() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, slug, display_name, birth_year, bio, status, is_verified")
+    .select("id, slug, display_name, birth_year, bio, status, is_verified, gender, looking_for, prompts")
     .eq("account_id", user.id)
     .maybeSingle();
 
@@ -37,10 +37,29 @@ export async function exportOwnAccount() {
     .select("profile_id, kind, created_at")
     .eq("actor_id", user.id);
 
+  const [consents, subscriptions, transactions, intros, verification, messages, reports, blocks] = await Promise.all([
+    supabase.from("consents").select("kind, version, granted, created_at").eq("account_id", user.id),
+    supabase.from("subscriptions").select("plan, status, starts_at, ends_at").eq("account_id", user.id),
+    supabase.from("transactions").select("sku, amount_kes, status, provider, created_at, settled_at").eq("account_id", user.id),
+    supabase.from("intros").select("to_profile, body, created_at").eq("from_account", user.id),
+    supabase.from("verification_records").select("kind, status, created_at, decided_at").eq("account_id", user.id),
+    supabase.from("messages").select("conversation_id, body, created_at").eq("sender_id", user.id),
+    supabase.from("reports").select("target_type, target_id, reason, created_at").eq("reporter_id", user.id),
+    supabase.from("blocks").select("blocked_id, created_at").eq("blocker_id", user.id),
+  ]);
+
   return {
     ok: true as const,
     data: {
       exportedAt: new Date().toISOString(),
+      consents: consents.data ?? [],
+      subscriptions: subscriptions.data ?? [],
+      payments: transactions.data ?? [],
+      introsSent: intros.data ?? [],
+      verification: verification.data ?? [],
+      messagesSent: messages.data ?? [],
+      reportsMade: reports.data ?? [],
+      blocked: blocks.data ?? [],
       account: {
         id: account.id,
         role: account.role,
@@ -59,6 +78,9 @@ export async function exportOwnAccount() {
             bio: profile.bio,
             status: profile.status,
             verified: profile.is_verified,
+            gender: profile.gender,
+            lookingFor: profile.looking_for,
+            prompts: profile.prompts,
           }
         : null,
       media: (media ?? []).map((row) => ({

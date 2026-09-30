@@ -56,3 +56,34 @@ update private.settings set value = 'off' where key = 'payments_sandbox';
 `settle_mpesa_checkout()` / `fail_mpesa_checkout()` / `attach_mpesa_checkout()` (service role only).
 Triggers enforce the like cap (`like_limit`), Super Like balance (`no_super_likes`), the paid-services
 hold, and that nobody sets `boost_until` except `use_boost()`.
+
+## Global upgrade (30 Sep 2026)
+
+**Trust:** real photo uploads (resized on the phone), selfie verification with a random pose,
+one staff review queue at `/admin/queue` (flagged profiles/messages, selfies, photos, new profiles),
+growth funnel at `/admin/funnel`. Members can't approve or verify themselves (DB triggers).
+
+**Dating features:** Rewind (Gold), message before matching (Platinum, 5/day; becomes the first
+message on match), profile prompts (checked by the paid-services filter), age and gender filters,
+Likes You grid.
+
+**Compliance:** first sign-in collects date of birth (server-checked 18+) and consent to Terms,
+Privacy and sensitive data (gender / Show me), versioned in `consents`. 2-step sign-in (TOTP);
+staff with it on must pass it for admin. Full data export. Deleted accounts are anonymised after
+30 days by `/api/cron/purge` (payment records kept, anonymous).
+
+**Growth:** English / Kiswahili / Français, web push (lock screen shows no names), offline page,
+cached assets, no paid image optimisation for member photos.
+
+**Markets:** `markets` + `product_prices`. Kenya is live (M-Pesa + card). TZ, UG, RW, NG, GH, ZA,
+CI, GB, US are waitlist with draft prices — review prices, the law and payment methods for each
+country before switching `status` to `live`. Visitors' country comes from Vercel's edge; members can
+change it in Settings. Free-like "days" follow each market's clock. Card payments use Paystack
+(signature-checked webhook). Never sum different currencies (the funnel reports them separately).
+
+To open a market:
+```sql
+update public.markets set status = 'live' where country_code = 'NG';
+```
+
+**Admins:** emails in `private.settings.admin_emails` become admins on sign-up.

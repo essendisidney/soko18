@@ -38,7 +38,7 @@ export function MatchOverlay({
         {cover ? (
           <div className="absolute top-0 left-16 size-24">
             <div className="relative size-full overflow-hidden rounded-full border border-line">
-              <Image src={cover} alt="" fill sizes="96px" className="object-cover" />
+              <Image src={cover} alt="" fill sizes="96px" className="object-cover" unoptimized={cover.startsWith("http")} />
             </div>
           </div>
         ) : null}

@@ -38,6 +38,8 @@ export function ProfileCard({
         className="object-cover"
         sizes={compact ? "50vw" : "100vw"}
         priority={!compact}
+        // Member photos are already resized on upload; skip paid image optimisation.
+        unoptimized={cover.startsWith("http")}
       />
       <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/15 to-transparent" />
       {profile.featured ? (

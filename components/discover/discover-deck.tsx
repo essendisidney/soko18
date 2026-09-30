@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/use-t";
+
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { AnimatePresence } from "motion/react";
 import { AppHeader } from "@/components/nav/app-header";
@@ -47,6 +49,7 @@ export function DiscoverDeck({
   const [match, setMatch] = useState<SeedProfile | null>(null);
   const [upsell, setUpsell] = useState<LikeUpsell | { code: "gold_required"; message: string } | null>(null);
   const [filters, setFilters] = useState(false);
+  const t = useT();
   const [filtersVersion, setFiltersVersion] = useState(0);
   const [plan, setPlan] = useState<string | null | undefined>(undefined);
   const [gate, setGate] = useState<AuthIntent | null>(null);
@@ -148,13 +151,13 @@ export function DiscoverDeck({
       <HereNowButton compact />
       <div className="mt-2 flex items-center justify-between px-1 text-xs">
         <button type="button" className="text-muted" onClick={() => setFilters((open) => !open)}>
-          Filters
+          {t("discover.filters")}
         </button>
         <Link href="/likes" className="text-muted">
-          Likes you
+          {t("discover.likesYou")}
         </Link>
         <Link href="/upgrade" className="text-gold">
-          Boost · Gold
+          {t("discover.boostGold")}
         </Link>
       </div>
       {filters ? (
@@ -170,10 +173,10 @@ export function DiscoverDeck({
           <p>{upsell.message}</p>
           <div className="mt-3 flex gap-3">
             <Link href="/upgrade" className="text-gold">
-              {upsell.code === "no_super_likes" ? "Get Super Likes" : "Get Gold · from KES 149"}
+              {upsell.code === "no_super_likes" ? t("discover.getSuper") : t("discover.getGold")}
             </Link>
             <button type="button" className="text-muted" onClick={() => setUpsell(null)}>
-              Not now
+              {t("discover.notNow")}
             </button>
           </div>
         </div>

@@ -76,3 +76,18 @@ describe("M-Pesa helpers", () => {
     expect(parseStkCallback({ nope: true })).toBeNull();
   });
 });
+
+describe("markets", () => {
+  it("formats local money", async () => {
+    const { formatMoney } = await import("@/lib/markets/constants");
+    expect(formatMoney(499, "KES")).toContain("499");
+    expect(formatMoney(14.99, "USD")).toContain("14.99");
+    expect(formatMoney(3500, "NGN")).toContain("3,500");
+  });
+
+  it("converts to minor units for card payments", async () => {
+    const { toMinorUnits } = await import("@/lib/payments/paystack");
+    expect(toMinorUnits(14.99)).toBe(1499);
+    expect(toMinorUnits(499)).toBe(49900);
+  });
+});

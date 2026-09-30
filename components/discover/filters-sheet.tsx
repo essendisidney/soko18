@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/use-t";
+
 import { useState } from "react";
 import { Button } from "@/components/soko/button";
 import { Chip } from "@/components/soko/chip";
@@ -12,6 +14,7 @@ export function FiltersSheet({ onClose }: { onClose: () => void }) {
   const [min, setMin] = useState(initial.min);
   const [max, setMax] = useState(initial.max);
   const [show, setShow] = useState<ShowMe>(readShowMe());
+  const t = useT();
 
   function save() {
     const lo = Math.max(18, Math.min(min, max));
@@ -23,16 +26,16 @@ export function FiltersSheet({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="glass mt-3 rounded-2xl p-4 text-sm" role="dialog" aria-label="Filters">
-      <p className="text-[11px] tracking-[0.18em] text-muted uppercase">Show me</p>
+      <p className="text-[11px] tracking-[0.18em] text-muted uppercase">{t("filters.showMe")}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {SHOW_ME.map((option) => (
           <Chip key={option.id} selected={show === option.id} onClick={() => setShow(option.id)}>
-            {option.label}
+            {t(`showMe.${option.id}`)}
           </Chip>
         ))}
       </div>
       <p className="mt-4 text-[11px] tracking-[0.18em] text-muted uppercase">
-        Age {min}–{max}
+        {t("filters.age")} {min}–{max}
       </p>
       <div className="mt-2 flex items-center gap-3">
         <input
@@ -56,10 +59,10 @@ export function FiltersSheet({ onClose }: { onClose: () => void }) {
       </div>
       <div className="mt-4 flex gap-2">
         <Button size="sm" variant="gold" onClick={save}>
-          Apply
+          {t("filters.apply")}
         </Button>
         <Button size="sm" variant="ghost" onClick={onClose}>
-          Cancel
+          {t("filters.cancel")}
         </Button>
       </div>
     </div>

@@ -6,13 +6,12 @@ test.describe("legal pages", () => {
   test("terms, privacy, and safety are public", async ({ page }) => {
     await page.goto("/terms");
     await expect(page.getByRole("heading", { name: "Terms" })).toBeVisible();
-    await expect(page.getByText("You must be 18 or older to use it.")).toBeVisible();
+    await expect(page.getByText("You must be 18 or older.", { exact: false })).toBeVisible();
 
     await page.goto("/privacy");
     await expect(page.getByRole("heading", { name: "Privacy" })).toBeVisible();
-    await expect(page.getByText("The minimum to run discovery in Kenya:")).toBeVisible();
-    await expect(page.getByText("area-level only", { exact: false })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Discretion" })).toBeVisible();
+    await expect(page.getByText("Kenya Data Protection Act", { exact: false })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your rights" })).toBeVisible();
 
     await page.goto("/safety");
     await expect(page.getByRole("heading", { name: "Safety" })).toBeVisible();

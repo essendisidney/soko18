@@ -1,5 +1,7 @@
 import { RememberReturn } from "@/components/nav/remember-return";
 import { TabBar } from "@/components/nav/tab-bar";
+import { ConsentGate } from "@/components/auth/consent-gate";
+import { MfaGate } from "@/components/auth/mfa-gate";
 
 export default function AppShellLayout({
   children,
@@ -11,6 +13,8 @@ export default function AppShellLayout({
       <RememberReturn />
       <div className="flex min-h-0 flex-1 flex-col px-4 pt-4">{children}</div>
       <TabBar />
+      <ConsentGate />
+      <MfaGate />
     </div>
   );
 }

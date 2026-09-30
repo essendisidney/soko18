@@ -32,5 +32,11 @@ export async function requireStaff(): Promise<StaffAuth> {
     return { ok: false, status: 403, error: { code: "forbidden", message: "Staff only." } };
   }
 
+  // Staff who turned on 2-step sign-in must have entered their code this session.
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2") {
+    return { ok: false, status: 403, error: { code: "mfa_required", message: "Enter your 2-step code first." } };
+  }
+
   return { ok: true, userId: user.id, role };
 }

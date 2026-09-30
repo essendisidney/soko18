@@ -1,5 +1,9 @@
 "use client";
 
+import { useT } from "@/lib/i18n/use-t";
+import { LanguagePicker } from "@/components/i18n/language-picker";
+import { MarketBanner } from "@/components/markets/market-banner";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -23,6 +27,7 @@ function openMode() {
 
 export default function WelcomePage() {
   const router = useRouter();
+  const t = useT();
   const mode = useSyncExternalStore(subscribe, openMode, () => "age");
   const [dob, setDob] = useState("");
   const [locating, setLocating] = useState(false);
@@ -87,11 +92,13 @@ export default function WelcomePage() {
           <br />
           Verify.
         </p>
-        <p className="mt-6 text-sm text-muted">Kenya. Real, verified people near you.</p>
+        <p className="mt-6 text-sm text-muted">{t("welcome.tagline")}</p>
+        <LanguagePicker compact />
+        <MarketBanner />
       </div>
       <div className="relative z-10 w-full max-w-sm pb-4">
         <label className="block text-left" htmlFor="birthDate">
-          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Date of birth</span>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">{t("welcome.dob")}</span>
           <input
             id="birthDate"
             type="date"
@@ -106,8 +113,8 @@ export default function WelcomePage() {
         </label>
         <p className="mt-4 mb-5 text-center text-xs leading-relaxed text-muted">
           {underage
-            ? "SOKO18 is 18+. You cannot continue."
-            : "You must be 18 or older to continue. SOKO18 is a private discovery product for adults. "}
+            ? t("welcome.underage")
+            : `${t("welcome.adults")} `}
           {underage ? null : (
             <>
               <Link href="/terms" className="text-cream/70">
@@ -121,10 +128,10 @@ export default function WelcomePage() {
           )}
         </p>
         <Button className="w-full" variant="gold" disabled={!adult || locating} onClick={() => void useMyArea()}>
-          {locating ? "Finding your area…" : "Use my area"}
+          {locating ? t("welcome.finding") : t("welcome.useArea")}
         </Button>
         <Button className="mt-3 w-full" variant="ghost" disabled={!adult} onClick={continueInNairobi}>
-          Continue in Nairobi
+          {t("welcome.continueNairobi")}
         </Button>
         <button
           type="button"
@@ -132,7 +139,7 @@ export default function WelcomePage() {
           onClick={otherCities}
           className="mt-4 w-full text-sm text-muted disabled:opacity-40 disabled:pointer-events-none"
         >
-          Other cities in Kenya
+          {t("welcome.otherCities")}
         </button>
       </div>
     </main>

@@ -89,6 +89,7 @@ export function PublicProfile({
             className="object-cover"
             sizes="100vw"
             priority
+            unoptimized={photos[0].startsWith("http")}
           />
         </button>
         <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-bg via-transparent to-black/30" />
@@ -181,7 +182,7 @@ export function PublicProfile({
                 onClick={() => setPhoto(i)}
                 className="relative h-28 w-24 shrink-0 overflow-hidden rounded-2xl"
               >
-                <Image src={src} alt="" fill className="object-cover" sizes="96px" />
+                <Image src={src} alt="" fill className="object-cover" sizes="96px" unoptimized={src.startsWith("http")} />
               </button>
             ))}
           </div>

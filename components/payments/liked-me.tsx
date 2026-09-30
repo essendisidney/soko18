@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/use-t";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/soko/button";
@@ -12,6 +14,7 @@ export function LikedMeList() {
   const [data, setData] = useState<LikedMe | null>(null);
   const [intros, setIntros] = useState<Intro[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const t = useT();
 
   useEffect(() => {
     void fetch("/api/likes/received")
@@ -32,17 +35,17 @@ export function LikedMeList() {
 
   return (
     <div>
-      <h1 className="font-display text-3xl tracking-tight">Likes you</h1>
+      <h1 className="font-display text-3xl tracking-tight">{t("likes.title")}</h1>
       {error ? <p className="mt-4 text-sm text-muted">{error}</p> : null}
 
       {intros.length > 0 ? (
         <section className="mt-6 space-y-2">
-          <p className="text-xs tracking-[0.16em] text-muted uppercase">Messages waiting</p>
+          <p className="text-xs tracking-[0.16em] text-muted uppercase">{t("likes.waiting")}</p>
           {intros.map((intro) => (
             <Link key={intro.id} href={`/profile/${intro.slug}`} className="block rounded-2xl border border-gold/60 p-4">
               <p className="text-sm font-medium">{intro.name}</p>
               <p className="mt-1 text-sm text-cream/90">“{intro.body}”</p>
-              <p className="mt-2 text-xs text-gold">Like them back to reply</p>
+              <p className="mt-2 text-xs text-gold">{t("likes.likeBack")}</p>
             </Link>
           ))}
         </section>
@@ -66,11 +69,11 @@ export function LikedMeList() {
                 ))}
               </div>
               <div className="mt-6 rounded-3xl border border-gold p-5">
-                <p className="font-display text-2xl">See who they are</p>
-                <p className="mt-2 text-sm text-muted">Gold shows everyone who liked you, so you can match instantly.</p>
+                <p className="font-display text-2xl">{t("likes.seeWho")}</p>
+                <p className="mt-2 text-sm text-muted">{t("likes.goldShows")}</p>
                 <Link href="/upgrade">
                   <Button className="mt-4 w-full" variant="gold">
-                    Get Gold · from KES 149
+                    {t("discover.getGold")}
                   </Button>
                 </Link>
               </div>

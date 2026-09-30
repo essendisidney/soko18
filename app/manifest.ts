@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "SOKO18",
     short_name: "SOKO18",
-    description: "Discover. Connect. Verify. Kenya 18+ local discovery.",
+    description: "Verified dating for adults. Kenya first, then Africa.",
     start_url: "/",
     scope: "/",
     display: "standalone",
@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#070708",
     theme_color: "#070708",
     lang: "en-KE",
-    categories: ["lifestyle"],
+    categories: ["lifestyle", "social"],
     icons: [
       {
         src: "/icon/192",

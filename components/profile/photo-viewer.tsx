@@ -69,7 +69,7 @@ export function PhotoViewer({
           else if (dx > 40) go(-1);
         }}
       >
-        <Image src={src} alt={alt} fill className="object-contain" sizes="100vw" />
+        <Image src={src} alt={alt} fill className="object-contain" sizes="100vw" unoptimized={src.startsWith("http")} />
       </div>
     </div>
   );

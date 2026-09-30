@@ -187,7 +187,7 @@ export function ThreadShell({
           <ArrowLeft className="size-5" />
         </button>
         <div className="relative size-10 overflow-hidden rounded-full">
-          {cover ? <Image src={cover} alt="" fill sizes="40px" className="object-cover" /> : null}
+          {cover ? <Image src={cover} alt="" fill sizes="40px" className="object-cover" unoptimized={cover.startsWith("http")} /> : null}
         </div>
         <div className="min-w-0 flex-1">
           <p className="font-medium">

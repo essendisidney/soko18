@@ -2,6 +2,8 @@ import { z } from "zod";
 import { currentUser } from "@/lib/auth/user";
 import { ledgerPurpose, PRODUCTS, SKUS } from "@/lib/payments/catalog";
 import { mpesaConfigured, normalizeKenyanPhone, stkPush } from "@/lib/payments/daraja";
+import { initializePaystack, paystackConfigured } from "@/lib/payments/paystack";
+import { getMarket, pricesFor, resolveCountry } from "@/lib/markets/server";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -9,36 +11,45 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 const bodySchema = z.object({
   sku: z.enum(SKUS).default("boost_1"),
   phone: z.string().trim().max(20).optional().nullable(),
+  method: z.enum(["mpesa", "card"]).optional().nullable(),
 });
 
+type Fail = { ok: false; status: number; error: { code: string; message: string } };
+const fail = (status: number, code: string, message: string): Fail => ({ ok: false, status, error: { code, message } });
+
 /**
- * Start a purchase. Writes a pending transaction (RLS checks the price against
- * `public.products`), then sends an M-Pesa STK push when Daraja is configured.
- * Nothing is granted until the ledger row posts on settlement.
+ * Start a purchase in the member's market and currency.
+ * Kenya: M-Pesa STK (default) or card. Other live markets: card via Paystack.
+ * With no provider configured, a sandbox row lets you test end to end.
+ * Nothing is granted until the ledger posts on settlement.
  */
 export async function createPaymentIntent(input: unknown) {
   const user = await currentUser();
-  if (!user || !isSupabaseConfigured()) {
-    return { ok: false as const, status: 401, error: { code: "unauthorized", message: "Sign in to pay." } };
-  }
+  if (!user || !isSupabaseConfigured()) return fail(401, "unauthorized", "Sign in to pay.");
 
   const parsed = bodySchema.safeParse(input ?? {});
-  if (!parsed.success) {
-    return { ok: false as const, status: 400, error: { code: "invalid", message: "Choose something to buy." } };
-  }
+  if (!parsed.success) return fail(400, "invalid", "Choose something to buy.");
 
   const product = PRODUCTS[parsed.data.sku];
-  const live = mpesaConfigured();
+  const country = await resolveCountry();
+  const market = await getMarket(country);
+  if (market && market.status !== "live") {
+    return fail(403, "market_closed", `SOKO18 isn’t open in ${market.name} yet. Join the waitlist and we’ll tell you.`);
+  }
+  const price = (await pricesFor(country)).find((p) => p.sku === product.sku);
+  if (!price) return fail(400, "invalid", "This isn’t available in your country yet.");
+
+  const providers = market?.payment_providers ?? ["mpesa"];
+  const wantsCard = parsed.data.method === "card" || !providers.includes("mpesa");
+  let provider: "mpesa" | "paystack" | "sandbox" = "sandbox";
+  if (wantsCard && providers.includes("paystack") && paystackConfigured()) provider = "paystack";
+  else if (!wantsCard && price.currency === "KES" && mpesaConfigured()) provider = "mpesa";
+
   const phone = parsed.data.phone ? normalizeKenyanPhone(parsed.data.phone) : null;
-  if (live && !phone) {
-    return {
-      ok: false as const,
-      status: 400,
-      error: { code: "invalid_phone", message: "Enter your M-Pesa number, e.g. 0712 345 678." },
-    };
+  if (provider === "mpesa" && !phone) {
+    return fail(400, "invalid_phone", "Enter your M-Pesa number, e.g. 0712 345 678.");
   }
 
-  const provider = live ? "mpesa" : "sandbox";
   const supabase = await createClient();
   const { data: tx, error } = await supabase
     .from("transactions")
@@ -46,56 +57,57 @@ export async function createPaymentIntent(input: unknown) {
       account_id: user.id,
       provider,
       provider_ref: `${provider}:${crypto.randomUUID()}`,
-      amount_kes: product.amountKes,
+      amount_kes: Math.round(price.amount),
+      amount: price.amount,
+      currency: price.currency,
+      country_code: country,
       status: "pending",
       purpose: ledgerPurpose(product),
       sku: product.sku,
     })
-    .select("id, amount_kes, status, provider, sku")
+    .select("id, amount, currency, status, provider, sku")
     .maybeSingle();
 
-  if (error || !tx) {
-    return { ok: false as const, status: 403, error: { code: "forbidden", message: "Could not start payment." } };
-  }
+  if (error || !tx) return fail(403, "forbidden", "Could not start payment.");
 
-  if (live && phone) {
-    const push = await stkPush({
-      phone,
-      amountKes: product.amountKes,
-      accountRef: "SOKO18",
-      description: product.title,
-    });
+  let authorizationUrl: string | null = null;
+
+  if (provider === "mpesa" && phone) {
+    const push = await stkPush({ phone, amountKes: Math.round(price.amount), accountRef: "SOKO18", description: product.title });
     if (!push.ok || !push.checkoutRequestId) {
-      return {
-        ok: false as const,
-        status: 502,
-        error: { code: "mpesa_failed", message: push.ok ? "M-Pesa did not start." : push.error },
-      };
+      return fail(502, "mpesa_failed", push.ok ? "M-Pesa did not start." : push.error);
     }
     const admin = createServiceClient();
-    if (!admin) {
-      return {
-        ok: false as const,
-        status: 500,
-        error: { code: "misconfigured", message: "Payments are not fully configured." },
-      };
-    }
-    await admin.rpc("attach_mpesa_checkout", {
-      p_tx: tx.id,
-      p_checkout: push.checkoutRequestId,
-      p_phone: phone,
+    if (!admin) return fail(500, "misconfigured", "Payments are not fully configured.");
+    await admin.rpc("attach_mpesa_checkout", { p_tx: tx.id, p_checkout: push.checkoutRequestId, p_phone: phone });
+  }
+
+  if (provider === "paystack") {
+    if (!user.email) return fail(400, "no_email", "Add an email to your account to pay by card.");
+    const base = process.env.NEXT_PUBLIC_APP_URL || "https://soko18.vercel.app";
+    const init = await initializePaystack({
+      email: user.email,
+      amount: price.amount,
+      currency: price.currency,
+      reference: tx.id,
+      callbackUrl: `${base}/upgrade?paid=${tx.id}`,
+      metadata: { sku: product.sku, account: user.id },
     });
+    if (!init.ok) return fail(502, "card_failed", init.error);
+    authorizationUrl = init.authorizationUrl;
   }
 
   return {
     ok: true as const,
     data: {
-      transactionId: tx.id,
-      amountKes: tx.amount_kes,
-      status: tx.status,
-      provider: tx.provider,
+      transactionId: tx.id as string,
+      amount: Number(tx.amount),
+      currency: tx.currency as string,
+      status: tx.status as string,
+      provider: tx.provider as string,
       sku: product.sku,
       title: product.title,
+      authorizationUrl,
     },
   };
 }
@@ -103,29 +115,24 @@ export async function createPaymentIntent(input: unknown) {
 /** Poll a purchase the signed-in member started. */
 export async function paymentStatus(transactionId: string) {
   const user = await currentUser();
-  if (!user || !isSupabaseConfigured()) {
-    return { ok: false as const, status: 401, error: { code: "unauthorized", message: "Sign in." } };
-  }
-  if (!z.string().uuid().safeParse(transactionId).success) {
-    return { ok: false as const, status: 400, error: { code: "invalid", message: "Missing payment." } };
-  }
+  if (!user || !isSupabaseConfigured()) return fail(401, "unauthorized", "Sign in.");
+  if (!z.string().uuid().safeParse(transactionId).success) return fail(400, "invalid", "Missing payment.");
   const supabase = await createClient();
   const { data } = await supabase
     .from("transactions")
-    .select("id, status, sku, amount_kes, result_desc")
+    .select("id, status, sku, amount, currency, result_desc")
     .eq("id", transactionId)
     .eq("account_id", user.id)
     .maybeSingle();
-  if (!data) {
-    return { ok: false as const, status: 404, error: { code: "not_found", message: "Payment not found." } };
-  }
+  if (!data) return fail(404, "not_found", "Payment not found.");
   return {
     ok: true as const,
     data: {
-      transactionId: data.id,
+      transactionId: data.id as string,
       status: data.status as string,
       sku: data.sku as string,
-      amountKes: data.amount_kes as number,
+      amount: Number(data.amount),
+      currency: data.currency as string,
       message: data.result_desc as string | null,
     },
   };

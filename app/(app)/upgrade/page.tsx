@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Store } from "@/components/payments/store";
 
 export const metadata: Metadata = {
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function UpgradePage() {
-  return <Store />;
+  return (
+    <Suspense fallback={null}>
+      <Store />
+    </Suspense>
+  );
 }

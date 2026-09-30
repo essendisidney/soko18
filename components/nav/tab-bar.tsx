@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/use-t";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
@@ -21,11 +23,12 @@ export function TabBar() {
   const returnTo = useSyncExternalStore(() => () => {}, returnSnapshot, () => null);
   const storedCity = useSyncExternalStore(subscribeNearArea, citySnapshot, () => "nairobi");
   const browseHref = browseTabHref(pathname, storedCity);
+  const t = useT();
   const tabs = [
-    { href: "/discover", label: "Discover", icon: Compass },
-    { href: browseHref, label: "Browse", icon: Grid2x2 },
-    { href: "/matches", label: "Matches", icon: Heart },
-    { href: "/me", label: "Me", icon: UserRound },
+    { href: "/discover", key: "discover", label: t("tab.discover"), icon: Compass },
+    { href: browseHref, key: "browse", label: t("tab.browse"), icon: Grid2x2 },
+    { href: "/matches", key: "matches", label: t("tab.matches"), icon: Heart },
+    { href: "/me", key: "me", label: t("tab.me"), icon: UserRound },
   ];
 
   return (
@@ -36,7 +39,7 @@ export function TabBar() {
           const Icon = tab.icon;
           const fresh = tab.href === "/matches" && waiting.length > 0 && !active;
           return (
-            <li key={tab.label}>
+            <li key={tab.key}>
               <Link
                 href={tab.href}
                 className={cn(

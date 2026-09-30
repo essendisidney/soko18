@@ -54,7 +54,7 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
               >
                 <div className="relative size-16 overflow-hidden rounded-2xl bg-bg-elevated">
                   {item.photo ? (
-                    <Image src={item.photo} alt={item.name} fill sizes="64px" className="object-cover" />
+                    <Image src={item.photo} alt={item.name} fill sizes="64px" className="object-cover" unoptimized={item.photo.startsWith("http")} />
                   ) : null}
                 </div>
                 <div className="min-w-0 flex-1">
