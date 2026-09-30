@@ -1,5 +1,7 @@
 # Core feature prompts
 
+> Read `docs/PIVOT.md` first. SOKO18 is a dating app; the old marketplace model is gone.
+
 Once context is set, @ `docs/architecture.md`, `docs/contracts.md`, and `docs/ui-design.md`, then use:
 
 ## Backend (REST API & Auth)
@@ -20,4 +22,4 @@ Create an in-app reporting system and an emergency panic button UI that sends th
 
 ## Anonymity
 
-@ `docs/anonymity.md`. Incognito, hashed contact blocks, 24-hour chats, skip-the-line and mystery as catalog prices. Never invent waitlist density.
+@ `docs/anonymity.md` and `docs/PIVOT.md`. Incognito and hashed contact blocks. Never invent waitlist density.

@@ -28,7 +28,7 @@ test("returning kisumu open does not invent Nairobi pulse", async ({ page }) => 
   });
   await page.goto("/");
   await expect(page.getByText(/Nairobi is active/i)).toHaveCount(0);
-  await expect(page.getByText("Kisumu. Men around you.")).toBeVisible();
+  await expect(page.getByText("Kisumu. Singles near you.")).toBeVisible();
   await expect(page.getByText("new matches")).toHaveCount(0);
   await expect(page.getByText("Milimani").first()).toBeVisible();
   await page.getByRole("link", { name: "Browse Kisumu" }).click();

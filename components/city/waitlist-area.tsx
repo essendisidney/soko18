@@ -25,7 +25,7 @@ export function WaitlistArea({
       <RememberArea slug={areaSlug} citySlug={citySlug} />
       <p className="text-[13px] tracking-[0.22em] text-gold uppercase">{cityName}</p>
       <h1 className="mt-3 font-display text-4xl tracking-tight">{areaName}</h1>
-      <p className="mt-2 text-sm text-muted">Men around you. Area-level only.</p>
+      <p className="mt-2 text-sm text-muted">Singles near you. Area-level only.</p>
       <HereNowButton areaSlug={areaSlug} citySlug={citySlug} />
       <CitySearch citySlug={citySlug} cityName={cityName} />
       <WaitlistDiscover slug={citySlug} areaSlug={areaSlug} />

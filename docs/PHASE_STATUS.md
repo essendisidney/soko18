@@ -1,3 +1,7 @@
+> **Superseded in part — read `docs/PIVOT.md` first.** SOKO18 is now a mainstream paid dating app.
+> Anything here about owners vs seekers, "men around you", provider pricing, Spotlight/Featured,
+> Golden Hour, Mystery, Skip the line, paid safety, ratings, availability or live proof no longer applies.
+
 # Phase status
 
 Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages.

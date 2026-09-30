@@ -2,6 +2,7 @@ import type { ProfileDraft } from "@/lib/profile/types";
 import { rejectPaidFlags } from "@/lib/payments/flags";
 import { profileInputSchema, rejectSelfPublish } from "@/lib/profile/schema";
 import { uniqueProfileSlug } from "@/lib/profile/slug";
+import { looksLikePaidService, PAID_SERVICE_MESSAGE } from "@/lib/safety/paid-services";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -35,6 +36,9 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
   }
 
   const value = parsed.data;
+  if (looksLikePaidService(`${value.displayName} ${value.bio ?? ""}`)) {
+    return { ok: false, error: { code: "paid_services", message: PAID_SERVICE_MESSAGE }, status: 422 };
+  }
   const draft: ProfileDraft = {
     id: value.id ?? crypto.randomUUID(),
     slug: uniqueProfileSlug(value.displayName, undefined, value.citySlug || "nairobi"),
@@ -43,7 +47,8 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
     citySlug: value.citySlug || "nairobi",
     areaSlug: value.areaSlug,
     bio: value.bio ?? "",
-    availability: value.availability ?? "",
+    gender: value.gender ?? null,
+    lookingFor: value.lookingFor ?? null,
     indexPublic: value.indexPublic,
     status: value.status,
     updatedAt: new Date().toISOString(),
@@ -96,6 +101,8 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
     city_id: city.id,
     area_id: area?.id ?? null,
     bio: draft.bio || null,
+    gender: draft.gender,
+    looking_for: draft.lookingFor,
     status: draft.status,
   };
 

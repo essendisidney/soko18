@@ -12,10 +12,6 @@ import {
   writeEmergencyContact,
   writeExtraEmergencyContact,
 } from "@/lib/safety/emergency";
-import { LocalPayButton } from "@/components/payments/local-pay-button";
-import { hasLocalAccess } from "@/lib/payments/access-local";
-import { PRIVACY_CATALOG } from "@/lib/payments/catalog";
-import { formatKes } from "@/lib/payments/ledger";
 
 export function SafetyTools() {
   const { user, ready, configured } = useAuth();
@@ -23,7 +19,8 @@ export function SafetyTools() {
   const [phone, setPhone] = useState("");
   const [extraName, setExtraName] = useState("");
   const [extraPhone, setExtraPhone] = useState("");
-  const [pack, setPack] = useState(false);
+  // Safety is free for everyone. A second trusted contact is always available.
+  const pack = true;
   const [note, setNote] = useState<string | null>(null);
   const [gate, setGate] = useState<"panic" | "share" | null>(null);
   const [busy, setBusy] = useState(false);
@@ -40,7 +37,6 @@ export function SafetyTools() {
       setExtraName(extra.name);
       setExtraPhone(extra.phone);
     }
-    setPack(hasLocalAccess("safety"));
   }, []);
 
   function saveContact() {
@@ -143,12 +139,6 @@ export function SafetyTools() {
       <Button className="mt-4 w-full" variant="ghost" onClick={saveContact}>
         Save contact
       </Button>
-      <LocalPayButton
-        kind="safety"
-        idleLabel={`Safety pack · ${formatKes(PRIVACY_CATALOG.safety.amountKes)} / month`}
-        settledLabel="Second contact unlocked"
-        onSettled={() => setPack(true)}
-      />
       {pack ? (
         <>
           <label className="mt-4 block">

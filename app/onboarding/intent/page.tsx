@@ -19,7 +19,7 @@ export default function IntentOnboardingPage() {
     <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-bg px-6 pt-16 pb-10">
       <p className="text-[13px] tracking-[0.2em] text-gold uppercase">{cityNameBySlug(citySlug)}</p>
       <h1 className="mt-4 font-display text-4xl tracking-tight">What are you looking for?</h1>
-      <p className="mt-3 text-sm text-muted">Choose up to three.</p>
+      <p className="mt-3 text-sm text-muted">Pick one or two. You can change this any time.</p>
       <IntentPicker
         doneLabel="Continue"
         onDone={() => {

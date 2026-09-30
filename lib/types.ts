@@ -7,7 +7,9 @@ export type Verification = {
   established: boolean;
 };
 
-export type ProfileGender = "man" | "woman";
+export type ProfileGender = "man" | "woman" | "nonbinary";
+
+export type LookingFor = "relationship" | "casual" | "friends" | "unsure";
 
 export type SeedProfile = {
   id: string;
@@ -22,7 +24,7 @@ export type SeedProfile = {
   verified: boolean;
   presence: Presence;
   bio: string;
-  availability?: string;
+  lookingFor?: LookingFor;
   photos: string[];
   verification: Verification;
   featured?: boolean;

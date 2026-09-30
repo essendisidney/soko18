@@ -37,9 +37,9 @@ export function StudioHome({
 
   return (
     <div>
-      <p className="text-[11px] tracking-[0.22em] text-gold uppercase">SOKO18 Studio</p>
+      <p className="text-[11px] tracking-[0.22em] text-gold uppercase">Your profile</p>
       <h1 className="mt-3 font-display text-3xl tracking-tight">
-        {name ? `${greeting}, ${name}` : "Your studio"}
+        {name ? `${greeting}, ${name}` : "Your profile"}
       </h1>
       <p className="mt-2 text-sm text-muted">
         {overview?.profile

@@ -87,7 +87,7 @@ export default function WelcomePage() {
           <br />
           Verify.
         </p>
-        <p className="mt-6 text-sm text-muted">Kenya. Men around you.</p>
+        <p className="mt-6 text-sm text-muted">Kenya. Real, verified people near you.</p>
       </div>
       <div className="relative z-10 w-full max-w-sm pb-4">
         <label className="block text-left" htmlFor="birthDate">

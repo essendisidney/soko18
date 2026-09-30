@@ -1,5 +1,7 @@
 "use client";
 
+import { INTENTS } from "@/lib/data/nairobi";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -30,7 +32,6 @@ import { useLocalIds } from "@/lib/safety/use-id-list";
 import { useHiddenByReports } from "@/lib/reports/use-hidden";
 import { cn } from "@/lib/utils";
 import { sokoVerified } from "@/lib/trust/verified";
-import { RatePanel } from "@/components/ratings/rate-panel";
 import { BothSidesLine } from "@/components/trust/both-sides-line";
 
 export function PublicProfile({
@@ -152,11 +153,12 @@ export function PublicProfile({
           <p className="mt-3 text-[17px] leading-relaxed text-cream/90">{profile.bio}</p>
         </section>
 
-        {profile.availability ? (
+        {profile.lookingFor ? (
           <section className="mt-10">
-            <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Availability</h2>
-            <p className="mt-3 text-[17px] text-cream/90">{profile.availability}</p>
-            <p className="mt-2 text-xs text-muted">Set by the owner. Not a live location.</p>
+            <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Looking for</h2>
+            <p className="mt-3 text-[17px] text-cream/90">
+              {INTENTS.find((intent) => intent.id === profile.lookingFor)?.label}
+            </p>
           </section>
         ) : null}
 
@@ -197,10 +199,6 @@ export function PublicProfile({
             </li>
           </ul>
         </section>
-
-        {matched ? <RatePanel profileId={profile.id} name={profile.name} /> : (
-          <p className="mt-6 text-xs text-muted">Reviews after a match — two-way, before you continue.</p>
-        )}
 
         <section className="mt-10">
           <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Similar</h2>
@@ -253,7 +251,7 @@ export function PublicProfile({
           <AuthGate
             intent={gate}
             onClose={() => {
-              if (gate === "like" || gate === "spotlight") clearPendingEngage();
+              if (gate === "like" || gate === "super") clearPendingEngage();
               setGate(null);
             }}
             onDiscover={() => setGate(null)}

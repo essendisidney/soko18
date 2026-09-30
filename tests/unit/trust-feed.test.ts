@@ -29,16 +29,13 @@ describe("three reports", () => {
     expect(uniqueReporterCount(three.flags, "missing")).toBe(0);
   });
 
-  it("penalizes rank from reports and never invents a 5-star average", () => {
+  it("penalizes rank from reports", () => {
     expect(safetyPenalty(0)).toBe(0);
     expect(safetyPenalty(3)).toBe(1);
     expect(ratingFit(null)).toBe(0.5);
     expect(ratingFit(5)).toBe(1);
     const person = testProfile({ id: "p2", slug: "p2" });
     expect(rankScore(person, { citySlug: "nairobi", reportCounts: { p2: 3 } })).toBeLessThan(
-      rankScore(person, { citySlug: "nairobi" }),
-    );
-    expect(rankScore(person, { citySlug: "nairobi", ratingAverages: { p2: 5 } })).toBeGreaterThan(
       rankScore(person, { citySlug: "nairobi" }),
     );
   });

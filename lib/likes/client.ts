@@ -1,4 +1,4 @@
-export type LikeKind = "pass" | "like" | "spotlight";
+export type LikeKind = "pass" | "like" | "super";
 
 export async function postLike(profileId: string, kind: LikeKind) {
   const res = await fetch("/api/likes", {
@@ -11,7 +11,9 @@ export async function postLike(profileId: string, kind: LikeKind) {
     | { error?: { code: string; message: string } }
     | null;
   if (!res.ok || !json || !("data" in json) || !json.data) {
-    return { ok: false as const, status: res.status };
+    const code = json && "error" in json && json.error ? json.error.code : null;
+    const message = json && "error" in json && json.error ? json.error.message : null;
+    return { ok: false as const, status: res.status, code, message };
   }
   return { ok: true as const, data: json.data };
 }

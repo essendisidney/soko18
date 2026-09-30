@@ -2,8 +2,7 @@ import type { SeedProfile } from "@/lib/types";
 import { hasApprovedCover } from "@/lib/media/public";
 import { profileHealth } from "@/lib/profile/health";
 import { sokoVerified } from "@/lib/trust/verified";
-import { goldenRankBonus } from "@/lib/visibility/golden-hour";
-import { hideFromPublic, ratingFit, safetyPenalty } from "@/lib/reports/tally";
+import { hideFromPublic, safetyPenalty } from "@/lib/reports/tally";
 
 const FEATURED_WINDOW = 8;
 const FEATURED_BONUS_CAP = 0.04;
@@ -11,14 +10,12 @@ const FEATURED_BONUS_CAP = 0.04;
 export type RankContext = {
   citySlug?: string | null;
   nearArea?: string | null;
+  /** Who the viewer wants to see. */
   gender?: "man" | "woman" | "any";
   intents?: string[];
   impressedIds?: string[];
   excludeIds?: string[];
-  goldenHour?: boolean;
-  goldenPinnedIds?: string[];
   reportCounts?: Record<string, number>;
-  ratingAverages?: Record<string, number | null>;
 };
 
 function clamp01(n: number) {
@@ -36,11 +33,10 @@ export function locationProximity(profile: SeedProfile, ctx: RankContext) {
 export function preferenceFit(profile: SeedProfile, intents: string[] = []) {
   if (intents.length === 0) return 0.5;
   let hits = 0;
-  if (intents.includes("featured") && profile.featured) hits += 1;
-  if (intents.includes("meet") && profile.availability) hits += 1;
-  if (intents.includes("connect") && sokoVerified(profile)) hits += 1;
-  if (intents.includes("browse")) hits += 0.5;
-  return clamp01(0.35 + hits * 0.25);
+  if (profile.lookingFor && intents.includes(profile.lookingFor)) hits += 1;
+  if (profile.lookingFor === "unsure" || intents.includes("unsure")) hits += 0.4;
+  if (sokoVerified(profile)) hits += 0.3;
+  return clamp01(0.35 + hits * 0.35);
 }
 
 export function activityRecency(profile: SeedProfile) {
@@ -71,7 +67,6 @@ export function interactionHistory(profile: SeedProfile, impressedIds: string[] 
 
 export function rankScore(profile: SeedProfile, ctx: RankContext) {
   const reports = ctx.reportCounts?.[profile.id] ?? 0;
-  const rating = ctx.ratingAverages?.[profile.id] ?? null;
   return (
     locationProximity(profile, ctx) * 0.28 +
     preferenceFit(profile, ctx.intents) * 0.12 +
@@ -81,11 +76,8 @@ export function rankScore(profile: SeedProfile, ctx: RankContext) {
     freshness(profile) * 0.08 +
     interactionHistory(profile, ctx.impressedIds) * 0.08 -
     safetyPenalty(reports) * 0.06 +
-    (rating == null ? 0 : (ratingFit(rating) - 0.5) * 0.06) +
-    Math.min(profile.featured ? 0.04 : 0, FEATURED_BONUS_CAP) +
-    (ctx.goldenHour
-      ? goldenRankBonus(profile.presence, true, Boolean(ctx.goldenPinnedIds?.includes(profile.id)))
-      : 0)
+    // Boosted profiles rise, but capFeatured keeps them from crowding the deck.
+    Math.min(profile.featured ? 0.04 : 0, FEATURED_BONUS_CAP)
   );
 }
 

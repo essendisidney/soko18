@@ -1,4 +1,4 @@
-import { ONBOARDING, readIntents } from "@/lib/onboarding";
+import { ONBOARDING, readIntents, readShowMe } from "@/lib/onboarding";
 import { impressedIds } from "@/lib/discovery/impressions";
 import { DEFAULT_NEAR_AREA, readNearArea } from "@/lib/nairobi/near";
 
@@ -16,7 +16,7 @@ export function readDiscoverPrefs() {
 
 export function discoverQuery() {
   const prefs = readDiscoverPrefs();
-  const q = new URLSearchParams({ city: prefs.city, near: prefs.near, gender: "man" });
+  const q = new URLSearchParams({ city: prefs.city, near: prefs.near, gender: readShowMe() });
   if (prefs.intents.length) q.set("intent", prefs.intents.join(","));
   if (prefs.seen.length) q.set("seen", prefs.seen.join(","));
   return q;

@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { filterGhosts, seedIncognitoIds } from "@/lib/privacy/incognito";
-import { mysteryPick } from "@/lib/privacy/mystery";
 import { getDiscoverFeed } from "@/lib/discovery/feed";
 import { emptySearchLine, searchCity, searchNairobi } from "@/lib/browse/feed";
-import { liveProofLine, requestLiveProof, sendLiveProof } from "@/lib/trust/live-proof";
 import { testProfile } from "../helpers/profile";
 
 describe("incognito on the feed", () => {
@@ -27,21 +25,5 @@ describe("incognito on the feed", () => {
     expect(getDiscoverFeed({ citySlug: "kisumu", gender: "man" }).items).toEqual([]);
     expect(searchCity("kisumu", "Amani")).toEqual([]);
     expect(emptySearchLine("Kisumu")).toBe("No one in Kisumu matches that.");
-  });
-});
-
-describe("mystery pick", () => {
-  it("is one card and never an excluded id", () => {
-    expect(mysteryPick([{ id: "a" }, { id: "b" }], ["a"])?.id).toBe("b");
-    expect(mysteryPick([{ id: "a" }], ["a"])).toBeNull();
-  });
-});
-
-describe("voice proof", () => {
-  it("stays in the thread", () => {
-    const asked = requestLiveProof(null, "c1", "voice", "2026-09-01T12:00:00.000Z");
-    expect(liveProofLine(asked)).toContain("Live voice asked");
-    const sent = sendLiveProof(asked, "c1", "voice", "2026-09-01T12:01:00.000Z");
-    expect(liveProofLine(sent)).toContain("Not on Discover");
   });
 });

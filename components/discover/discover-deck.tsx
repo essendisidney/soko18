@@ -5,7 +5,6 @@ import { AnimatePresence } from "motion/react";
 import { AppHeader } from "@/components/nav/app-header";
 import { SwipeDeck } from "@/components/discover/swipe-deck";
 import { MatchOverlay } from "@/components/discover/match-overlay";
-import { MysterySheet } from "@/components/discover/mystery-sheet";
 import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
 import { useAuth } from "@/lib/auth/use-auth";
 import {
@@ -19,19 +18,14 @@ import { writeImpression } from "@/lib/discovery/impressions";
 import { discoverQuery } from "@/lib/discovery/prefs";
 import { clearPendingEngage, readPendingEngage, writePendingEngage } from "@/lib/auth/pending-engage";
 import { postLike } from "@/lib/likes/client";
-import { engageProfile } from "@/lib/likes/engage";
+import { engageProfile, type LikeUpsell } from "@/lib/likes/engage";
+import Link from "next/link";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { parseIdList } from "@/lib/safety/local-ids";
 import { useHiddenByReports } from "@/lib/reports/use-hidden";
-import { mysteryPick } from "@/lib/privacy/mystery";
-import { mysteryPayLabel, mysteryPhase as readMysteryPhase, takeMysteryCard } from "@/lib/privacy/mystery-pay";
-import { LocalPayButton } from "@/components/payments/local-pay-button";
-import { ACCESS_CATALOG } from "@/lib/payments/catalog";
-import { formatKes } from "@/lib/payments/ledger";
 import { cityPlaceLine } from "@/lib/nairobi/live";
 import { tonightAreaNames } from "@/lib/nairobi/tonight";
 import { readImpressions } from "@/lib/discovery/impressions";
-import { goldenLine, isGoldenHour } from "@/lib/visibility/golden-hour";
 import { nearAreaSnapshot, subscribeNearArea, nearAreaName, writeCity } from "@/lib/nairobi/near";
 import { cityNameBySlug, areaBrowseHref } from "@/lib/geo/kenya";
 import { catalogForCity } from "@/lib/discovery/feed";
@@ -49,8 +43,7 @@ export function DiscoverDeck({
   const { user, ready } = useAuth();
   const [feed, setFeed] = useState(initial);
   const [match, setMatch] = useState<SeedProfile | null>(null);
-  const [mystery, setMystery] = useState<SeedProfile | null>(null);
-  const [mysteryPay, setMysteryPay] = useState<"idle" | "pending" | "ready">("idle");
+  const [upsell, setUpsell] = useState<LikeUpsell | null>(null);
   const [gate, setGate] = useState<AuthIntent | null>(null);
   const [ghost, setGhost] = useState(false);
   const [clock, setClock] = useState(0);
@@ -64,11 +57,10 @@ export function DiscoverDeck({
   const place = cityPlaceLine(citySlug || "nairobi", near);
   const tonight = clock >= 0 ? tonightAreaNames(readImpressions(), feed) : [];
   const areas = tonight.length > 0 ? tonight.join(" · ") : place;
-  const subtitle = isGoldenHour() ? `${goldenLine()} · ${areas}` : areas;
+  const subtitle = areas;
 
   useEffect(() => {
     setGhost(readIncognito());
-    setMysteryPay(readMysteryPhase());
     writeCity(localStorage.getItem(ONBOARDING.city) || "nairobi");
   }, []);
 
@@ -124,7 +116,7 @@ export function DiscoverDeck({
     if (!profile) return;
     clearPendingEngage();
     resumed.current = true;
-    engageProfile(profile, pending.kind, setMatch);
+    engageProfile(profile, pending.kind, setMatch, setUpsell);
   }, [ready, user, feed, initial, blockedRaw]);
 
   const onImpression = useCallback((profile: SeedProfile) => {
@@ -141,28 +133,27 @@ export function DiscoverDeck({
       <AppHeader title={cityNameBySlug(citySlug || "nairobi")} subtitle={subtitle} />
       {ghost ? <p className="mt-2 px-1 text-xs text-gold">You’re invisible</p> : null}
       <HereNowButton compact />
-      <LocalPayButton
-        kind="golden"
-        compact
-        idleLabel={`Golden Hour · ${formatKes(ACCESS_CATALOG.golden.amountKes)}`}
-        settledLabel="Golden Hour pin · 8–9pm EAT"
-      />
-      <button
-        type="button"
-        className="mt-2 px-1 text-left text-xs text-muted"
-        onClick={() => {
-          if (!takeMysteryCard()) {
-            setMysteryPay(readMysteryPhase());
-            return;
-          }
-          setMysteryPay(readMysteryPhase());
-          const exclude = profiles.map((row) => row.id).slice(0, 1);
-          const pick = mysteryPick(profiles, exclude);
-          if (pick) setMystery(pick);
-        }}
-      >
-        {mysteryPayLabel(mysteryPay)}
-      </button>
+      <div className="mt-2 flex items-center justify-between px-1 text-xs">
+        <Link href="/likes" className="text-muted">
+          See who likes you
+        </Link>
+        <Link href="/upgrade" className="text-gold">
+          Boost · Gold
+        </Link>
+      </div>
+      {upsell ? (
+        <div className="glass mt-3 rounded-2xl p-4 text-sm">
+          <p>{upsell.message}</p>
+          <div className="mt-3 flex gap-3">
+            <Link href="/upgrade" className="text-gold">
+              {upsell.code === "like_limit" ? "Get Gold · from KES 149" : "Get Super Likes"}
+            </Link>
+            <button type="button" className="text-muted" onClick={() => setUpsell(null)}>
+              Not now
+            </button>
+          </div>
+        </div>
+      ) : null}
       <div className="mt-5 flex min-h-0 flex-1 flex-col">
         <SwipeDeck
           profiles={profiles}
@@ -205,33 +196,11 @@ export function DiscoverDeck({
             return false;
           }}
           onLike={(profile, kind) => {
-            engageProfile(profile, kind, setMatch);
+            engageProfile(profile, kind, setMatch, setUpsell);
           }}
         />
       </div>
       <AnimatePresence>
-        {mystery ? (
-          <MysterySheet
-            profile={mystery}
-            onClose={() => setMystery(null)}
-            onPass={() => {
-              writeDiscoverAction({ profileId: mystery.id, kind: "pass", at: Date.now() });
-              if (user) void postLike(mystery.id, "pass");
-              setMystery(null);
-            }}
-            onLike={() => {
-              const profile = mystery;
-              setMystery(null);
-              if (!ready) return;
-              if (!user) {
-                writePendingEngage({ profileId: profile.id, kind: "like", at: Date.now() });
-                setGate("like");
-                return;
-              }
-              engageProfile(profile, "like", setMatch);
-            }}
-          />
-        ) : null}
         {match ? (
           <MatchOverlay
             profile={match}
@@ -250,7 +219,7 @@ export function DiscoverDeck({
           <AuthGate
             intent={gate}
             onClose={() => {
-              if (gate === "like" || gate === "spotlight") clearPendingEngage();
+              if (gate === "like" || gate === "super") clearPendingEngage();
               setGate(null);
             }}
             onDiscover={() => setGate(null)}

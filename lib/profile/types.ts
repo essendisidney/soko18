@@ -10,7 +10,8 @@ export type ProfileDraft = {
   citySlug: string;
   areaSlug: string;
   bio: string;
-  availability: string;
+  gender: "man" | "woman" | "nonbinary" | null;
+  lookingFor: "relationship" | "casual" | "friends" | "unsure" | null;
   indexPublic: boolean;
   status: OwnerProfileStatus;
   updatedAt: string;

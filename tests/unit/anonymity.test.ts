@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ghostVisible, filterGhosts } from "@/lib/privacy/incognito";
 import { blockedByHash, hashContact, normalizeKePhone } from "@/lib/privacy/contacts";
-import { mysteryPick } from "@/lib/privacy/mystery";
 import { chatExpiresAt, chatOpen, extendChat, remainingLabel } from "@/lib/messages/expiry";
 import { extendReady, recordExtendTap } from "@/lib/messages/extend";
 
@@ -42,10 +41,3 @@ describe("24-hour chats", () => {
   });
 });
 
-describe("mystery pick", () => {
-  it("never returns an excluded id", () => {
-    expect(mysteryPick([{ id: "a" }, { id: "b" }], ["a", "b"])).toBeNull();
-    const pick = mysteryPick([{ id: "a" }, { id: "b" }], ["a"]);
-    expect(pick?.id).toBe("b");
-  });
-});

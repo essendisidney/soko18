@@ -9,18 +9,18 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { guestBrowseLine } from "@/lib/auth/guest";
 import { citySnapshot, subscribeNearArea } from "@/lib/nairobi/near";
 
-export type AuthIntent = "like" | "spotlight" | "message" | "profile" | "report" | "panic" | "share" | "rate" | "verify";
+export type AuthIntent = "like" | "super" | "message" | "profile" | "report" | "panic" | "share" | "verify" | "upgrade";
 
 const copy: Record<AuthIntent, { title: string; line: string }> = {
   like: { title: "Sign in to like", line: "Pass stays open. Likes need an account." },
-  spotlight: { title: "Sign in to Spotlight", line: "A Spotlight is a real signal. It needs you." },
+  super: { title: "Sign in to Super Like", line: "A Super Like shows them you’re keen before they swipe." },
   message: { title: "Sign in to message", line: guestBrowseLine() },
   profile: { title: "Sign in to continue", line: "Create a profile once you’re in." },
   report: { title: "Sign in to report", line: "A report opens a staff case. You can keep browsing." },
   panic: { title: "Sign in to send a panic alert", line: "The alert goes to your trusted contact only." },
   share: { title: "Sign in to share location", line: "Live location goes to your trusted contact only." },
-  rate: { title: "Sign in to rate", line: "Reviews are two-way after a match." },
-  verify: { title: "Sign in to verify ID", line: "Identity review is both sides. No ID number in the app." },
+  upgrade: { title: "Sign in to upgrade", line: "Gold and Platinum are tied to your account." },
+  verify: { title: "Sign in to verify ID", line: "Everyone on SOKO18 verifies. We never show your ID number." },
 };
 
 export function AuthGate({

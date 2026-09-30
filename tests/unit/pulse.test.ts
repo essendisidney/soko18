@@ -48,7 +48,7 @@ describe("Nairobi pulse", () => {
     expect(nairobiGreeting("2026-08-24T18:00:00.000Z")).toBe("Good evening");
     expect(nairobiAliveLine("2026-08-24T18:00:00.000Z")).toBe("Nairobi is active tonight.");
     expect(nairobiAliveLine("2026-08-24T08:00:00.000Z")).toBe("Nairobi is active.");
-    expect(cityAliveLine("kisumu")).toBe("Kisumu. Men around you.");
+    expect(cityAliveLine("kisumu")).toBe("Kisumu. Singles near you.");
     expect(cityAliveLine("nairobi", "2026-08-24T08:00:00.000Z")).toBe("Nairobi is active.");
     expect(cityWelcomePlaces("kisumu")[0]).toBe("Milimani");
     expect(cityPlaceLine("kisumu")).toBe("Milimani · Mamboleo · CBD");

@@ -66,7 +66,7 @@ describe("match creation", () => {
       actorProfileId: "seeker-profile",
       targetProfileId: "owner-profile",
       targetAccountId: "owner",
-      kind: "spotlight",
+      kind: "super",
       likes: mutual.likes,
       matches: mutual.matches,
       inbound: true,

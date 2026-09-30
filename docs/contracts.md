@@ -1,70 +1,40 @@
 # contracts.md
 
-Create a RESTful API for user profiles with fields: `id`, `name`, `age`, `location`, `photos`, `serviceType`, and `hourlyRate`.
-
-## Auth
-
-- `POST /auth/register` — email/phone + password, 18+ only
-- `POST /auth/login` — returns JWT
-- Protected routes require `Authorization: Bearer <token>`
+Next.js route handlers under `app/api`. All errors are `{ error: { code, message } }`.
 
 ## Profiles
 
-```
-id
-name
-age
-location
-photos
-serviceType
-hourlyRate
-```
+`id, slug, displayName, birthYear, citySlug, areaSlug, bio, gender, lookingFor, photos, status`
 
-- `GET /profiles` — feed for the swipe screen (filter by location / distance)
-- `GET /profiles/:id` — one profile
-- `POST /profiles` — create (auth)
-- `PATCH /profiles/:id` — update own profile (auth)
+- `GET /api/discover?city&near&gender=woman|man|any&intent` — ranked swipe deck
+- `GET /api/profiles/:slug` — one live profile
+- `POST /api/profiles` — create/update own (draft / pending_review / paused only; never `live`)
+- `422 paid_services` when a bio offers or asks for paid services
 
 ## Swiping
 
-- `POST /swipes` — `{ targetId, action: "like" | "pass" }`
-- Mutual like creates a match and opens chat
+- `POST /api/likes` `{ profileId, kind: "pass" | "like" | "super" }`
+- `402 like_limit` — free daily likes used up
+- `402 no_super_likes`
+- Mutual like → match + conversation (DB trigger)
+- `GET /api/likes/received` — count for everyone, people for Gold/Platinum
 
 ## Chat
 
-- Socket.io after a mutual like
-- `GET /matches` — list matches
-- Messages only between matched users
+- Supabase Realtime on `messages`, RLS-filtered to match participants
+- `422 paid_services` on messages about rates, fees or paid meetups; the DB holds any that slip through
 
-## Safety
+## Payments
 
-- `POST /reports` — in-app report on a profile or thread
-- Panic button: send the user’s current location to a pre-set emergency contact
-- `PUT /safety/emergency-contact` — set that contact
-- `POST /safety/panic` — fire location to that contact
+- `POST /api/payments/checkout` `{ sku, phone }` → `{ transactionId, provider }`
+- `GET /api/payments/status?id=` → `pending | completed | failed`
+- `POST /api/payments/mpesa/callback?t=<secret>` — Daraja only
+- `POST /api/payments/sandbox/complete` `{ transactionId }` — only while sandbox is on
+- `GET /api/me/entitlements`
+- `POST /api/boost` — spend one Boost (30 min)
 
-## Money (see `docs/business-model.md`)
+## Safety (free)
 
-- `POST /payments/stk` — Daraja STK Push. Body: `phone`, `amountKes`, `purpose`
-- Basic **KES 5,000**/mo · Premium **KES 10,000**/mo
-- Boost **500**/24h · Spotlight **1,200**/4h · Featured **3,500**/7d · bundle **1,500**
-- Incognito **1,500**/mo · Skip the line **5,000** · Mystery **200** · Golden Hour **500** · Safety pack **1,000**/mo
-- Coins later: KES 1,000 = 100 coins; Boost 50; Spotlight 120
-- Never a booking cut. Never a paid flag without a ledger row. Never a fake waitlist count
-
-## Anonymity (see `docs/anonymity.md`)
-
-- Incognito: hidden unless you like first. Unmask extra photos after both IDs
-- `PUT /privacy/contacts` — hashed numbers only
-- Chats expire 24h; `POST /messages/:id/extend`
-- `POST /matches/mystery` — KES 200, ledger required
-
-## Safety (what the subscription is for)
-
-- ID verification both sides
-- `POST /ratings` — two-way, match required. Never invent a 4.8
-- Report. One hides from your Discover. Three unique reporters → staff review
-- `PUT /safety/emergency-contact`
-- `POST /safety/panic` — `{ lat, lng }` to that contact only
-- Chat: read receipts + report
-
+- `POST /api/reports` — reasons include `paid_services`
+- `POST /api/safety/panic`, `POST /api/safety/share` — to your trusted contacts only
+- `POST /api/verify/identity`

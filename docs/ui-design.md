@@ -1,47 +1,35 @@
 # ui-design.md
 
-The main screen is a swipeable card interface similar to Tinder. Each card shows the user’s photo, name, age, and distance.
+Swipe cards, Tinder-style, built for Kenyan phones. Each card: photo, name, age, area, verified badge.
 
-## Main swipe feed
+## Discover
 
-- Full-screen cards
-- Photo, name, age, distance
-- Like and pass
-- Data from the profiles API
+- Right = like, left = pass, up = Super Like
+- Header: city + active areas. Links: "See who likes you" and "Boost · Gold"
+- When the free like cap is hit: inline card "Get Gold · from KES 149" / "Not now". Never a dead end
+- Boosted profiles carry a BOOSTED tag and are capped per window
 
-## After a match
+## Onboarding
 
-- Real-time chat, read receipts, report
-- Two-way ratings before you continue
+Date of birth (18+) → area → "What are you looking for?" + "Show me" (Women / Men / Everyone) → profile
 
-## Safety UI (the paid product)
+## Upgrade (`/upgrade`)
 
-- ID verified on both people
-- Panic: one gold tap, sends location to a pre-set emergency contact
-- Share live location with that contact only — not a public map
-- Report on profile and thread. One report hides them from your Discover. Three unique reports go to staff
-- Reviews after a match, two-way. Public line stays “No reviews yet” until real ratings exist
+- Current plan, likes left, Super Likes, Boosts, "Boost me now"
+- Plans: Gold week, Gold month (most popular), Platinum
+- Boosts, Super Likes, Incognito
+- Pay with M-Pesa: enter number → STK prompt → poll until paid
 
-## Money UI (Studio)
+## Likes you (`/likes`)
 
-- Basic KES 5,000/mo · Premium KES 10,000/mo
-- Boost 500 / 24h · Spotlight 1,200 / 4h · Featured 3,500 / 7d
-- Bundle Spotlight + Boost KES 1,500
-- Incognito 1,500/mo · Skip the line 5,000 · Mystery 200 · Golden Hour 500 (8–9pm EAT pin)
-- Pay on M-Pesa (STK). Sandbox until Daraja is live
-- Nairobi Now is not for sale
+- Count free; faces on Gold. Super Likes first
 
-## Discretion UI
+## Safety (free, always)
 
-- Username, not a legal name
-- Incognito: You’re invisible
-- Hash contacts / block a number
-- Chat timer + Extend 24h
-- Live proof Ask photo / Ask voice / Capture / Record in a matched thread only
-- Unmask extra photos after ID on both sides
-- Incognito actually hides you on Discover and Browse unless they already liked you
-- Mystery is one card. Skip the line speeds review. Never a fake queue
-- Friend pass on Me → `/invite`. Speeds review. Empty stays empty
-- Discover subtitle: Golden Hour countdown in-window, else real impression areas
-- No fake “100,000 waiting”
+- ID verification, report (incl. "Selling or asking for money"), block
+- Panic and live share to trusted contacts only
+- Tips: meet in public, tell a friend, never send money to a match
 
+## Privacy
+
+- First name or nickname, Incognito (paid or Platinum), block contacts by hashed number

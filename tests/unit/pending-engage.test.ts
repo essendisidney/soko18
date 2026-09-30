@@ -40,7 +40,7 @@ describe("pending like after auth", () => {
   });
 
   it("drops Not now and stale likes", () => {
-    writePendingEngage({ profileId: "p1", kind: "spotlight", at: Date.now() });
+    writePendingEngage({ profileId: "p1", kind: "super", at: Date.now() });
     clearPendingEngage();
     expect(readPendingEngage()).toBeNull();
     writePendingEngage({ profileId: "p2", kind: "like", at: Date.now() - 31 * 60 * 1000 });

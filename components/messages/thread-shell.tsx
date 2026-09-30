@@ -13,7 +13,6 @@ import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
 import { ReportReasons } from "@/components/safety/report-reasons";
 import { writeReportFlag } from "@/lib/reports/local";
 import { writeDiscoverAction } from "@/lib/discovery/actions";
-import { LiveProofPanel } from "@/components/trust/live-proof-panel";
 import { BothSidesLine } from "@/components/trust/both-sides-line";
 import { UnmaskLine } from "@/components/trust/unmask-line";
 import { goBackOr } from "@/components/profile/profile-back";
@@ -348,8 +347,6 @@ export function ThreadShell({
         })}
       </div>
 
-      {open && conversationId ? <RatePanel profileId={profile.id} name={profile.name} /> : null}
-      {open && conversationId ? <LiveProofPanel conversationId={conversationId} blocked={blocked} /> : null}
 
       {expiresAt && !chatOpen(expiresAt, nowTick) && conversationId ? (
         <Button

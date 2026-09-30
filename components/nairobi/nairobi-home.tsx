@@ -103,7 +103,7 @@ export function NairobiHome({
         ))}
       </div>
       {facet === "near" ? (
-        <p className="mt-2 text-xs text-muted">Men around you · {nearName}. Area-level only.</p>
+        <p className="mt-2 text-xs text-muted">Singles near you · {nearName}. Area-level only.</p>
       ) : null}
 
       <label className="glass mt-4 flex items-center gap-3 rounded-full px-4 py-3">
@@ -153,7 +153,7 @@ export function NairobiHome({
 
       {featured.length > 0 ? (
         <section className="mt-10">
-          <h2 className="text-sm text-muted">Featured</h2>
+          <h2 className="text-sm text-muted">Boosted now</h2>
           <p className="mt-1 text-xs text-muted">Paid placement. Not organic Nairobi Now.</p>
           <div className="rail-x mt-4 flex gap-3">
             {featured.map((profile) => (

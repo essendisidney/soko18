@@ -29,7 +29,7 @@ export function applyImpression(stats: DailyStat[], day: string) {
   return stats.map((row, i) => (i === index ? { ...row, views: row.views + 1 } : row));
 }
 
-export function applyLikeStat(stats: DailyStat[], day: string, kind: "pass" | "like" | "spotlight") {
+export function applyLikeStat(stats: DailyStat[], day: string, kind: "pass" | "like" | "super") {
   if (kind === "pass") return stats;
   const index = stats.findIndex((row) => row.day === day);
   if (index === -1) {

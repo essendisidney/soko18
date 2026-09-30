@@ -18,6 +18,6 @@ export function tonightAreaNames(
   return [...counts.entries()]
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .slice(0, limit)
-    .map(([slug]) => areaBySlug(slug)?.name)
+    .map(([slug]): string | undefined => areaBySlug(slug)?.name)
     .filter((name): name is string => Boolean(name));
 }

@@ -1,3 +1,7 @@
+> **Superseded in part — read `docs/PIVOT.md` first.** SOKO18 is now a mainstream paid dating app.
+> Anything here about owners vs seekers, "men around you", provider pricing, Spotlight/Featured,
+> Golden Hour, Mystery, Skip the line, paid safety, ratings, availability or live proof no longer applies.
+
 # architecture.md
 
 We are using React Native for the frontend, Node.js + Express for the backend, MongoDB for the database, and Socket.io for real-time chat.

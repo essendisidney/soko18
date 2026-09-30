@@ -42,7 +42,7 @@ export function ProfileCard({
       <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/15 to-transparent" />
       {profile.featured ? (
         <p className="absolute top-3 left-3 rounded-full border border-gold/70 bg-black/40 px-2 py-0.5 font-display text-[10px] tracking-[0.16em] text-gold">
-          FEATURED
+          BOOSTED
         </p>
       ) : null}
       <div className="absolute inset-x-0 bottom-0 p-4">

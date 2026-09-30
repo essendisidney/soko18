@@ -12,7 +12,8 @@ import { saveProfileAction } from "@/lib/profile/actions";
 import { draftHealth } from "@/lib/profile/health";
 import { writeLocalDraft } from "@/lib/profile/local";
 import { uniqueProfileSlug } from "@/lib/profile/slug";
-import type { OwnerProfileStatus } from "@/lib/profile/types";
+import type { OwnerProfileStatus, ProfileDraft } from "@/lib/profile/types";
+import { INTENTS } from "@/lib/data/nairobi";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 import { PhotoUploader } from "@/components/studio/photo-uploader";
 
@@ -29,9 +30,16 @@ type Fields = {
   birthYear: string;
   areaSlug: string;
   bio: string;
-  availability: string;
+  gender: ProfileDraft["gender"];
+  lookingFor: ProfileDraft["lookingFor"];
   indexPublic: boolean;
 };
+
+const GENDERS = [
+  { id: "woman", label: "Woman" },
+  { id: "man", label: "Man" },
+  { id: "nonbinary", label: "Non-binary" },
+] as const;
 
 export function ProfileEditor() {
   const { user, ready, configured } = useAuth();
@@ -49,7 +57,8 @@ export function ProfileEditor() {
   const rawArea = fields?.areaSlug ?? stored?.areaSlug ?? "";
   const areaSlug = areas.some((area) => area.slug === rawArea) ? rawArea : "";
   const bio = fields?.bio ?? stored?.bio ?? "";
-  const availability = fields?.availability ?? stored?.availability ?? "";
+  const gender = fields?.gender ?? stored?.gender ?? null;
+  const lookingFor = fields?.lookingFor ?? stored?.lookingFor ?? null;
   const indexPublic = fields?.indexPublic ?? stored?.indexPublic ?? false;
   const status = stored?.status ?? "draft";
 
@@ -59,7 +68,8 @@ export function ProfileEditor() {
       birthYear,
       areaSlug,
       bio,
-      availability,
+      gender,
+      lookingFor,
       indexPublic,
       ...next,
     });
@@ -90,7 +100,8 @@ export function ProfileEditor() {
       citySlug,
       areaSlug,
       bio,
-      availability,
+      gender,
+      lookingFor,
       indexPublic,
       status: nextStatus,
     });
@@ -111,7 +122,7 @@ export function ProfileEditor() {
 
   return (
     <div>
-      <p className="text-[11px] tracking-[0.22em] text-gold uppercase">SOKO18 Studio</p>
+      <p className="text-[11px] tracking-[0.22em] text-gold uppercase">Your profile</p>
       <h1 className="mt-3 font-display text-3xl tracking-tight">Profile</h1>
       <p className="mt-2 text-sm text-muted">
         {statusLabel[status]} · {cityNameBySlug(citySlug)} · not public
@@ -183,15 +194,31 @@ export function ProfileEditor() {
           />
         </label>
 
-        <label className="block">
-          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Availability</span>
-          <input
-            value={availability}
-            onChange={(e) => patch({ availability: e.target.value })}
-            placeholder="Evenings"
-            className="mt-2 h-12 w-full rounded-full border border-line bg-glass px-4 text-sm outline-none"
-          />
-        </label>
+        <div>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">I am</span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {GENDERS.map((option) => (
+              <Chip key={option.id} selected={gender === option.id} onClick={() => patch({ gender: option.id })}>
+                {option.label}
+              </Chip>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Looking for</span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {INTENTS.map((option) => (
+              <Chip
+                key={option.id}
+                selected={lookingFor === option.id}
+                onClick={() => patch({ lookingFor: option.id })}
+              >
+                {option.label}
+              </Chip>
+            ))}
+          </div>
+        </div>
 
         <PhotoUploader
           profileId={stored?.id}

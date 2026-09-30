@@ -10,7 +10,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 const bodySchema = z.object({
   profileId: z.string().min(1),
-  kind: z.enum(["pass", "like", "spotlight"]),
+  kind: z.enum(["pass", "like", "super"]),
 });
 
 export type LikeResult =
@@ -102,6 +102,21 @@ export async function submitLike(input: unknown): Promise<LikeResult> {
   );
 
   if (error) {
+    const msg = error.message ?? "";
+    if (msg.includes("like_limit")) {
+      return {
+        ok: false,
+        status: 402,
+        error: { code: "like_limit", message: "You’ve used today’s free likes. Get Gold for unlimited likes." },
+      };
+    }
+    if (msg.includes("no_super_likes")) {
+      return {
+        ok: false,
+        status: 402,
+        error: { code: "no_super_likes", message: "You’re out of Super Likes." },
+      };
+    }
     return { ok: false, status: 403, error: { code: "forbidden", message: "Could not save this like." } };
   }
 

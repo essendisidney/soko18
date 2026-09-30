@@ -3,6 +3,7 @@ import { appendMessage } from "@/lib/messages/engine";
 import { resolveThread } from "@/lib/messages/access";
 import { readThreadState, writeThreadState } from "@/lib/messages/state";
 import { takeRateLimit } from "@/lib/security/limit";
+import { looksLikePaidService, PAID_SERVICE_MESSAGE } from "@/lib/safety/paid-services";
 import { createClient } from "@/lib/supabase/server";
 
 const bodySchema = z.object({
@@ -13,6 +14,9 @@ export async function sendMessage(conversationKey: string, input: unknown) {
   const parsed = bodySchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false as const, status: 400, error: { code: "invalid", message: "Write a message." } };
+  }
+  if (looksLikePaidService(parsed.data.body)) {
+    return { ok: false as const, status: 422, error: { code: "paid_services", message: PAID_SERVICE_MESSAGE } };
   }
 
   const resolved = await resolveThread(conversationKey);

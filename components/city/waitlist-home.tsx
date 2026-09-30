@@ -26,7 +26,7 @@ export function WaitlistHome({
       <p className="text-[13px] tracking-[0.22em] text-gold uppercase">{name}</p>
       <h1 className="mt-3 font-display text-4xl tracking-tight">Local discovery</h1>
       <p className="mt-3 text-sm leading-relaxed text-muted">
-        Men around you in {name}. Area-level only. Never a precise location.
+        Singles near you in {name}. Area-level only. Never a precise location.
       </p>
       <p className="mt-1 text-sm text-muted">{cityPlaceLine(slug)}</p>
 

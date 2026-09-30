@@ -21,10 +21,12 @@ import { HereNowButton } from "@/components/presence/here-now";
 import { readIncognito } from "@/lib/privacy/local";
 
 const rows = [
+  { href: "/upgrade", label: "Gold · Platinum · Boost" },
+  { href: "/likes", label: "Likes you" },
   { href: "/saved", label: "Saved" },
   { href: "/notify", label: "Notify me" },
   { href: "/intent", label: "Looking for" },
-  { href: "/studio", label: "SOKO18 Studio" },
+  { href: "/studio", label: "Your profile & stats" },
   { href: "/invite", label: "Friend pass" },
   { href: "/admin", label: "Admin" },
   { href: "/settings", label: "Settings" },

@@ -3,7 +3,7 @@ const MAX_AGE_MS = 30 * 60 * 1000;
 
 export type PendingEngage = {
   profileId: string;
-  kind: "like" | "spotlight";
+  kind: "like" | "super";
   at: number;
 };
 
@@ -27,7 +27,7 @@ export function readPendingEngage(now = Date.now()): PendingEngage | null {
     const parsed = JSON.parse(raw) as Partial<PendingEngage>;
     if (
       typeof parsed.profileId !== "string" ||
-      (parsed.kind !== "like" && parsed.kind !== "spotlight") ||
+      (parsed.kind !== "like" && parsed.kind !== "super") ||
       typeof parsed.at !== "number"
     ) {
       clearPendingEngage();

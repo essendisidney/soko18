@@ -40,11 +40,20 @@ export const WAITLIST_CITIES = [
   { slug: "migori", name: "Migori" },
 ] as const;
 
+/** What a member is looking for. Mirrors the `looking_for` check in the database. */
 export const INTENTS = [
-  { id: "connect", label: "Connect" },
-  { id: "meet", label: "Meet" },
-  { id: "browse", label: "Browse" },
-  { id: "featured", label: "Featured" },
+  { id: "relationship", label: "A relationship" },
+  { id: "casual", label: "Something casual" },
+  { id: "friends", label: "New friends" },
+  { id: "unsure", label: "Not sure yet" },
+] as const;
+
+export type LookingFor = (typeof INTENTS)[number]["id"];
+
+export const SHOW_ME = [
+  { id: "woman", label: "Women" },
+  { id: "man", label: "Men" },
+  { id: "any", label: "Everyone" },
 ] as const;
 
 export const NAIROBI_FILTERS = [

@@ -2,6 +2,7 @@ export const ONBOARDING = {
   age: "soko18_age_ok",
   city: "soko18_city",
   intent: "soko18_intent",
+  showMe: "soko18_show_me",
   done: "soko18_onboarded",
   visits: "soko18_visits",
   welcomeSeen: "soko18_welcome_seen",
@@ -68,4 +69,21 @@ export function shouldShowWelcomeBack() {
 
 export function markWelcomeSeen() {
   sessionStorage.setItem(ONBOARDING.welcomeSeen, "1");
+}
+
+export type ShowMe = "woman" | "man" | "any";
+
+export function readShowMe(): ShowMe {
+  if (typeof window === "undefined") return "any";
+  const value = localStorage.getItem(ONBOARDING.showMe);
+  return value === "woman" || value === "man" ? value : "any";
+}
+
+export function showMeSnapshot() {
+  return localStorage.getItem(ONBOARDING.showMe);
+}
+
+export function writeShowMe(value: ShowMe) {
+  localStorage.setItem(ONBOARDING.showMe, value);
+  intentListeners.forEach((listen) => listen());
 }

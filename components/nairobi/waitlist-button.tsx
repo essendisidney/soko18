@@ -6,7 +6,6 @@ import { joinWaitlist, subscribeWaitlist, waitlistSnapshot } from "@/lib/browse/
 import { waitlistAreas } from "@/lib/data/waitlist";
 import { writeCity, writeNearArea } from "@/lib/nairobi/near";
 import { useLocalIds } from "@/lib/safety/use-id-list";
-import { SkipLineButton, skipIdleLabel } from "@/components/payments/skip-line-button";
 
 export function WaitlistButton({ slug }: { slug: string }) {
   const listed = useLocalIds(subscribeWaitlist, waitlistSnapshot).includes(slug);
@@ -16,7 +15,6 @@ export function WaitlistButton({ slug }: { slug: string }) {
       <Button className="mt-4 w-full" variant="ghost" onClick={() => joinWaitlist(slug)}>
         {listed ? "You’re on the list" : "Notify me"}
       </Button>
-      <SkipLineButton idleLabel={skipIdleLabel()} />
       <p className="mt-2 px-1 text-xs text-muted">
         Staff review next after STK. Never a fake queue count.
       </p>

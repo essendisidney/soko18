@@ -6,5 +6,5 @@ export function guestBrowseLine(citySlug = "nairobi") {
 }
 
 export function guestAuthLine(citySlug = "nairobi") {
-  return `Discover as a guest in ${cityNameBySlug(citySlug)}. Sign in when you like, Spotlight, or message.`;
+  return `Discover as a guest in ${cityNameBySlug(citySlug)}. Sign in to like, Super Like, or message.`;
 }

@@ -1,8 +1,8 @@
 # SOKO18
 
-Nairobi-first 18+ local discovery. **Discover. Connect. Verify.**
+Nairobi-first 18+ dating. **Discover. Connect. Verify.**
 
-Not African Tinder. Not a classifieds site. Density in Nairobi before anywhere else.
+Verified-only, M-Pesa-native, area by area. Read `docs/PIVOT.md` first.
 
 This repo is built from `docs/SOKO18_MASTER_DEVELOPMENT.md`.
 
@@ -27,6 +27,8 @@ PWA: install from the browser once the manifest is served (`/manifest.webmanifes
 Production: [https://soko18.vercel.app](https://soko18.vercel.app)
 
 Git → Vercel. Set `NEXT_PUBLIC_APP_URL` to the public origin. Leave Supabase env blank until a paid project exists — never put `service_role` in `NEXT_PUBLIC_` vars.
+
+Payments: Gold, Platinum, Boost, Super Likes and Incognito by M-Pesa STK — see `docs/PIVOT.md`. Set `MPESA_*` (including `MPESA_CALLBACK_SECRET`) and turn sandbox off in `private.settings` to go live.
 
 Health: `/api/health`. Schema backups are `supabase/migrations/` in git. Point-in-time recovery waits for a paid Supabase project.
 

@@ -57,7 +57,7 @@ export async function getAdminAnalytics(): Promise<
     supabase
       .from("likes")
       .select("id", { count: "exact", head: true })
-      .in("kind", ["like", "spotlight"])
+      .in("kind", ["like", "spotlight", "super"])
       .gte("created_at", fromToday)
       .lt("created_at", fromTomorrow),
     supabase

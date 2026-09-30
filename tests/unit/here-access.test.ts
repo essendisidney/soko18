@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { hasSettledAccess, pendingAccess, settleAccess, spendAccess, startAccess } from "@/lib/payments/access";
-import { ACCESS_CATALOG, LOCAL_ACCESS } from "@/lib/payments/catalog";
+import { LOCAL_ACCESS } from "@/lib/payments/catalog";
 import { ACTIVE_MS, RECENT_MS, hereLine, presenceFrom } from "@/lib/presence/here";
 
 const now = Date.parse("2026-09-01T18:00:00.000Z");
@@ -24,36 +24,27 @@ describe("area presence", () => {
   });
 });
 
-describe("skip access ledger", () => {
-  it("does not grant skip until the sandbox row settles", () => {
-    const started = startAccess([], "skip", "2026-09-01T18:00:00.000Z", "skip-1");
-    expect(started.row.amountKes).toBe(ACCESS_CATALOG.skip.amountKes);
+describe("local sandbox access ledger", () => {
+  it("does not grant Gold until the sandbox row settles", () => {
+    const started = startAccess([], "gold", "2026-09-01T18:00:00.000Z", "g-1");
+    expect(started.row.amountKes).toBe(LOCAL_ACCESS.gold.amountKes);
     expect(started.row.status).toBe("pending");
-    expect(hasSettledAccess(started.ledger, "skip")).toBe(false);
-    expect(pendingAccess(started.ledger, "skip")?.id).toBe("skip-1");
-    expect(startAccess(started.ledger, "skip", "2026-09-01T18:01:00.000Z", "skip-2").row.id).toBe("skip-1");
+    expect(hasSettledAccess(started.ledger, "gold")).toBe(false);
+    expect(pendingAccess(started.ledger, "gold")?.id).toBe("g-1");
+    expect(startAccess(started.ledger, "gold", "2026-09-01T18:01:00.000Z", "g-2").row.id).toBe("g-1");
 
-    const settled = settleAccess(started.ledger, "skip-1");
+    const settled = settleAccess(started.ledger, "g-1");
     expect(settled.ok).toBe(true);
     if (!settled.ok) return;
-    expect(hasSettledAccess(settled.ledger, "skip")).toBe(true);
-    expect(pendingAccess(settled.ledger, "skip")).toBeNull();
-    expect(settleAccess(settled.ledger, "skip-1")).toEqual({ ok: false, reason: "settled" });
+    expect(hasSettledAccess(settled.ledger, "gold")).toBe(true);
+    expect(pendingAccess(settled.ledger, "gold")).toBeNull();
+    expect(settleAccess(settled.ledger, "g-1")).toEqual({ ok: false, reason: "settled" });
     expect(settleAccess([], "missing")).toEqual({ ok: false, reason: "missing" });
   });
 
-  it("spends mystery after one card and never grants incognito without settle", () => {
-    expect(LOCAL_ACCESS.mystery.amountKes).toBe(ACCESS_CATALOG.mystery.amountKes);
-    const started = startAccess([], "mystery", "2026-09-01T18:00:00.000Z", "m1");
-    expect(spendAccess(started.ledger, "m1")).toEqual({ ok: false, reason: "pending" });
-    const settled = settleAccess(started.ledger, "m1");
-    expect(settled.ok).toBe(true);
-    if (!settled.ok) return;
-    const spent = spendAccess(settled.ledger, "m1");
-    expect(spent.ok).toBe(true);
-    if (!spent.ok) return;
-    expect(hasSettledAccess(spent.ledger, "mystery")).toBe(false);
-    expect(startAccess(spent.ledger, "mystery", "2026-09-01T18:02:00.000Z", "m2").row.id).toBe("m2");
+  it("cannot spend a pending row and never grants incognito without settle", () => {
+    const started = startAccess([], "incognito", "2026-09-01T18:00:00.000Z", "i1");
+    expect(spendAccess(started.ledger, "i1")).toEqual({ ok: false, reason: "pending" });
     expect(hasSettledAccess([], "incognito")).toBe(false);
   });
 });

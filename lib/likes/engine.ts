@@ -1,4 +1,4 @@
-export type LikeKind = "pass" | "like" | "spotlight";
+export type LikeKind = "pass" | "like" | "super";
 
 export type LikeRow = {
   actorId: string;

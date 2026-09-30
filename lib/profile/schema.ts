@@ -12,7 +12,8 @@ export const profileInputSchema = z
     citySlug: z.string().optional().default("nairobi"),
     areaSlug: z.string(),
     bio: z.string().trim().max(280).optional().default(""),
-    availability: z.string().trim().max(80).optional().default(""),
+    gender: z.enum(["man", "woman", "nonbinary"]).nullable().optional().default(null),
+    lookingFor: z.enum(["relationship", "casual", "friends", "unsure"]).nullable().optional().default(null),
     indexPublic: z.boolean().optional().default(false),
     status: z.enum(OWNER_PROFILE_STATUSES).optional().default("draft"),
   })

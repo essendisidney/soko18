@@ -54,7 +54,7 @@ export function SwipeDeck({
 }: {
   profiles: SeedProfile[];
   onEmpty?: () => void;
-  onLike?: (profile: SeedProfile, kind: "like" | "spotlight") => void;
+  onLike?: (profile: SeedProfile, kind: "like" | "super") => void;
   onPass?: (profile: SeedProfile) => void;
   onUndo?: () => string | null;
   canUndo?: boolean;
@@ -63,7 +63,7 @@ export function SwipeDeck({
   emptyTitle?: string;
   emptyHint?: string;
   notifyCity?: string | null;
-  onEngage?: (profile: SeedProfile, kind: "like" | "spotlight") => boolean;
+  onEngage?: (profile: SeedProfile, kind: "like" | "super") => boolean;
   onImpression?: (profile: SeedProfile) => void;
 }) {
   const router = useRouter();
@@ -112,7 +112,7 @@ export function SwipeDeck({
   function commit(dir: "left" | "right" | "up", speed = 0) {
     if (!current || busy.current) return;
     if (dir !== "left") {
-      const kind = dir === "up" ? "spotlight" : "like";
+      const kind = dir === "up" ? "super" : "like";
       if (onEngage?.(current, kind) === false) {
         snapBack();
         return;
@@ -150,7 +150,7 @@ export function SwipeDeck({
 
     if (dir === "left") onPass?.(profile);
     if (dir === "right") onLike?.(profile, "like");
-    if (dir === "up") onLike?.(profile, "spotlight");
+    if (dir === "up") onLike?.(profile, "super");
     busy.current = false;
   }
 
@@ -287,7 +287,7 @@ export function SwipeDeck({
               style={{ opacity: spotOpacity }}
               className="pointer-events-none absolute top-8 left-1/2 -translate-x-1/2 rounded-full border border-gold px-3 py-1 font-display text-sm tracking-widest text-gold"
             >
-              SPOTLIGHT
+              SUPER LIKE
             </motion.div>
           </motion.div>
         ) : null}
@@ -328,10 +328,10 @@ export function SwipeDeck({
           <span className="text-[11px] tracking-wide text-muted">Like</span>
         </div>
         <div className="flex flex-col items-center gap-1.5">
-          <Button variant="icon" size="icon" aria-label="Spotlight" onClick={() => commit("up")}>
+          <Button variant="icon" size="icon" aria-label="Super Like" onClick={() => commit("up")}>
             <Star className="size-6 text-gold" />
           </Button>
-          <span className="text-[11px] tracking-wide text-muted">Spotlight</span>
+          <span className="text-[11px] tracking-wide text-muted">Super Like</span>
         </div>
       </div>
     </div>

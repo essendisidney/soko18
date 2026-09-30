@@ -1,6 +1,6 @@
 export type DiscoverAction = {
   profileId: string;
-  kind: "pass" | "like" | "spotlight";
+  kind: "pass" | "like" | "super";
   at: number;
 };
 

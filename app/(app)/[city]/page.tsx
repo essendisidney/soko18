@@ -18,7 +18,7 @@ export async function generateMetadata({
   if (!meta) return { title: "City" };
   return {
     title: meta.name,
-    description: `Men around you in ${meta.name}. Area-level only.`,
+    description: `Singles near you in ${meta.name}. Area-level only.`,
     robots: { index: false, follow: true },
   };
 }

@@ -5,8 +5,7 @@ import { Button } from "@/components/soko/button";
 import { hashContact } from "@/lib/privacy/contacts";
 import { readContactHashes, readIncognito, writeContactHashes, writeIncognito } from "@/lib/privacy/local";
 import { formatKes } from "@/lib/payments/ledger";
-import { ACCESS_CATALOG, PRIVACY_CATALOG } from "@/lib/payments/catalog";
-import { SkipLineButton } from "@/components/payments/skip-line-button";
+import { PRODUCTS } from "@/lib/payments/catalog";
 import { LocalPayButton } from "@/components/payments/local-pay-button";
 import { hasLocalAccess } from "@/lib/payments/access-local";
 
@@ -66,7 +65,7 @@ export function DiscretionTools() {
       <div>
         <h2 className="text-sm text-muted">Incognito</h2>
         <p className="mt-2 text-sm text-muted">
-          Hidden unless you like first. {formatKes(PRIVACY_CATALOG.incognito.amountKes)} / month. Sandbox settle until STK.
+          Only people you like can see you. {formatKes(PRODUCTS.incognito_month.amountKes)} / month, or included with Platinum.
         </p>
         {paidGhost ? (
           <Button
@@ -119,19 +118,11 @@ export function DiscretionTools() {
       <div>
         <h2 className="text-sm text-muted">Stay private</h2>
         <ul className="mt-2 space-y-1.5 text-sm text-muted">
-          <li>Use a nickname. Not your legal name.</li>
-          <li>Skip employer and job title.</li>
-          <li>Don’t reuse LinkedIn or Instagram photos.</li>
-          <li>A separate email for this app.</li>
+          <li>A first name or nickname is enough.</li>
+          <li>Keep your workplace and surname off your profile until you trust someone.</li>
+          <li>Meet somewhere public the first time, and tell a friend where you’ll be.</li>
+          <li>Never send money to someone you met here.</li>
         </ul>
-        <p className="mt-3 text-xs text-muted">
-          Mystery match {formatKes(ACCESS_CATALOG.mystery.amountKes)}. Skip the line{" "}
-          {formatKes(ACCESS_CATALOG.skip.amountKes)}. No fake wait counts.
-        </p>
-        <SkipLineButton
-          idleLabel="Go first in review"
-          onSettled={() => setNote("Staff see you first when you submit. Never a fake queue.")}
-        />
       </div>
       {note ? <p className="text-xs text-muted">{note}</p> : null}
     </section>

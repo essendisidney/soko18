@@ -1,50 +1,31 @@
-# How to make money
+# How SOKO18 makes money
 
-Both sides pay. What happens after a match is between them. You sell software, visibility, and discretion — never a booking cut.
+See `docs/PIVOT.md` for the price list. Short version:
 
-## Both sides
+- **Freemium dating app.** Free gets you in the door (30 likes a day, matches, chat, safety).
+- **Gold** (KES 149 / week, 499 / month) — unlimited likes, see who likes you, Super Likes.
+- **Platinum** (KES 999 / month) — Gold plus Incognito, a Boost and 10 Super Likes.
+- **Consumables** — Boost KES 99 (5 for 399), Super Like KES 49 (5 for 199), Incognito KES 299 / month.
+- **M-Pesa STK only.** Weekly plans matter: people buy in small amounts, like data bundles.
+- Plans don't auto-renew. Remind people before expiry instead (push / SMS later).
 
-| Who | What | KES | Why |
-|---|---|---|---|
-| Providers | Monthly visibility | 5,000 / 10,000 | Leads. One hour can cover the month |
-| Providers | Boost / Spotlight / Featured | 500 / 1,200 / 3,500 | Impulse visibility |
-| Clients | Monthly access | 2,500–5,000 later | Cover charge. Filters time-wasters |
-| Anyone | Incognito | 1,500 / month | Hidden unless you like first |
-| Anyone | Skip the line | 5,000 | Review next. Never a fake queue |
-| Anyone | Mystery match | 200 | One random card |
-| Anyone | Golden Hour | 500 | 8–9pm EAT pin. Not a discounted meet |
-| Anyone | Safety pack | 1,000 / month | Add-on. Panic already ships in the hub |
+## What we never do
 
-Do **not** take a cut of a meet. That is agency rails. Processors refuse it.
+- Take a cut of, hold, or arrange money between members.
+- Sell visibility to people offering paid services. The filter holds those profiles for review.
+- Invent member counts, waitlists or likes.
 
-Do **not** invent waitlist counts. Empty stays empty. Skip the line is a paid bump, not “100,000 waiting.”
+## Levers that actually move revenue
 
-## Visibility (live now)
+1. **Density.** Launch area by area (Kilimani, Westlands, CBD, Thika Road) so decks never run dry.
+2. **Women's side first.** Verified-only, free safety tools, fast report handling. Without them there is no product to sell to anyone.
+3. **The like cap.** 30/day is the main Gold trigger. Tune it with data, not guesses.
+4. **"Likes you" teaser.** Show the count free, the faces on Gold.
+5. **Boost at peak hours.** Surface Boost in the evening when decks are busiest.
 
-| Feature | Price | Market |
-|---|---|---|
-| Basic | 5,000 / month | ID both sides, ratings, panic, chat receipts |
-| Premium | 10,000 / month | Everything in Basic, plus priority and analytics |
-| Boost | 500 / 24 hours | Spike on Discover |
-| Spotlight | 1,200 / 4 hours | Tonight |
-| Featured | 3,500 / 7 days | Labeled paid pin |
-| Tonight bundle | 1,500 | Spotlight + Boost |
-| Incognito | 1,500 / month | Ghost browse |
-| Skip the line | 5,000 | Staff review next |
-| Mystery | 200 | One random card |
-| Golden Hour | 500 | 8–9pm EAT pin. Active presence only. Not a 50% date |
-| Safety pack | 1,000 / month | Add-on price; hub is already in the product |
+## Unit economics to watch
 
-## M-Pesa (mandatory)
-
-Rail: Safaricom **Daraja**, **STK Push**. Fees ~1.5–2.5%. Register the business. Ledger every STK. Sandbox until KYC + shortcode. Never a paid flag without a ledger row.
-
-## Coins (later)
-
-KES 1,000 = 100 coins. Boost 50. Spotlight 120. Ledger on buy and spend.
-
-## Discretion (why it spreads)
-
-Incognito, hashed contact blocks, usernames not legal names, 24-hour chats, friend pass (speeds staff review, never fake wallet credit), live photo proof in a matched thread only. No fake exclusivity KPIs. Native screenshot block later. Web notifies on Print Screen.
-
-See `docs/anonymity.md`.
+- Paying share of monthly actives (dating apps typically land in the low single-digit %).
+- Revenue per paying member per month.
+- Cost per verified member acquired, by area.
+- M-Pesa fees (~1.5–2.5%) and Daraja reversals.

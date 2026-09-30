@@ -1,6 +1,13 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getLiveProfile } from "@/lib/profile/live";
+import { liveProfileBySlug, showSeedProfiles } from "@/lib/discovery/live";
+
+async function findProfile(slug: string) {
+  const live = await liveProfileBySlug(slug);
+  if (live) return live;
+  return showSeedProfiles() ? getLiveProfile(slug) : null;
+}
 import { profileJsonLd, profileMetadata } from "@/lib/profile/seo";
 import { hasMatch } from "@/lib/likes/list";
 import { PublicProfile } from "@/components/profile/public-profile";
@@ -14,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const profile = getLiveProfile(slug);
+  const profile = await findProfile(slug);
   if (!profile) return { title: "Profile", robots: { index: false, follow: false } };
   return profileMetadata(profile);
 }
@@ -25,7 +32,7 @@ export default async function PublicProfilePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const profile = getLiveProfile(slug);
+  const profile = await findProfile(slug);
   if (!profile) notFound();
   const matched = await hasMatch(slug);
   const jsonLd = profileJsonLd(profile);

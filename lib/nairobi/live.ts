@@ -52,7 +52,7 @@ export function filterNairobi(
     case "verified":
       return list.filter((p) => sokoVerified(p));
     case "near":
-      return list.filter((p) => p.areaSlug === nearArea && p.gender === "man");
+      return list.filter((p) => p.areaSlug === nearArea);
     case "trending":
     default:
       return nairobiNow("trending", list);
@@ -143,7 +143,7 @@ export function nairobiAliveLine(now?: Date | string) {
 
 /** Empty cities never borrow Nairobi pulse. */
 export function cityAliveLine(citySlug = "nairobi", now?: Date | string) {
-  if (citySlug !== "nairobi") return `${cityNameBySlug(citySlug)}. Men around you.`;
+  if (citySlug !== "nairobi") return `${cityNameBySlug(citySlug)}. Singles near you.`;
   return nairobiAliveLine(now);
 }
 

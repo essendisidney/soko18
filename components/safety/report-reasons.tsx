@@ -1,6 +1,6 @@
 "use client";
 
-import { REPORT_REASONS } from "@/lib/reports/reasons";
+import { REPORT_REASON_LABELS, REPORT_REASONS } from "@/lib/reports/reasons";
 
 export function ReportReasons({
   onPick,
@@ -17,10 +17,10 @@ export function ReportReasons({
           <button
             key={reason}
             type="button"
-            className="rounded-full border border-line px-3 py-1.5 capitalize"
+            className="rounded-full border border-line px-3 py-1.5"
             onClick={() => onPick(reason)}
           >
-            {reason}
+            {REPORT_REASON_LABELS[reason]}
           </button>
         ))}
       </div>

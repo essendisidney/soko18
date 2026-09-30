@@ -30,7 +30,7 @@ describe("catalog city", () => {
     expect(guestBrowseLine("nairobi")).toBe("You can keep browsing Nairobi as a guest.");
     expect(guestBrowseLine("kisumu")).toBe("You can keep browsing Kisumu as a guest.");
     expect(guestAuthLine("kisumu")).toBe(
-      "Discover as a guest in Kisumu. Sign in when you like, Spotlight, or message.",
+      "Discover as a guest in Kisumu. Sign in to like, Super Like, or message.",
     );
   });
 });
