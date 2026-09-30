@@ -4,9 +4,13 @@ import { Chip } from "@/components/soko/chip";
 import { StatCard } from "@/components/soko/stat-card";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 import { ProfileCard } from "@/components/soko/profile-card";
+import { notFound } from "next/navigation";
 import { PROFILES } from "@/lib/data/seed";
 
 export default function DesignSystemPage() {
+  // Internal preview. Needs demo people, so it is hidden once live data is on.
+  const sample = PROFILES[0];
+  if (!sample) notFound();
   return (
     <main className="mx-auto max-w-md space-y-10 bg-bg px-5 py-10">
       <Wordmark size="lg" />
@@ -26,7 +30,7 @@ export default function DesignSystemPage() {
       </section>
       <StatCard label="Profile views" value="4,821" delta="↑ 18%" />
       <div className="h-[420px]">
-        <ProfileCard profile={PROFILES[0]} />
+        <ProfileCard profile={sample} />
       </div>
     </main>
   );
