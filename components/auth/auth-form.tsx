@@ -28,6 +28,25 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<"idle" | "sent" | "offline" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [code, setCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+
+  async function onVerify(event: FormEvent) {
+    event.preventDefault();
+    const token = code.replace(/\D/g, "");
+    if (token.length < 6) return;
+    setVerifying(true);
+    setMessage("");
+    const supabase = createClient();
+    const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token, type: "email" });
+    setVerifying(false);
+    if (error) {
+      setMessage("That code didn’t work. Check the latest email, or send a new one.");
+      return;
+    }
+    router.replace(next);
+    router.refresh();
+  }
 
   useEffect(() => {
     if (ready && user) router.replace(next);
@@ -74,9 +93,36 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <p className="mt-3 text-sm text-muted">{guestAuthLine(citySlug)}</p>
 
       {status === "sent" ? (
-        <p className="mt-8 text-sm leading-relaxed text-cream/90">
-          Check your email and tap the link to sign in. It can take a minute — check spam too.
-        </p>
+        <form onSubmit={onVerify} className="mt-8 space-y-3">
+          <p className="text-sm leading-relaxed text-cream/90">
+            We sent an email to <span className="text-gold">{email.trim()}</span>. Enter the 6-digit code from it, or tap the
+            link in the email. Check spam too.
+          </p>
+          <input
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 8))}
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="••••••"
+            aria-label="Sign-in code"
+            className="h-14 w-full rounded-full border border-line bg-glass px-4 text-center font-display text-2xl tracking-[0.5em] outline-none focus:border-gold"
+          />
+          <Button className="w-full" variant="gold" disabled={verifying || code.length < 6}>
+            {verifying ? "Checking…" : "Sign in"}
+          </Button>
+          {message ? <p className="text-sm text-danger">{message}</p> : null}
+          <button
+            type="button"
+            className="w-full text-center text-xs text-muted"
+            onClick={() => {
+              setStatus("idle");
+              setCode("");
+              setMessage("");
+            }}
+          >
+            Use a different email or send again
+          </button>
+        </form>
       ) : (
         <form onSubmit={onSubmit} className="mt-8 space-y-3">
           {mode === "signup" ? (
@@ -98,9 +144,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             className="h-12 w-full rounded-full border border-line bg-glass px-4 text-sm outline-none"
           />
           <Button className="w-full" variant="gold" disabled={busy}>
-            {busy ? "Sending…" : mode === "signup" ? "Create account" : "Email me a sign-in link"}
+            {busy ? "Sending…" : mode === "signup" ? "Create account" : "Email me a sign-in code"}
           </Button>
-          <p className="text-center text-xs text-muted">No password. We email you a one-tap link.</p>
+          <p className="text-center text-xs text-muted">No password. We email you a code and a one-tap link.</p>
         </form>
       )}
 
@@ -109,9 +155,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           Sign-up isn’t open yet. You can keep browsing as a guest.
         </p>
       ) : null}
-      {status === "error" ? <p className="mt-6 text-sm text-danger">{message}</p> : null}
+      {status === "error" && message ? <p className="mt-6 text-sm text-danger">{message}</p> : null}
       {failed && status === "idle" ? (
-        <p className="mt-6 text-sm text-danger">That sign-in link didn’t work. Try again.</p>
+        <p className="mt-6 text-sm text-danger">That link opened in a different browser, so it couldn’t finish. Send a new code and type it in here instead.</p>
       ) : null}
 
 
