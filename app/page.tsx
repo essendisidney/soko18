@@ -85,14 +85,12 @@ export default function WelcomePage() {
       <div />
       <div className="relative z-10 flex flex-col items-center text-center">
         <Wordmark size="lg" />
-        <p className="mt-8 font-display text-2xl leading-snug tracking-tight text-cream/90">
-          Discover.
-          <br />
-          Connect.
-          <br />
-          Verify.
-        </p>
-        <p className="mt-6 text-sm text-muted">{t("welcome.tagline")}</p>
+        <p className="mt-8 max-w-xs font-display text-[28px] leading-tight tracking-tight text-cream">{t("welcome.tagline")}</p>
+        <ul className="mt-5 flex flex-wrap justify-center gap-2 text-xs text-cream/80">
+          <li className="rounded-full border border-line px-3 py-1.5">✓ Selfie-verified</li>
+          <li className="rounded-full border border-line px-3 py-1.5">✓ Private by default</li>
+          <li className="rounded-full border border-line px-3 py-1.5">✓ Pay with M-Pesa</li>
+        </ul>
         <LanguagePicker compact />
         <MarketBanner />
       </div>

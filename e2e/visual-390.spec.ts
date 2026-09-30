@@ -44,9 +44,9 @@ test.describe("390px surfaces", () => {
 
   test("matches empty sends you back to the card", async ({ page }) => {
     await page.goto("/matches");
-    await expect(page.getByRole("heading", { name: "Matches" })).toBeVisible();
-    await expect(page.getByText("No matches yet. When someone you liked likes you back, they’ll show up here.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Improve profile" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Chats" })).toBeVisible();
+    await expect(page.getByText("No chats yet")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Improve my profile" })).toBeVisible();
     await page.getByRole("button", { name: "Keep swiping" }).click();
     await expect(page).toHaveURL(/\/discover/);
   });
@@ -57,7 +57,7 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
     await expect(page.getByText("Area-level only. Never a precise location.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Share" })).toBeVisible();
-    await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Likes")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await expect(page.getByRole("link", { name: "Kisumu" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Mombasa" })).toBeVisible();
@@ -83,8 +83,8 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("link", { name: "Kilimani" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Share" })).toBeVisible();
     await expect(page.getByRole("link", { name: "All of Nairobi" })).toBeVisible();
-    await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
-    await page.getByRole("navigation").getByText("Browse").click();
+    await expect(page.getByRole("navigation").getByText("Chats")).toBeVisible();
+    await page.goto("/browse");
     await expect(page).toHaveURL(/\/nairobi$/);
     await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
     await page.getByRole("button", { name: "Near you" }).click();
@@ -148,7 +148,7 @@ test.describe("390px surfaces", () => {
     await expect(page.locator('link[rel="canonical"][href$="/category/trending"]')).toHaveCount(1);
     await expect(page.getByRole("button", { name: "Share" })).toBeVisible();
     await expect(page.getByRole("link", { name: "All of Nairobi" })).toBeVisible();
-    await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Likes")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await page.goto("/category/verified");
     await expect(page.getByText("Phone, identity, and profile reviewed.")).toBeVisible();
@@ -188,10 +188,10 @@ test.describe("390px surfaces", () => {
     );
   });
 
-  test("profile message without a match stays on the profile", async ({ page }) => {
+  test("profile like as a guest asks to sign in and stays on the profile", async ({ page }) => {
     await page.goto("/profile/amani-nairobi");
-    await page.getByRole("button", { name: "Message" }).click();
-    await expect(page.getByRole("heading", { name: "Sign in to message" })).toBeVisible();
+    await page.getByRole("button", { name: "Like" }).click();
+    await expect(page.getByRole("heading", { name: "Sign in to like" })).toBeVisible();
     await expect(page.getByText("You can keep browsing Nairobi as a guest.")).toBeVisible();
     await expect(page).not.toHaveURL(/\/messages\//);
     await page.getByRole("button", { name: "Not now" }).click();
@@ -383,7 +383,7 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("link", { name: /Amani/ })).toHaveCount(0);
     await page.getByPlaceholder("Search Kisumu").fill("");
     await expect(page.getByRole("link", { name: "Nairobi" })).toBeVisible();
-    await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
+    await expect(page.getByRole("navigation").getByText("Likes")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await page.getByRole("navigation").getByText("Browse").click();
     await expect(page).toHaveURL(/\/kisumu$/);

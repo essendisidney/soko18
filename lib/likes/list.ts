@@ -8,6 +8,7 @@ import { applyThreadPreview, lastMessageMap, mergeLastPreview } from "@/lib/mess
 import { readThreadState } from "@/lib/messages/state";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { coversFor } from "@/lib/discovery/live";
 
 /** Live matches name the listed area, then the city. Never stamp Nairobi. */
 export function matchPlaceName(areaName?: string | null, cityName?: string | null) {
@@ -139,6 +140,15 @@ export async function listMatches(): Promise<MatchListItem[]> {
       for (const row of lastRows ?? []) {
         mergeLastPreview(cookieLast, row.conversation_id, row.body ?? "", row.created_at);
       }
+    }
+  }
+
+  // Live matches: signed cover photos for the chat list.
+  const needPhotos = items.filter((item) => !item.photo && UUID.test(item.profileId)).map((item) => item.profileId);
+  if (needPhotos.length) {
+    const covers = await coversFor(needPhotos);
+    for (const item of items) {
+      if (!item.photo) item.photo = covers.get(item.profileId) ?? null;
     }
   }
 

@@ -8,9 +8,10 @@ import type { SeedProfile } from "@/lib/types";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { Button } from "@/components/soko/button";
 import type { ReactNode } from "react";
-import { Star, X, Heart } from "lucide-react";
+import { Star, X, Heart, RotateCcw, Zap } from "lucide-react";
 import { CityNotifyButton } from "@/components/nairobi/waitlist-button";
 import { EmptyCityLoop } from "@/components/city/city-door";
+import { cn } from "@/lib/utils";
 
 const SWIPE = 96;
 const FLICK = 420;
@@ -313,32 +314,74 @@ export function SwipeDeck({
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-7 py-5">
-        <div className="flex flex-col items-center gap-1.5">
-          <Button variant="icon" size="icon" aria-label="Pass" onClick={() => commit("left")}>
-            <X className="size-6 text-cream/80" />
-          </Button>
-          <span className="text-[11px] tracking-wide text-muted">Pass</span>
-        </div>
-        <div className="flex flex-col items-center gap-1.5">
-          <Button
-            variant="gold"
-            size="icon"
-            aria-label="Like"
-            className="size-16 shadow-[0_10px_40px_rgba(212,181,106,0.28)]"
-            onClick={() => commit("right")}
-          >
-            <Heart className="size-7 fill-bg text-bg" />
-          </Button>
-          <span className="text-[11px] tracking-wide text-muted">Like</span>
-        </div>
-        <div className="flex flex-col items-center gap-1.5">
-          <Button variant="icon" size="icon" aria-label="Super Like" onClick={() => commit("up")}>
-            <Star className="size-6 text-gold" />
-          </Button>
-          <span className="text-[11px] tracking-wide text-muted">Super Like</span>
-        </div>
+      <div className="flex items-center justify-center gap-4 py-4">
+        <ActionButton
+          label="Rewind"
+          size="sm"
+          disabled={!canUndo}
+          onClick={() => {
+            const id = onUndo?.();
+            if (!id) return;
+            setGone((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          }}
+        >
+          <RotateCcw className="size-[18px] text-amber-300" />
+        </ActionButton>
+        <ActionButton label="Pass" size="lg" onClick={() => commit("left")}>
+          <X className="size-8 text-rose-400" strokeWidth={2.6} />
+        </ActionButton>
+        <ActionButton label="Super Like" size="sm" onClick={() => commit("up")}>
+          <Star className="size-[18px] fill-sky-400 text-sky-400" />
+        </ActionButton>
+        <ActionButton label="Like" size="lg" gold onClick={() => commit("right")}>
+          <Heart className="size-8 fill-bg text-bg" />
+        </ActionButton>
+        <Link
+          href="/upgrade#boost"
+          aria-label="Boost"
+          className="grid size-11 place-items-center rounded-full border border-line bg-bg-elevated shadow-[0_6px_20px_rgba(0,0,0,0.45)] transition-transform active:scale-90"
+        >
+          <Zap className="size-[18px] fill-violet-400 text-violet-400" />
+        </Link>
       </div>
     </div>
+  );
+}
+
+function ActionButton({
+  label,
+  size,
+  gold,
+  disabled,
+  onClick,
+  children,
+}: {
+  label: string;
+  size: "sm" | "lg";
+  gold?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+      className={cn(
+        "grid place-items-center rounded-full transition-transform duration-100 active:scale-90 disabled:opacity-35",
+        size === "lg" ? "size-16" : "size-11",
+        gold
+          ? "bg-gold shadow-[0_10px_36px_rgba(212,181,106,0.35)]"
+          : "border border-line bg-bg-elevated shadow-[0_6px_20px_rgba(0,0,0,0.45)]",
+      )}
+    >
+      {children}
+    </button>
   );
 }

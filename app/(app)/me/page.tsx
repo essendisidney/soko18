@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Crown, Gift, Heart, Pencil, Settings, ShieldCheck, Star, Zap } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
@@ -58,56 +58,91 @@ export default function MePage() {
 
   return (
     <div className="pb-8">
-      <Wordmark size="sm" />
-      <h1 className="mt-5 font-display text-[34px] leading-none tracking-tight">Me</h1>
-      {ghost ? <p className="mt-2 text-xs text-gold">You’re in Incognito</p> : null}
+      <header className="flex items-center justify-between">
+        <Wordmark size="sm" />
+        <Link href="/settings" aria-label="Settings" className="grid size-10 place-items-center rounded-full border border-line text-muted">
+          <Settings className="size-[18px]" />
+        </Link>
+      </header>
 
-      <section className="mt-6 rounded-3xl border border-line p-5">
-        {draft ? (
-          <>
-            <p className="font-display text-2xl">{draft.displayName || "Your profile"}</p>
-            <p className="mt-1 text-sm text-muted">
-              {draft.status === "pending_review" ? "In review — live soon" : `${health}% complete · not live yet`}
-            </p>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full bg-gold" style={{ width: `${draft.status === "pending_review" ? 100 : health}%` }} />
-            </div>
-            <Link href="/studio/profile" className="mt-4 block">
-              <Button className="w-full" variant={health < 100 ? "gold" : "ghost"}>
-                {health < 100 ? "Finish your profile" : "Edit profile"}
-              </Button>
-            </Link>
-          </>
-        ) : (
-          <>
-            <p className="font-display text-2xl">Create your profile</p>
-            <p className="mt-1 text-sm text-muted">Photos, a line about you, and you’re ready to match.</p>
-            <Button
-              className="mt-4 w-full"
-              variant="gold"
-              onClick={() => {
-                if (configured && ready && !user) {
-                  setGate(true);
-                  return;
-                }
-                router.push("/studio/profile");
-              }}
-            >
-              Get started
+      <section className="mt-6 flex flex-col items-center text-center">
+        <button
+          type="button"
+          className="relative"
+          aria-label={draft ? "Edit profile" : "Create your profile"}
+          onClick={() => {
+            if (!draft && configured && ready && !user) {
+              setGate(true);
+              return;
+            }
+            router.push("/studio/profile");
+          }}
+        >
+          <CompletionRing percent={draft ? (draft.status === "pending_review" ? 100 : health) : 0} />
+          <span className="absolute inset-[9px] grid place-items-center rounded-full bg-bg-elevated font-display text-4xl text-gold">
+            {(draft?.displayName || user?.email || "?").slice(0, 1).toUpperCase()}
+          </span>
+          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-semibold text-bg">
+            {draft ? (draft.status === "pending_review" ? "In review" : `${health}%`) : "New"}
+          </span>
+        </button>
+        <h1 className="mt-5 font-display text-[28px] leading-none tracking-tight">
+          {draft?.displayName || "Your profile"}
+          {draft?.birthYear ? <span className="text-cream/70">, {new Date().getFullYear() - draft.birthYear}</span> : null}
+        </h1>
+        <p className="mt-2 text-sm text-muted">
+          {!draft
+            ? "Photos and a line about you — then you’re ready to match."
+            : draft.status === "pending_review"
+              ? "We’re checking your profile. You’ll be live soon."
+              : health < 100
+                ? "Complete profiles get up to 3× more matches."
+                : "Looking good."}
+        </p>
+        {ghost ? <p className="mt-1 text-xs text-gold">You’re in Incognito</p> : null}
+        <div className="mt-4 flex w-full max-w-xs gap-2">
+          <Button
+            className="flex-1"
+            variant={!draft || health < 100 ? "gold" : "ghost"}
+            size="md"
+            onClick={() => {
+              if (!draft && configured && ready && !user) {
+                setGate(true);
+                return;
+              }
+              router.push("/studio/profile");
+            }}
+          >
+            <Pencil className="size-4" /> {!draft ? "Create profile" : health < 100 ? "Finish profile" : "Edit profile"}
+          </Button>
+          <Link href="/safety" className="flex-1">
+            <Button className="w-full" variant="ghost" size="md">
+              <ShieldCheck className="size-4" /> Verify
             </Button>
-          </>
-        )}
+          </Link>
+        </div>
       </section>
 
-      <Link href="/upgrade" className="mt-3 block rounded-3xl border border-gold/60 p-5">
-        <p className="font-display text-xl text-gold">SOKO18 Gold</p>
-        <p className="mt-1 text-sm text-muted">See who likes you and swipe without limits. From KES 149 a week.</p>
+      {ready && user ? <PerkTiles /> : null}
+
+      <Link
+        href="/upgrade"
+        className="relative mt-6 block overflow-hidden rounded-3xl bg-linear-to-br from-[#ecd79c] via-gold to-[#8f7331] p-5 text-bg"
+      >
+        <Crown className="absolute -top-3 -right-3 size-28 rotate-12 opacity-15" />
+        <p className="font-display text-sm tracking-[0.2em] uppercase">SOKO Gold</p>
+        <p className="mt-1 font-display text-2xl leading-tight">See who likes you</p>
+        <p className="mt-1 text-sm opacity-80">Unlimited likes, rewind and Super Likes. From KES 149 a week.</p>
+        <span className="mt-4 inline-flex rounded-full bg-bg px-4 py-2 text-sm font-medium text-gold">Get Gold</span>
       </Link>
 
-      <Link href="/invite" className="mt-3 flex items-center justify-between rounded-3xl border border-line p-5">
-        <div>
-          <p className="font-display text-xl">Invite friends, get Gold</p>
-          <p className="mt-1 text-sm text-muted">7 days of Gold for every friend who joins and gets approved.</p>
+      <Link href="/invite" className="mt-3 flex items-center gap-4 rounded-3xl border border-line p-4">
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gold/15">
+          <Gift className="size-5 text-gold" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">Invite friends, get Gold</p>
+          <p className="mt-0.5 text-sm text-muted">7 days free for every friend who’s approved.</p>
         </div>
         <ChevronRight className="size-5 shrink-0 text-muted" />
       </Link>
@@ -171,6 +206,59 @@ export default function MePage() {
       <AnimatePresence>
         {gate ? <AuthGate intent="profile" onClose={() => setGate(false)} /> : null}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function CompletionRing({ percent }: { percent: number }) {
+  const r = 58;
+  const c = 2 * Math.PI * r;
+  return (
+    <svg width="128" height="128" viewBox="0 0 128 128" className="-rotate-90" aria-hidden>
+      <circle cx="64" cy="64" r={r} fill="none" stroke="currentColor" strokeWidth="4" className="text-white/10" />
+      <circle
+        cx="64"
+        cy="64"
+        r={r}
+        fill="none"
+        stroke="#d4b56a"
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeDasharray={c}
+        strokeDashoffset={c * (1 - Math.min(100, Math.max(0, percent)) / 100)}
+      />
+    </svg>
+  );
+}
+
+type Perks = { plan: string | null; superLikes: number; boosts: number };
+
+function PerkTiles() {
+  const [perks, setPerks] = useState<Perks | null>(null);
+  useEffect(() => {
+    void fetch("/api/me/entitlements")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json: { data?: Perks } | null) => setPerks(json?.data ?? null))
+      .catch(() => {});
+  }, []);
+  const tiles = [
+    { icon: <Star className="size-5 fill-sky-400 text-sky-400" />, value: perks ? String(perks.superLikes) : "–", label: "Super Likes" },
+    { icon: <Zap className="size-5 fill-violet-400 text-violet-400" />, value: perks ? String(perks.boosts) : "–", label: "Boosts" },
+    {
+      icon: <Heart className="size-5 fill-gold text-gold" />,
+      value: perks?.plan === "platinum" ? "Platinum" : perks?.plan === "gold" ? "Gold" : "Free",
+      label: "Plan",
+    },
+  ];
+  return (
+    <div className="mt-6 grid grid-cols-3 gap-2">
+      {tiles.map((tile) => (
+        <Link key={tile.label} href="/upgrade" className="flex flex-col items-center rounded-3xl border border-line py-4">
+          {tile.icon}
+          <p className="mt-1.5 font-display text-lg leading-none">{tile.value}</p>
+          <p className="mt-1 text-[11px] text-muted">{tile.label}</p>
+        </Link>
+      ))}
     </div>
   );
 }

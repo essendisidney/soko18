@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Heart } from "lucide-react";
+import { Heart, MessageCircle, Star, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { publicPhotos } from "@/lib/media/public";
 import { similarProfiles } from "@/lib/data/seed";
@@ -21,7 +21,7 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { ImpressionBeacon } from "@/components/analytics/impression-beacon";
 import { MatchOverlay } from "@/components/discover/match-overlay";
 import { TabBar } from "@/components/nav/tab-bar";
-import { ProfileBack } from "@/components/profile/profile-back";
+import { ProfileBack, goBackOr } from "@/components/profile/profile-back";
 import { ProfileOverflow } from "@/components/profile/profile-overflow";
 import { PhotoViewer } from "@/components/profile/photo-viewer";
 import { useAuth } from "@/lib/auth/use-auth";
@@ -72,7 +72,7 @@ export function PublicProfile({
   }
 
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-bg pb-24">
+    <main className="mx-auto min-h-dvh max-w-md bg-bg pb-44">
       <ImpressionBeacon profileId={profile.id} surface="profile" />
       <div className="relative aspect-[3/4]">
         <button
@@ -113,79 +113,49 @@ export function PublicProfile({
               Discover
             </Button>
           </Link>
-        ) : (
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <Button
-              variant="gold"
-              className="w-full"
-              onClick={() => {
-                if (!ready || !user) {
-                  writePendingEngage({ profileId: profile.id, kind: "like", at: Date.now() });
-                  setGate("like");
-                  return;
-                }
-                engageProfile(profile, "like", () => setMatch(true));
-              }}
-            >
-              <Heart className="size-4 fill-bg" /> Like
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full"
-              onClick={() => {
-                if (!ready || !user) {
-                  setGate("message");
-                  return;
-                }
-                if (!matched) {
-                  setNeedMatch(true);
-                  return;
-                }
-                router.push(`/messages/${profile.slug}`);
-              }}
-            >
-              Message
-            </Button>
-          </div>
-        )}
+        ) : null}
         {!matched && user ? <SendIntro profileId={profile.id} name={profile.name} /> : null}
 
-        <section className="mt-10">
-          <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">About</h2>
-          <p className="mt-3 text-[17px] leading-relaxed text-cream/90">{profile.bio}</p>
-        </section>
-
-        {(profile.prompts ?? []).map((prompt) => (
-          <section key={prompt.q} className="glass mt-6 rounded-3xl p-5">
-            <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">{prompt.q}</h2>
-            <p className="mt-2 font-display text-xl leading-snug">{prompt.a}</p>
-          </section>
-        ))}
-
-        {profile.lookingFor ? (
-          <section className="mt-10">
-            <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Looking for</h2>
-            <p className="mt-3 text-[17px] text-cream/90">
-              {INTENTS.find((intent) => intent.id === profile.lookingFor)?.label}
-            </p>
+        {profile.bio ? (
+          <section className="mt-8 rounded-3xl border border-line p-5">
+            <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">About me</h2>
+            <p className="mt-2 text-[17px] leading-relaxed text-cream/90">{profile.bio}</p>
           </section>
         ) : null}
 
-        <section className="mt-10">
-          <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Photos</h2>
-          <div className="rail-x mt-3 flex gap-2">
-            {photos.map((src, i) => (
-              <button
-                key={src}
-                type="button"
-                onClick={() => setPhoto(i)}
-                className="relative h-28 w-24 shrink-0 overflow-hidden rounded-2xl"
-              >
-                <Image src={src} alt="" fill className="object-cover" sizes="96px" unoptimized={src.startsWith("http")} />
-              </button>
-            ))}
+        {profile.lookingFor ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="rounded-full border border-gold/50 bg-gold/10 px-3 py-1.5 text-sm text-gold">
+              {INTENTS.find((intent) => intent.id === profile.lookingFor)?.label}
+            </span>
+            <span className="rounded-full border border-line px-3 py-1.5 text-sm text-cream/80">{profile.area}</span>
           </div>
-        </section>
+        ) : null}
+
+        {Array.from({ length: Math.max((profile.prompts ?? []).length, photos.length - 1) }).map((_, i) => {
+          const prompt = profile.prompts?.[i];
+          const src = photos[i + 1];
+          return (
+            <div key={i}>
+              {prompt ? (
+                <section className="mt-4 rounded-3xl bg-bg-elevated p-6">
+                  <h2 className="text-sm text-cream/70">{prompt.q}</h2>
+                  <p className="mt-2 font-display text-[26px] leading-snug">{prompt.a}</p>
+                </section>
+              ) : null}
+              {src ? (
+                <button
+                  type="button"
+                  onClick={() => setPhoto(i + 1)}
+                  className="relative mt-4 block aspect-[4/5] w-full overflow-hidden rounded-3xl"
+                  aria-label={`Photo ${i + 2}`}
+                >
+                  <Image src={src} alt="" fill className="object-cover" sizes="(max-width: 448px) 100vw, 448px" unoptimized={src.startsWith("http")} />
+                </button>
+              ) : null}
+            </div>
+          );
+        })}
 
         <section className="mt-10">
           <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Trust</h2>
@@ -220,6 +190,62 @@ export function PublicProfile({
         </section>
       </div>
 
+      {!blocked ? (
+        <div className="pointer-events-none fixed inset-x-0 bottom-0 z-20 h-48 bg-linear-to-t from-bg via-bg/85 to-transparent" aria-hidden />
+      ) : null}
+      {!blocked ? (
+        <div className="pointer-events-none fixed inset-x-0 bottom-[5.5rem] z-30 mx-auto flex max-w-md items-center justify-center gap-5 pb-[env(safe-area-inset-bottom,0px)]">
+          <button
+            type="button"
+            aria-label="Pass"
+            onClick={() => goBackOr(router, "/discover")}
+            className="pointer-events-auto grid size-14 place-items-center rounded-full border border-line bg-bg-elevated shadow-[0_8px_30px_rgba(0,0,0,0.6)] active:scale-90"
+          >
+            <X className="size-7 text-rose-400" strokeWidth={2.6} />
+          </button>
+          <button
+            type="button"
+            aria-label="Super Like"
+            onClick={() => {
+              if (!ready || !user) {
+                writePendingEngage({ profileId: profile.id, kind: "super", at: Date.now() });
+                setGate("super");
+                return;
+              }
+              engageProfile(profile, "super", () => setMatch(true));
+            }}
+            className="pointer-events-auto grid size-11 place-items-center rounded-full border border-line bg-bg-elevated shadow-[0_8px_30px_rgba(0,0,0,0.6)] active:scale-90"
+          >
+            <Star className="size-5 fill-sky-400 text-sky-400" />
+          </button>
+          {matched ? (
+            <button
+              type="button"
+              aria-label="Message"
+              onClick={() => router.push(`/messages/${profile.slug}`)}
+              className="pointer-events-auto grid size-14 place-items-center rounded-full bg-gold shadow-[0_10px_36px_rgba(212,181,106,0.35)] active:scale-90"
+            >
+              <MessageCircle className="size-7 fill-bg text-bg" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              aria-label="Like"
+              onClick={() => {
+                if (!ready || !user) {
+                  writePendingEngage({ profileId: profile.id, kind: "like", at: Date.now() });
+                  setGate("like");
+                  return;
+                }
+                engageProfile(profile, "like", () => setMatch(true));
+              }}
+              className="pointer-events-auto grid size-14 place-items-center rounded-full bg-gold shadow-[0_10px_36px_rgba(212,181,106,0.35)] active:scale-90"
+            >
+              <Heart className="size-7 fill-bg text-bg" />
+            </button>
+          )}
+        </div>
+      ) : null}
       {photo !== null ? (
         <PhotoViewer
           photos={photos}

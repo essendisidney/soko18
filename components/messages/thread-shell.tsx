@@ -332,15 +332,15 @@ export function ThreadShell({
           <div
             key={m.id}
             className={cn(
-              "max-w-[75%] rounded-3xl px-4 py-2.5 text-[15px]",
+              "max-w-[78%] px-4 py-2.5 text-[15px] leading-snug shadow-[0_2px_10px_rgba(0,0,0,0.25)]",
               m.senderId === actorId
-                ? "ml-auto bg-gold/20 text-cream"
-                : "mr-auto border border-line bg-glass",
+                ? "ml-auto rounded-[22px] rounded-br-md bg-gold text-bg"
+                : "mr-auto rounded-[22px] rounded-bl-md bg-bg-elevated text-cream",
             )}
           >
             {m.body}
             {isLastOwn && lastOwn !== "none" ? (
-              <p className="mt-1 text-[10px] tracking-wide text-muted">{lastOwn === "read" ? "Read" : "Sent"}</p>
+              <p className="mt-1 text-right text-[10px] tracking-wide text-bg/60">{lastOwn === "read" ? "Read" : "Sent"}</p>
             ) : null}
           </div>
           );

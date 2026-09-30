@@ -35,9 +35,10 @@ import { catalogForCity } from "@/lib/discovery/feed";
 import { ONBOARDING } from "@/lib/onboarding";
 import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
 import { Wordmark } from "@/components/brand/wordmark";
-import { Heart, SlidersHorizontal, Zap } from "lucide-react";
+import { SlidersHorizontal, Zap, LayoutGrid } from "lucide-react";
 import { readIncognito } from "@/lib/privacy/local";
 import type { SeedProfile } from "@/lib/types";
+import { cityHomeHref } from "@/lib/geo/kenya";
 import { LaunchMeter } from "@/components/growth/launch-meter";
 
 export function DiscoverDeck({
@@ -163,11 +164,11 @@ export function DiscoverDeck({
             <SlidersHorizontal className="size-4" />
           </button>
           <Link
-            href="/likes"
-            aria-label={t("discover.likesYou")}
+            href={cityHomeHref(citySlug || "nairobi")}
+            aria-label={t("tab.browse")}
             className="grid size-9 place-items-center rounded-full border border-line text-muted"
           >
-            <Heart className="size-4" />
+            <LayoutGrid className="size-4" />
           </Link>
           <Link
             href="/upgrade"
