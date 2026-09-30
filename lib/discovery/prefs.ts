@@ -1,6 +1,6 @@
 import { ONBOARDING, readIntents } from "@/lib/onboarding";
 import { impressedIds } from "@/lib/discovery/impressions";
-import { DEFAULT_NEAR_AREA } from "@/lib/nairobi/near";
+import { DEFAULT_NEAR_AREA, readNearArea } from "@/lib/nairobi/near";
 
 export function readDiscoverPrefs() {
   if (typeof window === "undefined") {
@@ -8,7 +8,7 @@ export function readDiscoverPrefs() {
   }
   return {
     intents: readIntents(),
-    near: localStorage.getItem(ONBOARDING.nearArea) || DEFAULT_NEAR_AREA,
+    near: readNearArea(),
     city: localStorage.getItem(ONBOARDING.city) || "nairobi",
     seen: impressedIds(),
   };

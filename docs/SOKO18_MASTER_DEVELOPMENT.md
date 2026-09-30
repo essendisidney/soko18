@@ -198,7 +198,7 @@ Never animate for the sake of animation.
 /onboarding/intent
 /onboarding/ready         bookmark only (not on the main path)
 /discover                 primary home
-/browse                   redirects to /nairobi
+/browse                   redirects to the snapped city (`/nairobi` when unset)
 /matches
 /messages
 /messages/[id]
@@ -228,7 +228,7 @@ Never animate for the sake of animation.
 
 App tab bar (mobile): **Discover · Browse · Matches · Me**
 
-Browse opens `/nairobi`. `/browse` redirects there. Area and category pages stay on the Browse tab. One city door.
+Browse opens the snapped city. `/browse` follows the city cookie (Nairobi when unset). Area and category pages stay on the Browse tab. One city door.
 
 Me stays active on Saved, Settings, and Studio. Admin stays outside the tab bar.
 

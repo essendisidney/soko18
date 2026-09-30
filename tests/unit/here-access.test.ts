@@ -20,6 +20,7 @@ describe("area presence", () => {
     expect(hereLine({ areaSlug: "westlands", citySlug: "nairobi", at: now - RECENT_MS }, now)).toBe(
       "Westlands · last here",
     );
+    expect(hereLine({ areaSlug: "kilimani", citySlug: "kisumu", at: now }, now)).toBe("Around you · here now");
   });
 });
 

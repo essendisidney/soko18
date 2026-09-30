@@ -6,16 +6,10 @@ import { useSyncExternalStore } from "react";
 import { Compass, Grid2x2, Heart, UserRound } from "lucide-react";
 import { RETURN_KEY } from "@/components/nav/remember-return";
 import { matchWaitingSnapshot, subscribeMatchWaiting } from "@/lib/matches/waiting";
-import { tabActive } from "@/lib/nav/tabs";
+import { browseTabHref, tabActive } from "@/lib/nav/tabs";
+import { citySnapshot, subscribeNearArea } from "@/lib/nairobi/near";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 import { cn } from "@/lib/utils";
-
-const tabs = [
-  { href: "/discover", label: "Discover", icon: Compass },
-  { href: "/nairobi", label: "Browse", icon: Grid2x2 },
-  { href: "/matches", label: "Matches", icon: Heart },
-  { href: "/me", label: "Me", icon: UserRound },
-];
 
 function returnSnapshot() {
   return sessionStorage.getItem(RETURN_KEY);
@@ -25,6 +19,14 @@ export function TabBar() {
   const pathname = usePathname();
   const waiting = useLocalIds(subscribeMatchWaiting, matchWaitingSnapshot);
   const returnTo = useSyncExternalStore(() => () => {}, returnSnapshot, () => null);
+  const storedCity = useSyncExternalStore(subscribeNearArea, citySnapshot, () => "nairobi");
+  const browseHref = browseTabHref(pathname, storedCity);
+  const tabs = [
+    { href: "/discover", label: "Discover", icon: Compass },
+    { href: browseHref, label: "Browse", icon: Grid2x2 },
+    { href: "/matches", label: "Matches", icon: Heart },
+    { href: "/me", label: "Me", icon: UserRound },
+  ];
 
   return (
     <nav className="safe-bottom glass fixed inset-x-0 bottom-0 z-40 border-t border-line">
@@ -34,7 +36,7 @@ export function TabBar() {
           const Icon = tab.icon;
           const fresh = tab.href === "/matches" && waiting.length > 0 && !active;
           return (
-            <li key={tab.href}>
+            <li key={tab.label}>
               <Link
                 href={tab.href}
                 className={cn(

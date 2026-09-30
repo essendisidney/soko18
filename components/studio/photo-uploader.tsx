@@ -14,10 +14,12 @@ export function PhotoUploader({
   profileId,
   profileName,
   area,
+  city,
 }: {
   profileId?: string;
   profileName: string;
   area: string;
+  city?: string;
 }) {
   const items = useMediaQueue().filter((item) => item.profileId === profileId);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -71,7 +73,8 @@ export function PhotoUploader({
       id: uploaded.data.mediaId,
       profileId,
       profileName,
-      area: area || "Nairobi",
+      area: area || city || "Kenya",
+      city: city || undefined,
       path: uploaded.data.path,
       status: "pending_review",
       isCover: items.length === 0,

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { ageGateMaxDate, isAdultBirthDate, MIN_BIRTH_DATE } from "@/lib/age";
 import { locateHere } from "@/lib/geo/locate";
+import { writeCity } from "@/lib/nairobi/near";
 import { ONBOARDING, bumpVisit, confirmAge, markWelcomeSeen } from "@/lib/onboarding";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
@@ -44,16 +45,14 @@ export default function WelcomePage() {
     setLocating(true);
     const result = await locateHere();
     setLocating(false);
-    if (!result.ok) {
-      localStorage.setItem(ONBOARDING.city, "nairobi");
-    }
+    if (!result.ok) writeCity("nairobi");
     router.push("/onboarding/intent");
   }
 
   function continueInNairobi() {
     if (!adult) return;
     confirmAge();
-    localStorage.setItem(ONBOARDING.city, "nairobi");
+    writeCity("nairobi");
     router.push("/onboarding/intent");
   }
 

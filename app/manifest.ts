@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "SOKO18",
     short_name: "SOKO18",
-    description: "Discover. Connect. Verify. Nairobi local discovery.",
+    description: "Discover. Connect. Verify. Kenya 18+ local discovery.",
     start_url: "/",
     scope: "/",
     display: "standalone",
@@ -37,7 +37,7 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     shortcuts: [
       { name: "Discover", short_name: "Discover", url: "/discover" },
-      { name: "Browse", short_name: "Browse", url: "/nairobi" },
+      { name: "Browse", short_name: "Browse", url: "/browse" },
     ],
   };
 }

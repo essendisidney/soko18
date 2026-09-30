@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { getDiscoverFeed } from "@/lib/discovery/feed";
+import { cityFromRequest } from "@/lib/geo/city-cookie";
+import { nearFromRequest } from "@/lib/nairobi/near";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const city = searchParams.get("city") || "nairobi";
-  const near = searchParams.get("near") || "kilimani";
+  const city = cityFromRequest(searchParams.get("city"), request.headers.get("cookie"));
+  const near = nearFromRequest(city, searchParams.get("near"));
   const gender = searchParams.get("gender") === "woman" ? "woman" : searchParams.get("gender") === "any" ? "any" : "man";
   const cursor = Number(searchParams.get("cursor") ?? "0") || 0;
   const intents = (searchParams.get("intent") ?? "").split(",").filter(Boolean);

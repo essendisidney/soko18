@@ -12,10 +12,11 @@ import { InstallHome } from "@/components/pwa/install-home";
 import { accountRole, useAuth } from "@/lib/auth/use-auth";
 import { isStaffRole } from "@/lib/admin/roles";
 import { signOutAction } from "@/lib/auth/actions";
-import { areaUrl, nairobiUrl, shareProfile } from "@/lib/profile/share";
+import { placeUrl, shareProfile } from "@/lib/profile/share";
 import { useDraftProfile } from "@/lib/profile/use-draft";
-import { areaBySlug } from "@/lib/data/nairobi";
-import { nearAreaSnapshot, subscribeNearArea } from "@/lib/nairobi/near";
+import { citySnapshot, nearAreaSnapshot, subscribeNearArea } from "@/lib/nairobi/near";
+import { areaSlugInCity, cityNameBySlug, placeShareName } from "@/lib/geo/kenya";
+import { cityPlaceLine } from "@/lib/nairobi/live";
 import { HereNowButton } from "@/components/presence/here-now";
 import { readIncognito } from "@/lib/privacy/local";
 
@@ -41,9 +42,10 @@ export default function MePage() {
   const [ghost, setGhost] = useState(false);
   const router = useRouter();
   const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
-  const place = near ? areaBySlug(near) : null;
-  const shareName = place?.name ?? "Nairobi";
-  const shareHref = place ? areaUrl(place.slug) : nairobiUrl();
+  const citySlug = useSyncExternalStore(subscribeNearArea, citySnapshot, () => "nairobi");
+  const shareName = placeShareName(citySlug, near);
+  const shareHref = placeUrl(citySlug, areaSlugInCity(citySlug, near));
+  const cityName = cityNameBySlug(citySlug);
 
   useEffect(() => {
     setGhost(readIncognito());
@@ -52,10 +54,12 @@ export default function MePage() {
   return (
     <div className="pb-8">
       <Wordmark />
-      <h1 className="mt-4 font-display text-[34px] tracking-tight">Me</h1>
+      <p className="mt-4 text-[13px] tracking-[0.22em] text-gold uppercase">{cityName}</p>
+      <h1 className="mt-3 font-display text-[34px] tracking-tight">Me</h1>
       <p className="mt-2 text-sm text-muted">
         {user ? "Account, safety, and business tools." : "Discovering as a guest."}
       </p>
+      <p className="mt-1 text-sm text-muted">{cityPlaceLine(citySlug, near)}</p>
       {ghost ? <p className="mt-2 text-xs text-gold">You’re invisible</p> : null}
       <HereNowButton />
 

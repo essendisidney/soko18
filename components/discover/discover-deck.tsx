@@ -28,12 +28,13 @@ import { mysteryPayLabel, mysteryPhase as readMysteryPhase, takeMysteryCard } fr
 import { LocalPayButton } from "@/components/payments/local-pay-button";
 import { ACCESS_CATALOG } from "@/lib/payments/catalog";
 import { formatKes } from "@/lib/payments/ledger";
-import { nairobiPlaceLine } from "@/lib/nairobi/live";
+import { cityPlaceLine } from "@/lib/nairobi/live";
 import { tonightAreaNames } from "@/lib/nairobi/tonight";
 import { readImpressions } from "@/lib/discovery/impressions";
 import { goldenLine, isGoldenHour } from "@/lib/visibility/golden-hour";
-import { nearAreaSnapshot, subscribeNearArea, nearAreaName } from "@/lib/nairobi/near";
-import { cityNameBySlug } from "@/lib/geo/kenya";
+import { nearAreaSnapshot, subscribeNearArea, nearAreaName, writeCity } from "@/lib/nairobi/near";
+import { cityNameBySlug, areaBrowseHref } from "@/lib/geo/kenya";
+import { catalogForCity } from "@/lib/discovery/feed";
 import { ONBOARDING } from "@/lib/onboarding";
 import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
 import { HereNowButton } from "@/components/presence/here-now";
@@ -60,10 +61,7 @@ export function DiscoverDeck({
     () => "nairobi",
   );
   const intents = useSyncExternalStore(subscribeIntents, intentSnapshot, () => null);
-  const place =
-    citySlug && citySlug !== "nairobi"
-      ? nearAreaName(near ?? "")
-      : nairobiPlaceLine(undefined, 3, near ?? undefined);
+  const place = cityPlaceLine(citySlug || "nairobi", near);
   const tonight = clock >= 0 ? tonightAreaNames(readImpressions(), feed) : [];
   const areas = tonight.length > 0 ? tonight.join(" · ") : place;
   const subtitle = isGoldenHour() ? `${goldenLine()} · ${areas}` : areas;
@@ -71,6 +69,7 @@ export function DiscoverDeck({
   useEffect(() => {
     setGhost(readIncognito());
     setMysteryPay(readMysteryPhase());
+    writeCity(localStorage.getItem(ONBOARDING.city) || "nairobi");
   }, []);
 
   useEffect(() => {
@@ -80,13 +79,14 @@ export function DiscoverDeck({
 
   useEffect(() => {
     const q = discoverQuery();
+    if (q.get("city") && q.get("city") !== "nairobi") setFeed([]);
     void fetch(`/api/discover?${q.toString()}`)
       .then((res) => res.json())
       .then((json: { data?: { items?: SeedProfile[] } }) => {
         if (json.data?.items) setFeed(json.data.items);
       })
       .catch(() => {});
-  }, [near, intents]);
+  }, [near, intents, citySlug]);
 
   const raw = useSyncExternalStore(subscribeDiscoverActions, actionsSnapshot, () => null);
   const blockedRaw = useSyncExternalStore(subscribeBlocks, blocksSnapshot, () => null);
@@ -167,9 +167,21 @@ export function DiscoverDeck({
         <SwipeDeck
           profiles={profiles}
           canUndo={canUndo}
-          browseHref={near ? `/nairobi/${near}` : "/nairobi"}
-          browseLabel={near ? `Browse ${nearAreaName(near)}` : "Browse"}
-          emptyTitle={near ? `That’s everyone in ${nearAreaName(near)}` : "That’s everyone around you"}
+          browseHref={areaBrowseHref(citySlug || "nairobi", near)}
+          browseLabel={`Browse ${near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}`}
+          emptyTitle={
+            catalogForCity(citySlug || "nairobi").length === 0
+              ? `No one in ${near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")} yet`
+              : near
+                ? `That’s everyone in ${nearAreaName(near)}`
+                : "That’s everyone around you"
+          }
+          emptyHint={
+            catalogForCity(citySlug || "nairobi").length === 0
+              ? "Empty stays empty. Notify when someone is here."
+              : "A pass stays off Discover for 30 days. Browse still open. Empty stays empty."
+          }
+          notifyCity={catalogForCity(citySlug || "nairobi").length === 0 ? citySlug || null : null}
           onUndo={() => {
             const id = undoLastPass();
             if (!id) return null;

@@ -433,6 +433,11 @@ export function getProfile(slug: string) {
   return PROFILES.find((p) => p.slug === slug);
 }
 
+/** Seed listing by id or slug. Empty cities have none — do not invent people. */
+export function seedProfile(idOrSlug: string) {
+  return PROFILES.find((p) => p.id === idOrSlug || p.slug === idOrSlug);
+}
+
 export function nairobiProfiles() {
   return PROFILES.filter((p) => p.citySlug === "nairobi");
 }
@@ -441,12 +446,12 @@ export function profilesInCity(slug: string) {
   return PROFILES.filter((p) => p.citySlug === slug);
 }
 
-export function profilesInArea(areaSlug: string) {
-  return nairobiProfiles().filter((p) => p.areaSlug === areaSlug);
+export function profilesInArea(areaSlug: string, citySlug = "nairobi") {
+  return profilesInCity(citySlug).filter((p) => p.areaSlug === areaSlug);
 }
 
 export function similarProfiles(profile: SeedProfile, limit = 3) {
-  const pool = nairobiProfiles().filter((p) => p.slug !== profile.slug && !p.incognito);
+  const pool = profilesInCity(profile.citySlug).filter((p) => p.slug !== profile.slug && !p.incognito);
   const sameArea = pool.filter((p) => p.areaSlug === profile.areaSlug);
   const rest = pool.filter((p) => p.areaSlug !== profile.areaSlug);
   return [...sameArea, ...rest].slice(0, limit);

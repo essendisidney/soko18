@@ -1,4 +1,5 @@
 import { PROFILES } from "@/lib/data/seed";
+import { isKenyaCitySlug } from "@/lib/geo/kenya";
 
 export function slugifyName(name: string) {
   const base = name
@@ -12,9 +13,14 @@ export function slugifyName(name: string) {
   return base || "profile";
 }
 
-export function uniqueProfileSlug(name: string, taken: Iterable<string> = PROFILES.map((p) => p.slug)) {
+export function uniqueProfileSlug(
+  name: string,
+  taken: Iterable<string> = PROFILES.map((p) => p.slug),
+  citySlug = "nairobi",
+) {
   const reserved = new Set(taken);
-  const stem = `${slugifyName(name)}-nairobi`;
+  const city = isKenyaCitySlug(citySlug) ? citySlug : "nairobi";
+  const stem = `${slugifyName(name)}-${city}`;
   if (!reserved.has(stem)) return stem;
   let n = 2;
   while (reserved.has(`${stem}-${n}`)) n += 1;

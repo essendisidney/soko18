@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { currentUser } from "@/lib/auth/user";
-import { nairobiProfiles } from "@/lib/data/seed";
+import { seedProfile } from "@/lib/data/seed";
 import { UUID } from "@/lib/likes/ids";
 import { applyFlag } from "@/lib/safety/flags";
 import { readIdListCookie, writeIdListCookie } from "@/lib/safety/id-cookie";
@@ -26,7 +26,7 @@ export async function submitFavorite(input: unknown) {
   }
 
   const { profileId, saved } = parsed.data;
-  const seed = nairobiProfiles().find((p) => p.id === profileId || p.slug === profileId);
+  const seed = seedProfile(profileId);
   if (seed) {
     const state = await readIdListCookie(FAVORITE_STATE_COOKIE, user.id);
     await writeIdListCookie(FAVORITE_STATE_COOKIE, {

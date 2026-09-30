@@ -8,6 +8,8 @@ import type { SeedProfile } from "@/lib/types";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { Button } from "@/components/soko/button";
 import { Star, X, Heart } from "lucide-react";
+import { CityNotifyButton } from "@/components/nairobi/waitlist-button";
+import { EmptyCityLoop } from "@/components/city/city-door";
 
 const SWIPE = 96;
 const FLICK = 420;
@@ -42,9 +44,11 @@ export function SwipeDeck({
   onPass,
   onUndo,
   canUndo,
-  browseHref = "/nairobi",
+  browseHref = "/browse",
   browseLabel = "Browse",
   emptyTitle = "That’s everyone around you",
+  emptyHint = "A pass stays off Discover for 30 days. Browse still open. Empty stays empty.",
+  notifyCity,
   onEngage,
   onImpression,
 }: {
@@ -57,6 +61,8 @@ export function SwipeDeck({
   browseHref?: string;
   browseLabel?: string;
   emptyTitle?: string;
+  emptyHint?: string;
+  notifyCity?: string | null;
   onEngage?: (profile: SeedProfile, kind: "like" | "spotlight") => boolean;
   onImpression?: (profile: SeedProfile) => void;
 }) {
@@ -179,11 +185,22 @@ export function SwipeDeck({
 
   if (!current && exits.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center px-6 text-center">
+      <div
+        className={
+          notifyCity
+            ? "flex h-full flex-col items-center overflow-y-auto px-6 py-4 text-center"
+            : "flex h-full flex-col items-center justify-center px-6 text-center"
+        }
+      >
         <p className="font-display text-2xl">{emptyTitle}</p>
-        <p className="mt-2 text-sm text-muted">A pass stays off Discover for 30 days. Browse still open. Empty stays empty.</p>
-        <Link href={browseHref} className="mt-8 w-full max-w-xs">
-          <Button className="w-full" variant="gold">
+        <p className="mt-2 text-sm text-muted">{emptyHint}</p>
+        {notifyCity ? (
+          <div className="mt-8 w-full max-w-xs">
+            <CityNotifyButton slug={notifyCity} />
+          </div>
+        ) : null}
+        <Link href={browseHref} className={notifyCity ? "mt-3 w-full max-w-xs" : "mt-8 w-full max-w-xs"}>
+          <Button className="w-full" variant={notifyCity ? "ghost" : "gold"}>
             {browseLabel}
           </Button>
         </Link>
@@ -207,6 +224,11 @@ export function SwipeDeck({
         <Link href="/saved" className="mt-4 text-sm text-muted">
           Saved
         </Link>
+        {notifyCity ? (
+          <div className="mt-2 w-full max-w-xs">
+            <EmptyCityLoop citySlug={notifyCity} compact />
+          </div>
+        ) : null}
       </div>
     );
   }

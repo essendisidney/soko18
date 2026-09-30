@@ -4,8 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/soko/button";
 import { joinWaitlist, subscribeWaitlist, waitlistSnapshot } from "@/lib/browse/waitlist";
 import { waitlistAreas } from "@/lib/data/waitlist";
-import { writeNearArea } from "@/lib/nairobi/near";
-import { ONBOARDING } from "@/lib/onboarding";
+import { writeCity, writeNearArea } from "@/lib/nairobi/near";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 import { SkipLineButton, skipIdleLabel } from "@/components/payments/skip-line-button";
 
@@ -25,20 +24,30 @@ export function WaitlistButton({ slug }: { slug: string }) {
   );
 }
 
-export function WaitlistDiscover({ slug }: { slug: string }) {
+export function WaitlistDiscover({ slug, areaSlug }: { slug: string; areaSlug?: string }) {
   return (
     <Link
       href="/discover"
       className="mt-8 block"
       onClick={() => {
-        localStorage.setItem(ONBOARDING.city, slug);
-        const area = waitlistAreas(slug)[0];
-        if (area) writeNearArea(area.slug);
+        writeCity(slug);
+        const area = areaSlug ?? waitlistAreas(slug)[0]?.slug;
+        if (area) writeNearArea(area);
       }}
     >
       <Button variant="gold" className="w-full">
         Discover
       </Button>
     </Link>
+  );
+}
+
+export function CityNotifyButton({ slug }: { slug: string }) {
+  const listed = useLocalIds(subscribeWaitlist, waitlistSnapshot).includes(slug);
+
+  return (
+    <Button className="w-full" variant={listed ? "ghost" : "gold"} onClick={() => joinWaitlist(slug)}>
+      {listed ? "You’re on the list" : "Notify me"}
+    </Button>
   );
 }

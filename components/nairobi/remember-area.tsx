@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { writeNearArea } from "@/lib/nairobi/near";
+import { writeCity, writeNearArea } from "@/lib/nairobi/near";
 
-export function RememberArea({ slug }: { slug: string }) {
+export function RememberArea({ slug, citySlug }: { slug?: string; citySlug?: string }) {
   useEffect(() => {
-    writeNearArea(slug);
-  }, [slug]);
+    if (citySlug) writeCity(citySlug);
+    if (slug) writeNearArea(slug);
+  }, [slug, citySlug]);
   return null;
 }

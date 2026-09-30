@@ -8,7 +8,8 @@ import { HealthBar } from "@/components/soko/health-bar";
 import { BoostPay } from "@/components/studio/promotion-pay";
 import { draftHealth } from "@/lib/profile/health";
 import { useDraftProfile } from "@/lib/profile/use-draft";
-import { NAIROBI_AREAS } from "@/lib/data/nairobi";
+import { cityNameBySlug, emptyStudioLine, placeShareName } from "@/lib/geo/kenya";
+import { useSnappedCity } from "@/lib/nairobi/use-near-area";
 import { profileCanPromote } from "@/lib/studio/promote";
 import { reviewPriority, reviewPriorityLine } from "@/lib/growth/review";
 import type { StudioOverview } from "@/lib/studio/overview";
@@ -21,9 +22,11 @@ export function StudioHome({
   greeting: string;
 }) {
   const draft = useDraftProfile();
+  const snappedCity = useSnappedCity();
   const health = overview?.health ?? (draft ? draftHealth(draft) : null);
   const name = overview?.profile?.displayName ?? draft?.displayName;
-  const area = draft ? NAIROBI_AREAS.find((a) => a.slug === draft.areaSlug)?.name : null;
+  const cityName = cityNameBySlug(draft?.citySlug || snappedCity);
+  const area = draft ? placeShareName(draft.citySlug || snappedCity, draft.areaSlug) : null;
   const status = overview?.profile?.status ?? (draft ? (draft.status === "pending_review" ? "In review" : "Draft") : null);
   const live = profileCanPromote(overview?.profile?.status);
   const [priority, setPriority] = useState<string | null>(null);
@@ -40,9 +43,9 @@ export function StudioHome({
       </h1>
       <p className="mt-2 text-sm text-muted">
         {overview?.profile
-          ? `${overview.profile.status === "live" ? "Live in Nairobi" : status}`
+          ? `${overview.profile.status === "live" ? `Live in ${cityName}` : status}`
           : draft
-            ? `${area ?? "Nairobi"} · ${status}`
+            ? `${area ?? cityName} · ${status}`
             : "Create a profile. It stays a draft until review."}
       </p>
       {draft?.status === "pending_review" && priority ? (
@@ -87,7 +90,7 @@ export function StudioHome({
       ) : (
         <section className="mt-8 rounded-3xl border border-line p-5">
           <p className="font-display text-2xl">Create a profile</p>
-          <p className="mt-2 text-sm text-muted">Nairobi only. Draft until SOKO18 reviews it.</p>
+          <p className="mt-2 text-sm text-muted">{emptyStudioLine(cityName)}</p>
           <Link href="/studio/profile" className="mt-4 inline-block">
             <Button variant="gold" size="sm">
               Create
@@ -111,7 +114,7 @@ export function StudioHome({
           </>
         ) : (
           <>
-            <p className="px-1 text-sm text-muted">Boost after you’re live in Nairobi.</p>
+            <p className="px-1 text-sm text-muted">Boost after you’re live.</p>
             <Link href="/discover" className="mt-4 block px-1">
               <Button variant="gold" className="w-full">
                 Discover

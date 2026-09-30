@@ -1,19 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { nairobiProfiles } from "@/lib/data/seed";
+import { PROFILES } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
 import { blocksSnapshot, subscribeBlocks, writeBlock } from "@/lib/blocks/local";
 import { postBlock } from "@/lib/safety/client";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 import { useAuth } from "@/lib/auth/use-auth";
+import { EmptyCityLoop } from "@/components/city/city-door";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { Button } from "@/components/soko/button";
+import { cityNameBySlug, emptyBlockedLine } from "@/lib/geo/kenya";
+import { useSnappedCity } from "@/lib/nairobi/use-near-area";
 
 export default function BlockedPage() {
+  const citySlug = useSnappedCity();
   const { user } = useAuth();
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
-  const byId = new Map(nairobiProfiles().filter(hasApprovedCover).map((p) => [p.id, p]));
+  const byId = new Map(PROFILES.filter(hasApprovedCover).map((p) => [p.id, p]));
   const items = blocked.map((id) => byId.get(id)).filter((p): p is NonNullable<typeof p> => Boolean(p));
 
   return (
@@ -22,7 +26,7 @@ export default function BlockedPage() {
       <p className="mt-2 text-sm text-muted">Hidden from Discover and Browse. Unblock anytime.</p>
 
       {items.length === 0 ? (
-        <p className="mt-10 text-sm text-muted">No one blocked.</p>
+        <p className="mt-10 text-sm text-muted">{emptyBlockedLine(cityNameBySlug(citySlug))}</p>
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-3">
           {items.map((profile) => (
@@ -46,6 +50,7 @@ export default function BlockedPage() {
       <Link href="/discover" className="mt-8 inline-block">
         <Button variant="gold">Discover</Button>
       </Link>
+      {items.length === 0 ? <EmptyCityLoop citySlug={citySlug} /> : null}
     </div>
   );
 }

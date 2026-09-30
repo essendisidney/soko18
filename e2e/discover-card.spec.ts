@@ -60,7 +60,7 @@ test("empty deck browse opens the last area", async ({ page }) => {
     );
   }, ids);
   await page.goto("/discover");
-  await expect(page.getByText("That’s everyone around you")).toBeVisible();
+  await expect(page.getByText("That’s everyone in Kilimani")).toBeVisible();
   await page.getByRole("button", { name: "Browse Kilimani" }).click();
   await expect(page).toHaveURL(/\/nairobi\/kilimani/);
   await expect(page.getByRole("heading", { name: "Kilimani" })).toBeVisible();

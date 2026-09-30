@@ -26,7 +26,7 @@ export function AreaHome({
 
   return (
     <div>
-      <RememberArea slug={slug} />
+      <RememberArea slug={slug} citySlug="nairobi" />
       <p className="text-[13px] tracking-[0.22em] text-gold uppercase">Nairobi</p>
       <h1 className="mt-3 font-display text-4xl tracking-tight">{name}</h1>
       <p className="mt-2 text-sm text-muted">{inventory ?? "Area-level only. Never a precise location."}</p>

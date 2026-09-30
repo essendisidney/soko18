@@ -19,6 +19,7 @@ export type MediaItem = {
   profileId: string;
   profileName: string;
   area: string;
+  city?: string;
   path: string;
   status: MediaStatus;
   isCover: boolean;

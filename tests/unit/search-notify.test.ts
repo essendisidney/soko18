@@ -49,6 +49,8 @@ describe("Nairobi search notify", () => {
   it("labels places and can drop a wait", () => {
     joinSearchNotify("area:south-b");
     expect(notifyLabel("area:south-b")).toBe("South B");
+    expect(notifyLabel("area:milimani")).toBe("Milimani");
+    expect(notifyLabel("area:nyali")).toBe("Nyali");
     expect(notifyLabel("category:featured")).toBe("Featured");
     expect(notifyLabel("city:kisumu")).toBe("Kisumu");
     expect(notifyLabel("kilimani loft")).toBe("kilimani loft");

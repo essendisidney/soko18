@@ -12,6 +12,16 @@ export function searchNairobi(query: string, profiles: SeedProfile[] = nairobiPr
   return live.filter((p) => `${p.name} ${p.area} ${p.bio}`.toLowerCase().includes(q));
 }
 
+/** Live catalog search. Empty cities stay empty — never borrow Nairobi people. */
+export function searchCity(citySlug: string, query: string) {
+  if (citySlug !== "nairobi") return [] as SeedProfile[];
+  return searchNairobi(query);
+}
+
+export function emptySearchLine(cityName: string) {
+  return `No one in ${cityName} matches that.`;
+}
+
 export function browseFeed({
   city = "nairobi",
   q = "",

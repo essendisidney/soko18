@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { currentUser } from "@/lib/auth/user";
-import { nairobiProfiles } from "@/lib/data/seed";
+import { seedProfile } from "@/lib/data/seed";
 import { UUID } from "@/lib/likes/ids";
 import { REPORT_REASONS } from "@/lib/reports/reasons";
 import { takeRateLimit } from "@/lib/security/limit";
@@ -30,7 +30,7 @@ export async function submitProfileReport(input: unknown) {
   }
 
   const { profileId, reason } = parsed.data;
-  const seed = nairobiProfiles().find((p) => p.id === profileId || p.slug === profileId);
+  const seed = seedProfile(profileId);
   if (seed) {
     const state = await readThreadState(user.id);
     await writeThreadState({

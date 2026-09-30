@@ -68,9 +68,9 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 
 ## Phase 07 notes
 
-- Nairobi is the only live market (`GET /api/cities/nairobi`, `/nairobi`). `/browse` redirects to `/nairobi`.
+- Nairobi is the only live market (`GET /api/cities/nairobi`, `/nairobi`). `/browse` follows the snapped city cookie (Nairobi when unset).
 - Kenya city doors at `/{city}` and `/{city}/[area]`. `/city/[slug]` redirects there. Browse for those cities returns empty, not a fake catalog.
-- Categories (`/category/trending|verified|featured|rising`) are Nairobi grids. Featured is labeled paid and is not mixed into organic Nairobi Now.
+- Categories (`/category/trending|verified|featured|rising`) are Nairobi grids. A snapped empty city is redirected to `/{city}` — never a borrowed Nairobi catalog. Featured is labeled paid and is not mixed into organic Nairobi Now.
 - Search empty state: “No one in Nairobi matches that.” Notify me persists locally and confirms on the city page.
 
 ## Phase 08 notes
@@ -140,7 +140,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 
 - Live origin: `https://soko18.vercel.app`. Set `NEXT_PUBLIC_APP_URL` on Vercel. Sitemap/robots use that origin, not a guessed custom domain.
 - Legal (calm, specific): `/terms` (18+), `/privacy` (ODPC minimum, area-level presence, export/delete), `/safety` (report + block). Linked from the age gate, login, Me, and Settings.
-- Monitoring: `GET /api/health` → `{ ok, city: nairobi, supabase }`. No secrets. Security headers: nosniff, DENY frames, no geolocation/camera/mic.
+- Monitoring: `GET /api/health` → `{ ok, city: nairobi, open: kenya, supabase }`. Live catalog is Nairobi; Kenya is open. No secrets. Security headers: nosniff, DENY frames, no geolocation/camera/mic.
 - Backups: schema is `supabase/migrations/` in git. Point-in-time recovery waits for a paid Supabase project. Do not create that project in this phase.
 - GitHub Actions is the CI gate. Push to `origin/main` when you want Git → Vercel to match local. Do not put `service_role` in `NEXT_PUBLIC_`.
 
@@ -148,17 +148,17 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 
 - Profile ⋯ (MDD 5.5): Share copies/shares the public URL. Favorite is guest-local (`soko18_favorites`) and listed at `/saved` from Me. Report requires a session (`POST /api/reports` with `profileId`). Block hides on Discover/Browse immediately; session persists via `POST /api/blocks`.
 - Empty room: open/ready/Discover/Browse lead with active areas until live inventory ≥ 200. Studio still shows own stats only — never Amani’s seed views, never a fake “24% better.”
-- Discover ranks from onboarding intent, last Nairobi area, passes, and impressions. Empty deck primary is Browse; Undo last pass is secondary. Returning `/` shows Nairobi pulse once per session, then goes to Discover.
-- First open: date of birth (18+), then Continue in Nairobi → intent → Discover. Other cities in Kenya after age. City and Ready stay as waitlist / bookmark. Matches empty has a gold Discover button. Discover header has no bell or menu.
+- Discover ranks from onboarding intent, last area in the snapped city, passes, and impressions. A leftover Nairobi area does not rename Kisumu. Empty deck primary is Browse; Undo last pass is secondary. Returning `/` shows city pulse once per session, then goes to Discover.
+- First open: date of birth (18+), then a Kenya city → intent → privacy → Discover. Continue in Nairobi still works. A waitlist city no longer skips intent. Empty stays empty. City and Ready stay as waitlist / bookmark after you are in. Matches empty has a gold Discover button. Discover header has no bell or menu.
 - PWA: standalone manifest, 192/512 icons, apple-touch icon, `/sw.js`, Me “Add to Home Screen.” Start URL is `/` so age still gates. No web push yet.
-- Browse tab opens `/nairobi`. `/browse` redirects. Area and category pages (`/category/trending` …) use the same tab bar. No Supabase this increment.
+- Browse tab opens the snapped city (`/nairobi` or `/{city}`). `/browse` and the PWA Browse shortcut follow the city cookie. Area and category pages use the same tab bar. No Supabase this increment.
 - Profile ← returns to the last app screen (Discover, Nairobi, Saved). Cold landings go to Discover. Me no longer duplicates Nairobi; Safety is a row.
 - Closed threads say “No thread yet” and send you to Discover. Thread back returns to Discover or Matches. Thread block hides them on Discover. Settings no longer shows fake Hide last seen / indexing / restrict-message controls. Indexing stays in Studio.
 - Studio, Saved, and Settings stay in the tab bar. Me is the active tab. No Supabase this increment.
-- Browse “Near you” is the last Nairobi area opened (area-level, never GPS). Empty Discover Browse opens that area. Area pages have other areas and Share. Saved can remove a person from the grid.
-- Discover header leads with that last area. Me → Other cities is waitlist, not a second onboarding.
-- Kenya cities at `/{city}` have real areas and no fake catalog. `/city/{city}` redirects there. Discover shows men around you.
-- Me is compact: PWA is a line, not a card, so Looking for and Other cities stay tappable.
+- Browse “Near you” is the last area opened in the snapped city (area-level, never GPS). Empty Discover Browse opens that area. Area pages have other areas and Share. Saved can remove a person from the grid.
+- Discover header leads with that last area. Me → Other cities is a Kenya door, not a second onboarding. Discover stays in the snapped city. Nairobi is the live row, not a stolen snap.
+- Kenya cities at `/{city}` have real areas, search, and a Kenya door. Area pages and empty Discover stay in that loop. Empty search does not invent people. `/city/{city}` redirects there. Discover shows men around you.
+- Me is compact: PWA is a line, not a card, so Looking for and Other cities stay tappable. Me names the snapped city. Empty Saved, Notify, Matches, and Blocked stay in that city — areas plus Nairobi as the live door. Settings, Invite, Sign in, Studio, analytics, promotions, and a missing profile name that city too. Never a borrowed person.
 - Looking for lives on Me (`/intent`). Intent still ranks Discover. Blocked people are hidden from Similar and listed at `/blocked` from Me. Profile ⋯ Pass returns you to Discover.
 - Profile Message does not open a thread until there is a match. Guests still hit the auth wall.
 - Matches show the last message, or Say hello. Blocked matches leave the list. Sending refreshes so the preview is there when you return. Guests stay empty + Discover.
@@ -174,7 +174,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - SOKO18 Verified is phone + identity + profile reviewed. Incomplete checks do not wear the badge. Established is extra.
 - Create profile stays a draft until review. In review is not public. Me says In review. Discover is the return.
 - Public profiles are landing pages: name · area · Nairobi in the title. Index only with owner consent. Waitlist cities stay off the sitemap.
-- Me shares the last Nairobi area opened, or Nairobi. No invite counts.
+- Me shares the last area in the snapped city, or the city. No invite counts.
 - Profile photos open full-screen. Close returns to the card. Indexing stays in Studio, not in ⋯.
 - Studio does not sell Boost until the profile is live. Discover is the return while you wait. Nairobi Now is still not for sale.
 - Crawlers get Nairobi, categories, and consented profiles. Waitlist cities stay off robots allow.
@@ -197,4 +197,4 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Area, category, and consented profiles trail Nairobi in JSON-LD breadcrumbs. No inventory counts. Waitlist cities stay unmarked.
 - Kenya city doors are open at `/{city}` with real areas and no fake catalog. Membership is 5,000 / 10,000 KES. Boost 500, Spotlight 1,200, Featured 3,500. Incognito 1,500/mo actually hides you unless they already liked you. Skip the line 5,000 speeds staff review only after a ledger row — sandbox settle until STK. Mystery 200 is one card. Golden Hour 500 (8–9pm EAT pin, not a discounted meet). Friend pass speeds staff review. Coins after STK — invites do not mint credit. Live photo or voice proof stays in a matched thread. Unmask extra photos after ID on both sides. ID both sides, two-way ratings, panic and live location to a trusted contact, chat receipts and report. One report hides them from your Discover. Three unique reports go to staff and drop from the public feed. Rank penalizes reports and only uses real rating averages. I’m here is an area-level ping (active ~15m, recent ~4h) — never a live GPS pin of other people. M-Pesa STK is the rail. Never invent a waitlist count or a 4.8. Tonight’s areas on Discover and Nairobi come from real impressions.
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
-- Do not start Ads, Premium-as-a-second-company, or fake density KPIs. **Post-16 product waves are complete** on this PWA: trust, Discover loop, area-level I’m here, paid flags only after a sandbox ledger row, 24h chat extend both sides. Remaining launch work is ops — paid Supabase, Daraja KYC, staff review, real listings. Empty stays empty.
+- Do not start Ads, Premium-as-a-second-company, or fake density KPIs. Discover is city-strict: Nairobi seed catalog only. The first Discover paint reads the snapped city cookie — Kisumu does not flash Nairobi people. `/browse` and the PWA Browse shortcut follow that cookie. Category grids stay Nairobi; a snapped empty city is sent to its door instead of borrowing people. Empty-city Browse is a real city door: search, Active now areas, Kenya chips — never a borrowed catalog or Nairobi Now. Empty-city area pages and empty Discover are the same loop: search, other areas, Kenya (Discover keeps Nairobi as the live door) — never a borrowed person. Me names the snapped city. Empty Saved, Notify, Matches, and Blocked stay in that loop. Settings, Invite, Sign in, Studio rooms, and a missing profile name that city too. First open from any Kenyan city finishes intent before Discover. Me → Other cities keeps Discover in the snapped city. Nairobi is the live Kenya row, not a stolen snap. Guest message walls name the snapped city. Saved, Blocked, similar, likes, and reports resolve the whole seed catalog and keep similar in the same city. A leftover Nairobi area does not rename Kisumu Discover, I’m here, or Browse. Notify me names real Kenyan areas. A Studio draft slug follows the snapped city — Achieng in Kisumu is `achieng-kisumu`, not Nairobi. Discover and Browse APIs follow the city cookie when the query omits city, and near stays inside that city. Install and default meta say Kenya, not Nairobi-only. Empty stays empty. Remaining launch work is ops — paid Supabase, Daraja KYC, staff review, real people.

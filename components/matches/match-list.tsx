@@ -15,9 +15,13 @@ import {
   writeMatchWaiting,
 } from "@/lib/matches/waiting";
 import { matchPreview } from "@/lib/messages/preview";
+import { EmptyCityLoop } from "@/components/city/city-door";
+import { cityNameBySlug, emptyMatchesLine } from "@/lib/geo/kenya";
+import { useSnappedCity } from "@/lib/nairobi/use-near-area";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 
 export function MatchList({ items }: { items: MatchListItem[] }) {
+  const citySlug = useSnappedCity();
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
   const seen = useLocalIds(subscribeMatchSeen, matchSeenSnapshot);
   const hidden = new Set(blocked);
@@ -39,7 +43,7 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
   return (
     <>
       {visible.length === 0 ? (
-        <p className="mt-10 text-sm text-muted">No matches yet. A like stays quiet until they like you back.</p>
+        <p className="mt-10 text-sm text-muted">{emptyMatchesLine(cityNameBySlug(citySlug))}</p>
       ) : (
         <ul className="mt-8 space-y-3">
           {visible.map((item) => (
@@ -74,6 +78,7 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
           Discover
         </Button>
       </Link>
+      {visible.length === 0 ? <EmptyCityLoop citySlug={citySlug} /> : null}
     </>
   );
 }

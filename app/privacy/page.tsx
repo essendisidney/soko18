@@ -10,7 +10,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage kicker="ODPC" title="Privacy">
       <LegalSection title="What we collect">
-        <p>The minimum to run discovery in Nairobi: account email when you sign in, a display name, birth year, area, bio, and photos you upload.</p>
+        <p>The minimum to run discovery in Kenya: account email when you sign in, a display name, birth year, area, bio, and photos you upload.</p>
         <p>On first open we check that your date of birth is 18+. We do not store that date on the device. Use my area reads your position once and stores only a city and area name — never a live pin, never another person’s coordinates. Signed-in profiles keep a birth year. Identity evidence for Verified stays off public pages and is not a public bucket. We do not put national ID numbers in the public product.</p>
       </LegalSection>
       <LegalSection title="Location">

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { filterGhosts, seedIncognitoIds } from "@/lib/privacy/incognito";
 import { mysteryPick } from "@/lib/privacy/mystery";
 import { getDiscoverFeed } from "@/lib/discovery/feed";
-import { searchNairobi } from "@/lib/browse/feed";
+import { emptySearchLine, searchCity, searchNairobi } from "@/lib/browse/feed";
 import { liveProofLine, requestLiveProof, sendLiveProof } from "@/lib/trust/live-proof";
 import { testProfile } from "../helpers/profile";
 
@@ -21,6 +21,12 @@ describe("incognito on the feed", () => {
     expect(deck.items.length).toBeGreaterThan(0);
     expect(searchNairobi("").some((row) => row.id === "p13")).toBe(false);
     expect(searchNairobi("Lulu")).toEqual([]);
+  });
+
+  it("does not borrow Nairobi people into Kisumu", () => {
+    expect(getDiscoverFeed({ citySlug: "kisumu", gender: "man" }).items).toEqual([]);
+    expect(searchCity("kisumu", "Amani")).toEqual([]);
+    expect(emptySearchLine("Kisumu")).toBe("No one in Kisumu matches that.");
   });
 });
 

@@ -14,7 +14,7 @@ test.describe("PWA", () => {
     };
     expect(body.display).toBe("standalone");
     expect(body.start_url).toBe("/");
-    expect(body.shortcuts?.some((s) => s.name === "Browse" && s.url === "/nairobi")).toBeTruthy();
+    expect(body.shortcuts?.some((s) => s.name === "Browse" && s.url === "/browse")).toBeTruthy();
     expect(body.icons.some((icon) => icon.sizes === "192x192")).toBeTruthy();
     expect(body.icons.some((icon) => icon.sizes === "512x512")).toBeTruthy();
 

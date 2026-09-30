@@ -1,4 +1,25 @@
 import { WAITLIST_CITIES } from "@/lib/data/nairobi";
+import { cityHomeHref, citySlugFromPath } from "@/lib/geo/kenya";
+
+export function browseTabHref(pathname: string, storedCity = "nairobi") {
+  return cityHomeHref(citySlugFromPath(pathname) ?? (storedCity || "nairobi"));
+}
+
+export function isBrowsePath(pathname: string) {
+  return (
+    pathname === "/nairobi" ||
+    pathname.startsWith("/nairobi/") ||
+    pathname === "/browse" ||
+    pathname.startsWith("/category/") ||
+    WAITLIST_CITIES.some((city) => pathname === `/${city.slug}` || pathname.startsWith(`/${city.slug}/`)) ||
+    pathname.startsWith("/city/")
+  );
+}
+
+export function isBrowseHref(href: string) {
+  if (href === "/nairobi" || href === "/browse") return true;
+  return WAITLIST_CITIES.some((city) => href === `/${city.slug}`);
+}
 
 export function tabActive(href: string, pathname: string, returnTo?: string | null) {
   if (pathname.startsWith("/profile/")) {
@@ -8,17 +29,8 @@ export function tabActive(href: string, pathname: string, returnTo?: string | nu
         : "/discover";
     return tabActive(href, hub);
   }
-  if (href === "/nairobi") {
-    return (
-      pathname === "/nairobi" ||
-      pathname.startsWith("/nairobi/") ||
-      pathname === "/browse" ||
-      pathname.startsWith("/category/") ||
-      WAITLIST_CITIES.some(
-        (city) => pathname === `/${city.slug}` || pathname.startsWith(`/${city.slug}/`),
-      ) ||
-      pathname.startsWith("/city/")
-    );
+  if (isBrowseHref(href)) {
+    return isBrowsePath(pathname);
   }
   if (href === "/matches") {
     return (

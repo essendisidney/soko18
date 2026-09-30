@@ -1,8 +1,8 @@
 import { applyFlag } from "@/lib/safety/flags";
 import { readLocalIds, snapshotLocalIds, subscribeLocalIds, writeLocalIds } from "@/lib/safety/local-ids";
-import { areaBySlug } from "@/lib/data/nairobi";
+import { areaBySlug, WAITLIST_CITIES } from "@/lib/data/nairobi";
 import { categoryBySlug } from "@/lib/browse/categories";
-import { waitlistCity } from "@/lib/data/waitlist";
+import { waitlistArea, waitlistCity } from "@/lib/data/waitlist";
 
 export const SEARCH_NOTIFY_KEY = "soko18_search_notify";
 
@@ -35,9 +35,19 @@ export function onSearchNotify(query: string) {
   return Boolean(key) && readLocalIds(SEARCH_NOTIFY_KEY).includes(key);
 }
 
+export function notifyAreaName(slug: string) {
+  const nairobi = areaBySlug(slug)?.name;
+  if (nairobi) return nairobi;
+  for (const city of WAITLIST_CITIES) {
+    const area = waitlistArea(city.slug, slug);
+    if (area) return area.name;
+  }
+  return slug;
+}
+
 export function notifyLabel(key: string) {
   if (key.startsWith("area:")) {
-    return areaBySlug(key.slice(5))?.name ?? key.slice(5);
+    return notifyAreaName(key.slice(5));
   }
   if (key.startsWith("category:")) {
     return categoryBySlug(key.slice(9))?.name ?? key.slice(9);

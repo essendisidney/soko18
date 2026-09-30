@@ -37,7 +37,7 @@ export async function createPaymentIntent(input: unknown) {
     return {
       ok: false as const,
       status: 403,
-      error: { code: "forbidden", message: "Boost after you’re live in Nairobi." },
+      error: { code: "forbidden", message: "Boost after you’re live." },
     };
   }
   if (!requestedProfileAllowed(parsed.data.profileId ?? null, profile.id)) {

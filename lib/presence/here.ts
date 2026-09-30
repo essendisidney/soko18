@@ -1,8 +1,8 @@
 import type { Presence } from "@/lib/types";
 import { areaBySlug } from "@/lib/data/nairobi";
 import { waitlistAreas } from "@/lib/data/waitlist";
-import { writeNearArea } from "@/lib/nairobi/near";
-import { ONBOARDING } from "@/lib/onboarding";
+import { areaSlugInCity } from "@/lib/geo/kenya";
+import { defaultNearArea, writeCity, writeNearArea } from "@/lib/nairobi/near";
 
 export const HERE_KEY = "soko18_here";
 export const ACTIVE_MS = 15 * 60_000;
@@ -45,19 +45,17 @@ export function presenceFrom(at: number, now = Date.now()): Presence {
 }
 
 function areaName(areaSlug: string, citySlug: string) {
-  return (
-    areaBySlug(areaSlug)?.name ??
-    waitlistAreas(citySlug).find((area) => area.slug === areaSlug)?.name ??
-    "Around you"
-  );
+  if (citySlug === "nairobi") return areaBySlug(areaSlug)?.name ?? "Around you";
+  return waitlistAreas(citySlug).find((area) => area.slug === areaSlug)?.name ?? "Around you";
 }
 
 export function checkIn(areaSlug: string, citySlug = "nairobi", now = Date.now()): HerePing {
-  const ping: HerePing = { areaSlug, citySlug, at: now };
-  if (typeof window !== "undefined") {
+  const area = areaSlugInCity(citySlug, areaSlug) ?? defaultNearArea(citySlug);
+  const ping: HerePing = { areaSlug: area ?? areaSlug, citySlug, at: now };
+  if (typeof window !== "undefined" && area) {
     localStorage.setItem(HERE_KEY, JSON.stringify(ping));
-    localStorage.setItem(ONBOARDING.city, citySlug);
-    writeNearArea(areaSlug);
+    writeCity(citySlug);
+    writeNearArea(area);
     emit();
   }
   return ping;

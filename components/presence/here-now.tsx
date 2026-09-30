@@ -2,8 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { Button } from "@/components/soko/button";
-import { DEFAULT_NEAR_AREA, nearAreaSnapshot } from "@/lib/nairobi/near";
-import { ONBOARDING } from "@/lib/onboarding";
+import { citySnapshot, defaultNearArea, nearAreaSnapshot } from "@/lib/nairobi/near";
 import { checkIn, hereLine, hereSnapshot, presenceFrom, readHere, subscribeHere } from "@/lib/presence/here";
 
 export function HereNowButton({
@@ -20,8 +19,9 @@ export function HereNowButton({
   const active = ping ? presenceFrom(ping.at) === "active" : false;
 
   function pingHere() {
-    const area = areaSlug ?? nearAreaSnapshot() ?? DEFAULT_NEAR_AREA;
-    const city = citySlug ?? localStorage.getItem(ONBOARDING.city) ?? "nairobi";
+    const city = citySlug ?? citySnapshot();
+    const area = areaSlug ?? nearAreaSnapshot() ?? defaultNearArea(city);
+    if (!area) return;
     checkIn(area, city);
   }
 

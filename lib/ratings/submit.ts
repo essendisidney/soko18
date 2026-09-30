@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { currentUser } from "@/lib/auth/user";
-import { nairobiProfiles } from "@/lib/data/seed";
+import { seedProfile } from "@/lib/data/seed";
 import { UUID } from "@/lib/likes/ids";
 import { readLikeState } from "@/lib/likes/state";
 import {
@@ -36,7 +36,7 @@ export async function submitRating(input: unknown) {
     return { ok: false as const, status: limited.status, error: limited.error };
   }
 
-  const seed = nairobiProfiles().find((p) => p.id === parsed.data.profileId || p.slug === parsed.data.profileId);
+  const seed = seedProfile(parsed.data.profileId);
   const likes = await readLikeState(user.id);
   const local = await readRatingState(user.id);
 
@@ -135,7 +135,7 @@ export async function loadRatings(profileKey: string) {
     return { ok: false as const, status: 401, error: { code: "unauthorized", message: "Sign in to see reviews." } };
   }
 
-  const seed = nairobiProfiles().find((p) => p.id === profileKey || p.slug === profileKey);
+  const seed = seedProfile(profileKey);
   const likes = await readLikeState(user.id);
   const local = await readRatingState(user.id);
 

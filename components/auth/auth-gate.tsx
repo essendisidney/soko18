@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { motion } from "motion/react";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
+import { guestBrowseLine } from "@/lib/auth/guest";
+import { citySnapshot, subscribeNearArea } from "@/lib/nairobi/near";
 
 export type AuthIntent = "like" | "spotlight" | "message" | "profile" | "report" | "panic" | "share" | "rate" | "verify";
 
 const copy: Record<AuthIntent, { title: string; line: string }> = {
   like: { title: "Sign in to like", line: "Pass stays open. Likes need an account." },
   spotlight: { title: "Sign in to Spotlight", line: "A Spotlight is a real signal. It needs you." },
-  message: { title: "Sign in to message", line: "You can keep browsing Nairobi as a guest." },
+  message: { title: "Sign in to message", line: guestBrowseLine() },
   profile: { title: "Sign in to continue", line: "Create a profile once you’re in." },
   report: { title: "Sign in to report", line: "A report opens a staff case. You can keep browsing." },
   panic: { title: "Sign in to send a panic alert", line: "The alert goes to your trusted contact only." },
@@ -30,8 +33,9 @@ export function AuthGate({
   onDiscover?: () => void;
 }) {
   const pathname = usePathname();
+  const citySlug = useSyncExternalStore(subscribeNearArea, citySnapshot, () => "nairobi");
   const next = encodeURIComponent(pathname || "/discover");
-  const text = copy[intent];
+  const text = intent === "message" ? { ...copy.message, line: guestBrowseLine(citySlug) } : copy[intent];
 
   return (
     <motion.div

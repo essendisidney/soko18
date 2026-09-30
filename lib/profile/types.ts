@@ -7,7 +7,7 @@ export type ProfileDraft = {
   slug: string;
   displayName: string;
   birthYear: number | null;
-  citySlug: "nairobi";
+  citySlug: string;
   areaSlug: string;
   bio: string;
   availability: string;

@@ -1,18 +1,21 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { ONBOARDING } from "@/lib/onboarding";
-import { nairobiAliveLine, nairobiPlaceLine } from "@/lib/nairobi/live";
+import { cityAliveLine, cityWelcomePlaces } from "@/lib/nairobi/live";
+import { citySnapshot, subscribeNearArea, writeCity } from "@/lib/nairobi/near";
 import { Button } from "@/components/soko/button";
 
 export default function ReadyPage() {
   const router = useRouter();
-  const alive = nairobiAliveLine();
-  const place = nairobiPlaceLine();
+  const citySlug = useSyncExternalStore(subscribeNearArea, citySnapshot, () => "nairobi");
+  const alive = cityAliveLine(citySlug);
+  const place = cityWelcomePlaces(citySlug, 3).join(" · ");
 
   function start() {
     localStorage.setItem(ONBOARDING.done, "1");
-    localStorage.setItem(ONBOARDING.city, "nairobi");
+    writeCity(citySlug);
     router.push("/discover");
   }
 

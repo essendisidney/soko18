@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import type { SeedProfile } from "@/lib/types";
+import { areaBrowseHref, cityHomeHref, cityNameBySlug } from "@/lib/geo/kenya";
 import { publicPhotos } from "@/lib/media/public";
 import { siteUrl } from "@/lib/site";
 
-export function profileHeading(profile: Pick<SeedProfile, "name" | "age" | "area">) {
-  return `${profile.name}, ${profile.age} · ${profile.area}, Nairobi`;
+export function profileHeading(profile: Pick<SeedProfile, "name" | "age" | "area" | "city" | "citySlug">) {
+  const city = profile.city || cityNameBySlug(profile.citySlug || "nairobi");
+  return `${profile.name}, ${profile.age} · ${profile.area}, ${city}`;
 }
 
 function placeBreadcrumb(items: { name: string; path: string }[]) {
@@ -26,7 +28,8 @@ function absUrl(path: string) {
 
 export function profileMetadata(profile: SeedProfile): Metadata {
   const title = profileHeading(profile);
-  const description = profile.bio.trim() || `Discover ${profile.name} in ${profile.area}, Nairobi.`;
+  const city = profile.city || cityNameBySlug(profile.citySlug || "nairobi");
+  const description = profile.bio.trim() || `Discover ${profile.name} in ${profile.area}, ${city}.`;
   const cover = publicPhotos(profile)[0];
   const url = `${siteUrl()}/profile/${profile.slug}`;
   const image = cover ? absUrl(cover) : undefined;
@@ -88,8 +91,8 @@ export function profileJsonLd(profile: SeedProfile) {
     name: profileHeading(profile),
     url: `${siteUrl()}/profile/${profile.slug}`,
     breadcrumb: placeBreadcrumb([
-      { name: "Nairobi", path: "/nairobi" },
-      { name: profile.area, path: `/nairobi/${profile.areaSlug}` },
+      { name: profile.city || cityNameBySlug(profile.citySlug), path: cityHomeHref(profile.citySlug) },
+      { name: profile.area, path: areaBrowseHref(profile.citySlug, profile.areaSlug) },
       { name: profile.name, path: `/profile/${profile.slug}` },
     ]),
     mainEntity: {
@@ -98,7 +101,7 @@ export function profileJsonLd(profile: SeedProfile) {
       address: {
         "@type": "PostalAddress",
         addressLocality: profile.area,
-        addressRegion: "Nairobi",
+        addressRegion: profile.city || cityNameBySlug(profile.citySlug),
         addressCountry: "KE",
       },
     },

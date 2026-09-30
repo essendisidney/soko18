@@ -1,4 +1,6 @@
 import { areaBySlug, NAIROBI_AREAS } from "@/lib/data/nairobi";
+import { waitlistAreas } from "@/lib/data/waitlist";
+import { cityNameBySlug } from "@/lib/geo/kenya";
 import { DEFAULT_NEAR_AREA } from "@/lib/nairobi/near";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
@@ -137,4 +139,28 @@ export function nairobiAliveLine(now?: Date | string) {
   const hour = nairobiHour(now);
   if (hour >= 18 || hour < 5) return "Nairobi is active tonight.";
   return "Nairobi is active.";
+}
+
+/** Empty cities never borrow Nairobi pulse. */
+export function cityAliveLine(citySlug = "nairobi", now?: Date | string) {
+  if (citySlug !== "nairobi") return `${cityNameBySlug(citySlug)}. Men around you.`;
+  return nairobiAliveLine(now);
+}
+
+export function cityWelcomePlaces(citySlug = "nairobi", limit = 4) {
+  if (citySlug !== "nairobi") {
+    return waitlistAreas(citySlug)
+      .slice(0, limit)
+      .map((area) => area.name);
+  }
+  return activeAreaNames(undefined, limit);
+}
+
+/** Discover header. Empty cities list real areas — never a stale Nairobi neighborhood. */
+export function cityPlaceLine(citySlug = "nairobi", leadSlug?: string | null, limit = 3) {
+  if (citySlug === "nairobi") return nairobiPlaceLine(undefined, limit, leadSlug ?? undefined);
+  const names = cityWelcomePlaces(citySlug, limit);
+  const lead = leadSlug ? waitlistAreas(citySlug).find((area) => area.slug === leadSlug)?.name : undefined;
+  const ordered = lead ? [lead, ...names.filter((name) => name !== lead)] : names;
+  return ordered.slice(0, limit).join(" · ") || cityNameBySlug(citySlug);
 }

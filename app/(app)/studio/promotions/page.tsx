@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SnappedCityKicker, SnappedPlaceNote } from "@/components/city/city-door";
 import { Button } from "@/components/soko/button";
 import { AllPromotions } from "@/components/studio/promotion-pay";
 import { LocalPayButton } from "@/components/payments/local-pay-button";
@@ -15,13 +16,14 @@ export default async function StudioPromotionsPage() {
 
   return (
     <div>
-      <p className="text-[11px] tracking-[0.22em] text-gold uppercase">Studio</p>
+      <SnappedCityKicker />
       <h1 className="mt-3 font-display text-3xl tracking-tight">Promotions</h1>
       <p className="mt-2 text-sm text-muted">
         {live
           ? "Subscriptions are the foundation. Boosts are impulse. Pay on M-Pesa. Nairobi Now is not for sale."
           : "Membership prices are live. Boost after you’re live. Nairobi Now is not for sale."}
       </p>
+      <SnappedPlaceNote />
 
       <section className="mt-8 space-y-3">
         <p className="text-xs tracking-[0.16em] text-muted uppercase">Membership</p>

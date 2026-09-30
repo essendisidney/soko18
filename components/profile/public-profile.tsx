@@ -100,7 +100,7 @@ export function PublicProfile({
         {sokoVerified(profile) ? <VerificationBadge label="SOKO18 Verified" /> : null}
         <h1 className="mt-3 font-display text-4xl tracking-tight">{profile.name}</h1>
         <p className="mt-1 text-cream/80">
-          {profile.age} · Nairobi · {profile.area}
+          {profile.age} · {profile.city} · {profile.area}
         </p>
         <PresenceDot presence={profile.presence} className="mt-2" />
         {blocked ? <p className="mt-3 text-sm text-muted">You blocked them. They won’t appear in Discover or Browse.</p> : null}

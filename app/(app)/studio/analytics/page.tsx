@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SnappedCityKicker, SnappedPlaceNote } from "@/components/city/city-door";
 import { StatCard } from "@/components/soko/stat-card";
 import { Button } from "@/components/soko/button";
 import { getStudioOverview } from "@/lib/studio/overview";
@@ -12,9 +13,10 @@ export default async function StudioAnalyticsPage() {
 
   return (
     <div>
-      <p className="text-[11px] tracking-[0.22em] text-gold uppercase">Studio</p>
+      <SnappedCityKicker />
       <h1 className="mt-3 font-display text-3xl tracking-tight">Analytics</h1>
-      <p className="mt-2 text-sm text-muted">Your numbers only. Last 7 days in Nairobi.</p>
+      <p className="mt-2 text-sm text-muted">Your numbers only. Last 7 days.</p>
+      <SnappedPlaceNote />
       {stats ? (
         <>
           <div className="mt-8 space-y-3">

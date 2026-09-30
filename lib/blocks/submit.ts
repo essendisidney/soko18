@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { currentUser } from "@/lib/auth/user";
-import { nairobiProfiles } from "@/lib/data/seed";
+import { seedProfile } from "@/lib/data/seed";
 import { seedAccountId, UUID } from "@/lib/likes/ids";
 import { applyFlag } from "@/lib/safety/flags";
 import { readIdListCookie, writeIdListCookie } from "@/lib/safety/id-cookie";
@@ -27,7 +27,7 @@ export async function submitBlock(input: unknown) {
   }
 
   const { profileId, blocked } = parsed.data;
-  const seed = nairobiProfiles().find((p) => p.id === profileId || p.slug === profileId);
+  const seed = seedProfile(profileId);
   if (seed) {
     const state = await readIdListCookie(BLOCK_STATE_COOKIE, user.id);
     await writeIdListCookie(BLOCK_STATE_COOKIE, {

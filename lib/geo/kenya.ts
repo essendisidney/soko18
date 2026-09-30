@@ -1,4 +1,4 @@
-import { LAUNCH_CITY, NAIROBI_AREAS, WAITLIST_CITIES } from "@/lib/data/nairobi";
+import { areaBySlug, LAUNCH_CITY, NAIROBI_AREAS, WAITLIST_CITIES } from "@/lib/data/nairobi";
 import { waitlistAreas } from "@/lib/data/waitlist";
 
 export type GeoPlace = {
@@ -109,4 +109,97 @@ export function snapPlace(lat: number, lng: number, places = kenyaPlaces()): Geo
 export function cityNameBySlug(slug: string) {
   if (slug === LAUNCH_CITY.slug) return LAUNCH_CITY.name;
   return WAITLIST_CITIES.find((city) => city.slug === slug)?.name ?? "Kenya";
+}
+
+export function isKenyaCitySlug(slug: string) {
+  return slug === LAUNCH_CITY.slug || WAITLIST_CITIES.some((city) => city.slug === slug);
+}
+
+/** Kenya chips. Never include the door you are already on. */
+export function kenyaDoorCities(exceptSlug?: string) {
+  const cities = [
+    { slug: LAUNCH_CITY.slug, name: LAUNCH_CITY.name },
+    ...WAITLIST_CITIES.map((city) => ({ slug: city.slug, name: city.name })),
+  ];
+  return exceptSlug ? cities.filter((city) => city.slug !== exceptSlug) : cities;
+}
+
+/** First open still continues in Nairobi. A snapped city keeps Discover there. */
+export function cityOnboardingPrimary(done: boolean, citySlug = "nairobi") {
+  if (!done) return "Continue in Nairobi";
+  return `Discover ${cityNameBySlug(citySlug)}`;
+}
+
+/** First open always finishes intent. An open city door is for people already in. */
+export function cityOnboardingNext(done: boolean, citySlug = "nairobi") {
+  return done ? cityHomeHref(citySlug) : "/onboarding/intent";
+}
+
+export function emptySavedLine(cityName: string) {
+  return `Nothing saved in ${cityName} yet.`;
+}
+
+export function emptyNotifyLine(cityName: string) {
+  return `Nothing waiting in ${cityName}.`;
+}
+
+export function emptyBlockedLine(cityName: string) {
+  return `No one blocked in ${cityName}.`;
+}
+
+export function emptyMatchesLine(cityName: string) {
+  return `No matches in ${cityName} yet. A like stays quiet until they like you back.`;
+}
+
+export function emptyStudioLine(cityName: string) {
+  return `Create a profile in ${cityName}. Draft until review. Empty stays empty.`;
+}
+
+export function areasForCity(citySlug = "nairobi") {
+  if (citySlug === "nairobi") return NAIROBI_AREAS.map((area) => ({ slug: area.slug, name: area.name }));
+  return waitlistAreas(citySlug);
+}
+
+/** City home for the snapped city. Never send Kisumu to /nairobi. */
+export function cityHomeHref(citySlug = "nairobi") {
+  const city = citySlug || "nairobi";
+  return city === "nairobi" ? "/nairobi" : `/${city}`;
+}
+
+/** City from a Browse URL. Discover/Me/Matches return null. */
+export function citySlugFromPath(pathname: string) {
+  if (pathname === "/nairobi" || pathname.startsWith("/nairobi/")) {
+    return "nairobi";
+  }
+  const cityDoor = pathname.match(/^\/city\/([^/]+)/);
+  if (cityDoor?.[1] === "nairobi") return "nairobi";
+  const waitlist = WAITLIST_CITIES.find(
+    (city) =>
+      pathname === `/${city.slug}` ||
+      pathname.startsWith(`/${city.slug}/`) ||
+      pathname === `/city/${city.slug}` ||
+      pathname.startsWith(`/city/${city.slug}/`),
+  );
+  return waitlist?.slug ?? null;
+}
+
+export function areaBrowseHref(citySlug: string, areaSlug?: string | null) {
+  const city = citySlug || "nairobi";
+  if (city === "nairobi") return areaSlug ? `/nairobi/${areaSlug}` : "/nairobi";
+  return areaSlug ? `/${city}/${areaSlug}` : `/${city}`;
+}
+
+/** Area that actually belongs to the snapped city. */
+export function areaSlugInCity(citySlug: string, areaSlug?: string | null) {
+  if (!areaSlug) return null;
+  if (citySlug === "nairobi") return areaBySlug(areaSlug) ? areaSlug : null;
+  return waitlistAreas(citySlug).some((area) => area.slug === areaSlug) ? areaSlug : null;
+}
+
+/** Share label for the snapped city. Stale Nairobi areas do not rename Kisumu. */
+export function placeShareName(citySlug: string, areaSlug?: string | null) {
+  const area = areaSlugInCity(citySlug, areaSlug);
+  if (!area) return cityNameBySlug(citySlug);
+  if (citySlug === "nairobi") return areaBySlug(area)?.name ?? cityNameBySlug(citySlug);
+  return waitlistAreas(citySlug).find((item) => item.slug === area)?.name ?? cityNameBySlug(citySlug);
 }

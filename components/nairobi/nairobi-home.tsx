@@ -25,7 +25,7 @@ import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
 import { SearchNotifyButton } from "@/components/nairobi/search-notify";
 import { nairobiUrl, shareProfile } from "@/lib/profile/share";
-import { nearAreaName } from "@/lib/nairobi/near";
+import { nearAreaName, writeCity } from "@/lib/nairobi/near";
 import { useNearArea } from "@/lib/nairobi/use-near-area";
 import { tonightAreaNames } from "@/lib/nairobi/tonight";
 import { readImpressions } from "@/lib/discovery/impressions";
@@ -56,6 +56,7 @@ export function NairobiHome({
   const grid = hideBlocked(q ? searchNairobi(q) : filterNairobi(facet, near), hidden);
 
   useEffect(() => {
+    writeCity("nairobi");
     setTonight(tonightAreaNames(readImpressions(), nairobiProfiles()));
   }, []);
 

@@ -37,10 +37,10 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
   const value = parsed.data;
   const draft: ProfileDraft = {
     id: value.id ?? crypto.randomUUID(),
-    slug: uniqueProfileSlug(value.displayName),
+    slug: uniqueProfileSlug(value.displayName, undefined, value.citySlug || "nairobi"),
     displayName: value.displayName,
     birthYear: value.birthYear,
-    citySlug: "nairobi",
+    citySlug: value.citySlug || "nairobi",
     areaSlug: value.areaSlug,
     bio: value.bio ?? "",
     availability: value.availability ?? "",
@@ -65,17 +65,20 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
     .from("locations")
     .select("id")
     .eq("kind", "city")
-    .eq("slug", "nairobi")
+    .eq("slug", draft.citySlug)
     .maybeSingle();
-  const { data: area } = await supabase
-    .from("locations")
-    .select("id")
-    .eq("kind", "area")
-    .eq("slug", value.areaSlug)
-    .maybeSingle();
+  const { data: area } = city?.id
+    ? await supabase
+        .from("locations")
+        .select("id")
+        .eq("kind", "area")
+        .eq("slug", value.areaSlug)
+        .eq("parent_id", city.id)
+        .maybeSingle()
+    : { data: null };
 
   if (!city?.id) {
-    return { ok: false, error: { code: "not_found", message: "Nairobi is not available yet." }, status: 404 };
+    return { ok: false, error: { code: "not_found", message: "That city is not available yet." }, status: 404 };
   }
 
   const { data: existing } = await supabase

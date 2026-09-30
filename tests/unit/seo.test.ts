@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nairobiProfiles } from "@/lib/data/seed";
+import { testProfile } from "../helpers/profile";
 import {
   areaJsonLd,
   areaMetadata,
@@ -37,6 +38,27 @@ describe("Nairobi landing SEO", () => {
       "Amani",
     ]);
     expect(profileJsonLd(chebet)).toBeNull();
+  });
+
+  it("names a Kisumu profile without stamping Nairobi", () => {
+    const person = testProfile({
+      city: "Kisumu",
+      citySlug: "kisumu",
+      area: "Milimani",
+      areaSlug: "milimani",
+      slug: "achieng-kisumu",
+      name: "Achieng",
+      age: 26,
+      indexPublic: true,
+    });
+    expect(profileHeading(person)).toBe("Achieng, 26 · Milimani, Kisumu");
+    expect(profileJsonLd(person)?.breadcrumb.itemListElement.map((item: { name: string; item: string }) => item.item)).toEqual([
+      expect.stringMatching(/\/kisumu$/),
+      expect.stringMatching(/\/kisumu\/milimani$/),
+      expect.stringMatching(/\/profile\/achieng-kisumu$/),
+    ]);
+    expect(profileJsonLd(person)?.mainEntity.address.addressRegion).toBe("Kisumu");
+    expect(sitemapPaths()).not.toContain("/profile/achieng-kisumu");
   });
 
   it("keeps the sitemap on Nairobi and consented profiles", () => {

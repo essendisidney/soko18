@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { areaUrl, categoryUrl, nairobiUrl, profileUrl } from "@/lib/profile/share";
+import { areaUrl, categoryUrl, nairobiUrl, placeUrl, profileUrl } from "@/lib/profile/share";
 
 describe("share urls", () => {
   afterEach(() => {
@@ -12,6 +12,8 @@ describe("share urls", () => {
     expect(areaUrl("kilimani")).toBe("/nairobi/kilimani");
     expect(categoryUrl("verified")).toBe("/category/verified");
     expect(profileUrl("amani-nairobi")).toBe("/profile/amani-nairobi");
+    expect(placeUrl("kisumu", "milimani")).toBe("/kisumu/milimani");
+    expect(placeUrl("mombasa")).toBe("/mombasa");
   });
 
   it("uses the current origin in the browser", () => {

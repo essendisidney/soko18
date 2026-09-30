@@ -7,7 +7,10 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
 import { clearPendingEngage } from "@/lib/auth/pending-engage";
 import { safeNextPath } from "@/lib/auth/next-path";
+import { guestAuthLine } from "@/lib/auth/guest";
 import { useAuth } from "@/lib/auth/use-auth";
+import { cityNameBySlug } from "@/lib/geo/kenya";
+import { useSnappedCity } from "@/lib/nairobi/use-near-area";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -18,6 +21,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const failed = search.get("error") === "auth";
   const { user, ready } = useAuth();
   const configured = isSupabaseConfigured();
+  const citySlug = useSnappedCity();
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -66,10 +70,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center bg-bg px-6">
       <Wordmark />
-      <h1 className="mt-10 font-display text-4xl tracking-tight">{heading}</h1>
-      <p className="mt-3 text-sm text-muted">
-        Discover Nairobi as a guest. Sign in when you like, Spotlight, or message.
-      </p>
+      <p className="mt-10 text-[13px] tracking-[0.22em] text-gold uppercase">{cityNameBySlug(citySlug)}</p>
+      <h1 className="mt-3 font-display text-4xl tracking-tight">{heading}</h1>
+      <p className="mt-3 text-sm text-muted">{guestAuthLine(citySlug)}</p>
 
       {status === "sent" ? (
         <p className="mt-8 text-sm leading-relaxed text-cream/90">
@@ -103,7 +106,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       {status === "offline" ? (
         <p className="mt-6 text-sm leading-relaxed text-muted">
-          Accounts open when the backend is connected. Keep discovering Nairobi as a guest.
+          Accounts open when the backend is connected. Keep discovering as a guest.
         </p>
       ) : null}
       {status === "error" ? <p className="mt-6 text-sm text-danger">{message}</p> : null}

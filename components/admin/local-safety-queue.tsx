@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { staffQueue, type ReportFlag } from "@/lib/reports/tally";
 import { readReportFlags } from "@/lib/reports/local";
-import { nairobiProfiles } from "@/lib/data/seed";
+import { seedProfile } from "@/lib/data/seed";
 
 export function LocalSafetyQueue() {
   const [flags, setFlags] = useState<ReportFlag[]>([]);
@@ -20,7 +20,7 @@ export function LocalSafetyQueue() {
   return (
     <ul className="mt-8 max-w-2xl space-y-2">
       {queue.map((row) => {
-        const profile = nairobiProfiles().find((item) => item.id === row.profileId);
+        const profile = seedProfile(row.profileId);
         return (
           <li key={row.profileId} className="rounded-2xl border border-line px-4 py-3 text-sm">
             <p>{profile?.name ?? row.profileId}</p>

@@ -1,5 +1,5 @@
 import { currentUser } from "@/lib/auth/user";
-import { nairobiProfiles } from "@/lib/data/seed";
+import { PROFILES } from "@/lib/data/seed";
 import { seedAccountId, UUID } from "@/lib/likes/ids";
 import { readLikeState } from "@/lib/likes/state";
 import { coverPhoto } from "@/lib/media/public";
@@ -8,6 +8,11 @@ import { applyThreadPreview, lastMessageMap, mergeLastPreview } from "@/lib/mess
 import { readThreadState } from "@/lib/messages/state";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+
+/** Live matches name the listed area, then the city. Never stamp Nairobi. */
+export function matchPlaceName(areaName?: string | null, cityName?: string | null) {
+  return areaName || cityName || "Kenya";
+}
 
 export type MatchListItem = {
   id: string;
@@ -29,7 +34,7 @@ export async function listMatches(): Promise<MatchListItem[]> {
   if (!user) return [];
 
   const seed = await readLikeState(user.id);
-  const catalog = nairobiProfiles();
+  const catalog = PROFILES;
   const items: MatchListItem[] = seed.matches.flatMap((row) => {
     const profile = catalog.find((p) => p.id === row.profileId);
     if (!profile) return [];
@@ -78,9 +83,28 @@ export async function listMatches(): Promise<MatchListItem[]> {
     const { data: profiles } = profileIds.length
       ? await supabase
           .from("profiles")
-          .select("id, slug, display_name, is_verified")
+          .select("id, slug, display_name, is_verified, city_id, area_id")
           .in("id", profileIds)
-      : { data: [] as { id: string; slug: string; display_name: string; is_verified: boolean }[] };
+      : {
+          data: [] as {
+            id: string;
+            slug: string;
+            display_name: string;
+            is_verified: boolean;
+            city_id: string | null;
+            area_id: string | null;
+          }[],
+        };
+
+    const placeIds = [
+      ...new Set(
+        (profiles ?? []).flatMap((row) => [row.city_id, row.area_id].filter((id): id is string => Boolean(id))),
+      ),
+    ];
+    const { data: places } = placeIds.length
+      ? await supabase.from("locations").select("id, name").in("id", placeIds)
+      : { data: [] as { id: string; name: string }[] };
+    const placeById = new Map((places ?? []).map((row) => [row.id, row.name]));
 
     const convoByMatch = new Map((convos ?? []).map((row) => [row.match_id, row.id]));
     const profileById = new Map((profiles ?? []).map((row) => [row.id, row]));
@@ -96,7 +120,7 @@ export async function listMatches(): Promise<MatchListItem[]> {
         otherAccountId: row.account_a === user.id ? row.account_b : row.account_a,
         slug: profile?.slug ?? row.profile_id,
         name: profile?.display_name ?? "Match",
-        area: "Nairobi",
+        area: matchPlaceName(placeById.get(profile?.area_id ?? ""), placeById.get(profile?.city_id ?? "")),
         verified: Boolean(profile?.is_verified),
         presence: "recent",
         photo: null,

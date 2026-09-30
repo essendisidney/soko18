@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     default: "SOKO18",
     template: "%s · SOKO18",
   },
-  description: "Discover. Connect. Verify. Nairobi local discovery.",
+  description: "Discover. Connect. Verify. Kenya 18+ local discovery.",
   applicationName: "SOKO18",
   manifest: "/manifest.webmanifest",
   appleWebApp: {

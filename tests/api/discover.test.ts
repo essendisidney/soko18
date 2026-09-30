@@ -15,11 +15,19 @@ describe("GET /api/discover", () => {
     expect(body.data.items.length).toBeGreaterThan(0);
   });
 
-  it("returns men around you even when the city has no local catalog", async () => {
+  it("keeps empty cities empty", async () => {
     const res = await GET(new Request("http://soko18.test/api/discover?city=kisumu&gender=man"));
-    const body = (await res.json()) as { data: { items: { gender?: string }[]; nextCursor: null } };
-    expect(body.data.items.length).toBeGreaterThan(0);
-    expect(body.data.items.every((item) => item.gender === "man")).toBe(true);
+    const body = (await res.json()) as { data: { items: unknown[]; nextCursor: null } };
+    expect(body.data.items).toEqual([]);
+    expect(body.data.nextCursor).toBeNull();
+  });
+
+  it("follows the snapped city cookie when the query omits city", async () => {
+    const res = await GET(
+      new Request("http://soko18.test/api/discover", { headers: { cookie: "soko18_city=kisumu" } }),
+    );
+    const body = (await res.json()) as { data: { items: unknown[] } };
+    expect(body.data.items).toEqual([]);
   });
 
   it("accepts intent from the query string", async () => {

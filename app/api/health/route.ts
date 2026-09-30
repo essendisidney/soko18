@@ -8,6 +8,7 @@ export async function GET() {
     ok: true,
     service: "soko18",
     city: "nairobi",
+    open: "kenya",
     supabase: isSupabaseConfigured(),
   });
 }

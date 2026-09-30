@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { BROWSE_CATEGORIES, categoryBySlug } from "@/lib/browse/categories";
 import { browseFeed } from "@/lib/browse/feed";
 import { Button } from "@/components/soko/button";
@@ -8,6 +9,7 @@ import { PlaceShare } from "@/components/nairobi/place-share";
 import { ProfileGrid } from "@/components/profile/profile-grid";
 import { categoryJsonLd, categoryMetadata } from "@/lib/profile/seo";
 import { JsonLd } from "@/components/seo/json-ld";
+import { categoryHrefFromCookie, CITY_COOKIE } from "@/lib/geo/city-cookie";
 
 export function generateStaticParams() {
   return BROWSE_CATEGORIES.map((c) => ({ category: c.slug }));
@@ -32,6 +34,10 @@ export default async function CategoryPage({
   const { category } = await params;
   const meta = categoryBySlug(category);
   if (!meta) notFound();
+
+  const store = await cookies();
+  const elsewhere = categoryHrefFromCookie(store.get(CITY_COOKIE)?.value);
+  if (elsewhere) redirect(elsewhere);
 
   const { items } = browseFeed({ city: "nairobi", facet: meta.slug, limit: 24 });
 

@@ -10,6 +10,7 @@ test.describe("legal pages", () => {
 
     await page.goto("/privacy");
     await expect(page.getByRole("heading", { name: "Privacy" })).toBeVisible();
+    await expect(page.getByText("The minimum to run discovery in Kenya:")).toBeVisible();
     await expect(page.getByText("area-level only", { exact: false })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Discretion" })).toBeVisible();
 

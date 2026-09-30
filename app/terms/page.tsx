@@ -14,7 +14,7 @@ export default function TermsPage() {
         <p>Use my area finds men around you at area-level only. A public profile is not Verified until phone, identity, and profile review. It is not a classifieds board and not a dating map. We own local discovery.</p>
       </LegalSection>
       <LegalSection title="The product">
-        <p>v1 is live in Nairobi only. Other cities are waitlist until Nairobi has density.</p>
+        <p>Kenya is open. The live catalog is Nairobi. Other cities stay empty until they have reviewed listings.</p>
         <p>Profiles are drafts until SOKO18 reviews them. Photos go upload → scan → queue → review. Unapproved media does not appear on Discover, Browse, or public profiles.</p>
         <p>Paid Boost, Spotlight, and Featured are labeled. They cannot buy organic Nairobi Now.</p>
       </LegalSection>

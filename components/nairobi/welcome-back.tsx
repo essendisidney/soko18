@@ -1,23 +1,29 @@
 "use client";
 
 import Link from "next/link";
+import { useSyncExternalStore } from "react";
 import { motion } from "motion/react";
 import {
-  activeAreaNames,
-  nairobiAliveLine,
+  cityAliveLine,
+  cityWelcomePlaces,
   nairobiGreeting,
   nairobiInventoryLine,
   welcomeBackStats,
 } from "@/lib/nairobi/live";
+import { cityHomeHref, cityNameBySlug } from "@/lib/geo/kenya";
+import { writeCityCookie } from "@/lib/geo/city-cookie";
+import { citySnapshot, subscribeNearArea } from "@/lib/nairobi/near";
 import { Button } from "@/components/soko/button";
 import { Wordmark } from "@/components/brand/wordmark";
 
 export function WelcomeBack({ onDone }: { onDone: () => void }) {
+  const citySlug = useSyncExternalStore(subscribeNearArea, citySnapshot, () => "nairobi");
   const stats = welcomeBackStats();
   const greeting = nairobiGreeting();
-  const alive = nairobiAliveLine();
-  const inventory = nairobiInventoryLine();
-  const areas = activeAreaNames();
+  const alive = cityAliveLine(citySlug);
+  const inventory = citySlug === "nairobi" ? nairobiInventoryLine() : null;
+  const places = cityWelcomePlaces(citySlug);
+  const cityName = cityNameBySlug(citySlug);
 
   return (
     <motion.div
@@ -40,20 +46,30 @@ export function WelcomeBack({ onDone }: { onDone: () => void }) {
           </ul>
         ) : (
           <ul className="mt-8 space-y-3 text-lg text-cream/90">
-            {areas.map((name) => (
+            {places.map((name) => (
               <li key={name}>{name}</li>
             ))}
           </ul>
         )}
-        <Button className="mt-12 w-full max-w-xs" variant="gold" onClick={onDone}>
+        <Button
+          className="mt-12 w-full max-w-xs"
+          variant="gold"
+          onClick={() => {
+            writeCityCookie(citySlug);
+            onDone();
+          }}
+        >
           Discover
         </Button>
         <Link
-          href="/nairobi"
+          href={cityHomeHref(citySlug)}
           className="mt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-sm text-muted"
-          onClick={onDone}
+          onClick={() => {
+            writeCityCookie(citySlug);
+            onDone();
+          }}
         >
-          Browse Nairobi
+          Browse {cityName}
         </Link>
       </div>
     </motion.div>

@@ -1,3 +1,5 @@
+import { areaBrowseHref } from "@/lib/geo/kenya";
+
 export async function shareProfile(name: string, url: string) {
   if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
     try {
@@ -21,13 +23,17 @@ export function profileUrl(slug: string) {
 }
 
 export function areaUrl(slug: string) {
-  if (typeof window === "undefined") return `/nairobi/${slug}`;
-  return `${window.location.origin}/nairobi/${slug}`;
+  return placeUrl("nairobi", slug);
 }
 
 export function nairobiUrl() {
-  if (typeof window === "undefined") return "/nairobi";
-  return `${window.location.origin}/nairobi`;
+  return placeUrl("nairobi");
+}
+
+export function placeUrl(citySlug: string, areaSlug?: string | null) {
+  const path = areaBrowseHref(citySlug, areaSlug);
+  if (typeof window === "undefined") return path;
+  return `${window.location.origin}${path}`;
 }
 
 export function categoryUrl(slug: string) {

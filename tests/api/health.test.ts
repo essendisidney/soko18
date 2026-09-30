@@ -5,10 +5,11 @@ import { siteUrl } from "@/lib/site";
 describe("production rails", () => {
   it("reports health without leaking secrets", async () => {
     const res = await GET();
-    const body = (await res.json()) as { ok: boolean; city: string; supabase: boolean };
+    const body = (await res.json()) as { ok: boolean; city: string; open: string; supabase: boolean };
     expect(res.status).toBe(200);
     expect(body.ok).toBe(true);
     expect(body.city).toBe("nairobi");
+    expect(body.open).toBe("kenya");
     expect(typeof body.supabase).toBe("boolean");
     expect(JSON.stringify(body)).not.toMatch(/service_role|SUPABASE_SERVICE/i);
   });

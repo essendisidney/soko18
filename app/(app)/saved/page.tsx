@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import { X } from "lucide-react";
-import { nairobiProfiles } from "@/lib/data/seed";
+import { PROFILES } from "@/lib/data/seed";
 import { hasApprovedCover } from "@/lib/media/public";
 import { hideBlocked } from "@/lib/safety/flags";
 import { favoritesSnapshot, subscribeFavorites, writeFavorite } from "@/lib/favorites/local";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { useLocalIds } from "@/lib/safety/use-id-list";
+import { EmptyCityLoop } from "@/components/city/city-door";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { Button } from "@/components/soko/button";
+import { cityNameBySlug, emptySavedLine } from "@/lib/geo/kenya";
+import { useSnappedCity } from "@/lib/nairobi/use-near-area";
 
 export default function SavedPage() {
+  const citySlug = useSnappedCity();
   const saved = useLocalIds(subscribeFavorites, favoritesSnapshot);
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
   const hidden = new Set(blocked);
-  const byId = new Map(nairobiProfiles().filter(hasApprovedCover).map((p) => [p.id, p]));
+  const byId = new Map(PROFILES.filter(hasApprovedCover).map((p) => [p.id, p]));
   const items = hideBlocked(
     saved.map((id) => byId.get(id)).filter((p): p is NonNullable<typeof p> => Boolean(p)),
     hidden,
@@ -27,7 +31,7 @@ export default function SavedPage() {
       <p className="mt-2 text-sm text-muted">People you want to come back to.</p>
 
       {items.length === 0 ? (
-        <p className="mt-10 text-sm text-muted">Nothing saved yet.</p>
+        <p className="mt-10 text-sm text-muted">{emptySavedLine(cityNameBySlug(citySlug))}</p>
       ) : (
         <div className="mt-8 grid grid-cols-2 gap-3">
           {items.map((profile) => (
@@ -48,6 +52,7 @@ export default function SavedPage() {
       <Link href="/discover" className="mt-8 inline-block">
         <Button variant="gold">Discover</Button>
       </Link>
+      {items.length === 0 ? <EmptyCityLoop citySlug={citySlug} /> : null}
     </div>
   );
 }

@@ -56,7 +56,7 @@ export default function ModerationPage() {
                     {item.profileName} · {item.area}
                   </p>
                   <p className="mt-1 text-sm text-muted">
-                    {item.flagged ? "Scan flagged" : "New upload"} · Nairobi
+                    {item.flagged ? "Scan flagged" : "New upload"} · {item.city || item.area}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Button size="sm" variant="gold" onClick={() => void decide(item, "approve")}>

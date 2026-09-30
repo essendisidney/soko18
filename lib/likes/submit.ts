@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { currentUser } from "@/lib/auth/user";
-import { nairobiProfiles } from "@/lib/data/seed";
+import { seedProfile } from "@/lib/data/seed";
 import { applyLike, orderedPair } from "@/lib/likes/engine";
 import { SEED_INBOUND_IDS, seedAccountId, UUID } from "@/lib/likes/ids";
 import { readLikeState, writeLikeState } from "@/lib/likes/state";
@@ -43,7 +43,7 @@ export async function submitLike(input: unknown): Promise<LikeResult> {
   }
 
   const { profileId, kind } = parsed.data;
-  const seed = nairobiProfiles().find((p) => p.id === profileId || p.slug === profileId);
+  const seed = seedProfile(profileId);
 
   if (seed) {
     const state = await readLikeState(user.id);

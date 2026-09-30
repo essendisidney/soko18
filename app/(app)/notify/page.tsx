@@ -5,9 +5,13 @@ import { X } from "lucide-react";
 import { Button } from "@/components/soko/button";
 import { dropSearchNotify, notifyLabel, searchNotifySnapshot, subscribeSearchNotify } from "@/lib/browse/search-notify";
 import { dropWaitlist, subscribeWaitlist, waitlistSnapshot } from "@/lib/browse/waitlist";
+import { EmptyCityLoop } from "@/components/city/city-door";
+import { cityNameBySlug, emptyNotifyLine } from "@/lib/geo/kenya";
+import { useSnappedCity } from "@/lib/nairobi/use-near-area";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 
 export default function NotifyPage() {
+  const citySlug = useSnappedCity();
   const searches = useLocalIds(subscribeSearchNotify, searchNotifySnapshot);
   const cities = useLocalIds(subscribeWaitlist, waitlistSnapshot).map((slug) => `city:${slug}`);
   const items = [...cities, ...searches];
@@ -18,7 +22,7 @@ export default function NotifyPage() {
       <p className="mt-2 text-sm text-muted">On this device. No invented people.</p>
 
       {items.length === 0 ? (
-        <p className="mt-10 text-sm text-muted">Nothing waiting.</p>
+        <p className="mt-10 text-sm text-muted">{emptyNotifyLine(cityNameBySlug(citySlug))}</p>
       ) : (
         <ul className="mt-8 overflow-hidden rounded-3xl border border-line">
           {items.map((key) => (
@@ -45,6 +49,7 @@ export default function NotifyPage() {
       <Link href="/discover" className="mt-8 inline-block">
         <Button variant="gold">Discover</Button>
       </Link>
+      {items.length === 0 ? <EmptyCityLoop citySlug={citySlug} /> : null}
     </div>
   );
 }
