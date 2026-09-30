@@ -25,6 +25,7 @@ export type SeedProfile = {
   presence: Presence;
   bio: string;
   lookingFor?: LookingFor;
+  prompts?: { q: string; a: string }[];
   photos: string[];
   verification: Verification;
   featured?: boolean;

@@ -255,7 +255,7 @@ grant select on table public.products to anon, authenticated;
 insert into public.products (sku, title, line, amount_kes, kind, plan, days, quantity, bonus_super_likes, bonus_boosts, sort_order) values
   ('gold_week',       'Gold · 7 days',      'Unlimited likes, see who likes you, 3 Super Likes.',         149, 'plan',       'gold',     7,  1, 3,  0, 10),
   ('gold_month',      'Gold · 30 days',     'Unlimited likes, see who likes you, 5 Super Likes.',              499, 'plan',       'gold',     30, 1, 5,  0, 20),
-  ('platinum_month',  'Platinum · 30 days', 'Gold, plus Incognito, a free Boost and 10 Super Likes.', 999, 'plan',       'platinum', 30, 1, 10, 1, 30),
+  ('platinum_month',  'Platinum · 30 days', 'Gold, plus message before matching, Incognito, a free Boost and 10 Super Likes.', 999, 'plan',       'platinum', 30, 1, 10, 1, 30),
   ('boost_1',         'Boost',              'Top of the deck in your area for 30 minutes.',                    99,  'boost',      null,       null, 1, 0, 0, 40),
   ('boost_5',         '5 Boosts',           'Five 30-minute Boosts. Use them any time.',                       399, 'boost',      null,       null, 5, 0, 0, 50),
   ('super_1',         'Super Like',         'They see you liked them before they swipe.',                      49,  'super_like', null,       null, 1, 0, 0, 60),

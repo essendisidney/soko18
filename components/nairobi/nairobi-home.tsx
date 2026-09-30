@@ -31,6 +31,7 @@ import { tonightAreaNames } from "@/lib/nairobi/tonight";
 import { readImpressions } from "@/lib/discovery/impressions";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { cn } from "@/lib/utils";
+import { useBrowse } from "@/lib/browse/use-browse";
 
 export function NairobiHome({
   showChrome = false,
@@ -52,8 +53,10 @@ export function NairobiHome({
   const live = activeNow();
   const inventory = nairobiInventoryLine();
   const dense = Boolean(inventory);
-  const featured = hideBlocked(searchNairobi("").filter((p) => p.featured), hidden);
-  const grid = hideBlocked(q ? searchNairobi(q) : filterNairobi(facet, near), hidden);
+  const liveGrid = useBrowse("nairobi", q, facet);
+  const liveFeatured = useBrowse("nairobi", "", "featured");
+  const featured = hideBlocked(liveFeatured ?? searchNairobi("").filter((p) => p.featured), hidden);
+  const grid = hideBlocked(liveGrid ?? (q ? searchNairobi(q) : filterNairobi(facet, near)), hidden);
 
   useEffect(() => {
     writeCity("nairobi");

@@ -16,6 +16,8 @@ export type RankContext = {
   impressedIds?: string[];
   excludeIds?: string[];
   reportCounts?: Record<string, number>;
+  minAge?: number;
+  maxAge?: number;
 };
 
 function clamp01(n: number) {
@@ -113,6 +115,7 @@ export function rankProfiles(profiles: SeedProfile[], ctx: RankContext = {}) {
   const ranked = profiles
     .filter((p) => !exclude.has(p.id) && hasApprovedCover(p))
     .filter((p) => gender === "any" || p.gender === gender)
+    .filter((p) => (ctx.minAge == null || p.age >= ctx.minAge) && (ctx.maxAge == null || p.age <= ctx.maxAge))
     .filter((p) => !hideFromPublic(ctx.reportCounts?.[p.id] ?? 0))
     .map((profile) => ({ profile, score: rankScore(profile, ctx) }))
     .sort((a, b) => b.score - a.score || a.profile.slug.localeCompare(b.profile.slug))

@@ -14,6 +14,7 @@ import { writeLocalDraft } from "@/lib/profile/local";
 import { uniqueProfileSlug } from "@/lib/profile/slug";
 import type { OwnerProfileStatus, ProfileDraft } from "@/lib/profile/types";
 import { INTENTS } from "@/lib/data/nairobi";
+import { MAX_PROMPT_ANSWER, MAX_PROMPTS, PROMPT_QUESTIONS } from "@/lib/profile/prompts";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 import { PhotoUploader } from "@/components/studio/photo-uploader";
 
@@ -32,6 +33,7 @@ type Fields = {
   bio: string;
   gender: ProfileDraft["gender"];
   lookingFor: ProfileDraft["lookingFor"];
+  prompts: { q: string; a: string }[];
   indexPublic: boolean;
 };
 
@@ -59,6 +61,7 @@ export function ProfileEditor() {
   const bio = fields?.bio ?? stored?.bio ?? "";
   const gender = fields?.gender ?? stored?.gender ?? null;
   const lookingFor = fields?.lookingFor ?? stored?.lookingFor ?? null;
+  const prompts = fields?.prompts ?? stored?.prompts ?? [];
   const indexPublic = fields?.indexPublic ?? stored?.indexPublic ?? false;
   const status = stored?.status ?? "draft";
 
@@ -70,6 +73,7 @@ export function ProfileEditor() {
       bio,
       gender,
       lookingFor,
+      prompts,
       indexPublic,
       ...next,
     });
@@ -102,6 +106,7 @@ export function ProfileEditor() {
       bio,
       gender,
       lookingFor,
+      prompts,
       indexPublic,
       status: nextStatus,
     });
@@ -193,6 +198,44 @@ export function ProfileEditor() {
             className="mt-2 w-full rounded-3xl border border-line bg-glass px-4 py-3 text-sm outline-none"
           />
         </label>
+
+        <div>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Prompts</span>
+          <p className="mt-1 text-xs text-muted">Answer up to {MAX_PROMPTS}. They give people something to message you about.</p>
+          {Array.from({ length: MAX_PROMPTS }).map((_, index) => {
+            const current = prompts[index] ?? { q: "", a: "" };
+            const update = (next: { q: string; a: string }) => {
+              const list = [...prompts];
+              list[index] = next;
+              patch({ prompts: list.filter((p, i) => i <= Math.max(index, list.length - 1) && (p.q || p.a)) });
+            };
+            return (
+              <div key={index} className="mt-3 rounded-3xl border border-line p-3">
+                <select
+                  value={current.q}
+                  onChange={(e) => update({ ...current, q: e.target.value })}
+                  className="h-10 w-full rounded-full border border-line bg-glass px-3 text-sm outline-none [color-scheme:dark]"
+                >
+                  <option value="">Choose a prompt</option>
+                  {PROMPT_QUESTIONS.map((q) => (
+                    <option key={q} value={q}>
+                      {q}
+                    </option>
+                  ))}
+                </select>
+                {current.q ? (
+                  <textarea
+                    value={current.a}
+                    onChange={(e) => update({ ...current, a: e.target.value })}
+                    maxLength={MAX_PROMPT_ANSWER}
+                    rows={2}
+                    className="mt-2 w-full rounded-2xl border border-line bg-glass px-3 py-2 text-sm outline-none"
+                  />
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
 
         <div>
           <span className="text-[11px] tracking-[0.18em] text-muted uppercase">I am</span>

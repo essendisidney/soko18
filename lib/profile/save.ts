@@ -3,6 +3,7 @@ import { rejectPaidFlags } from "@/lib/payments/flags";
 import { profileInputSchema, rejectSelfPublish } from "@/lib/profile/schema";
 import { uniqueProfileSlug } from "@/lib/profile/slug";
 import { looksLikePaidService, PAID_SERVICE_MESSAGE } from "@/lib/safety/paid-services";
+import { cleanPrompts } from "@/lib/profile/prompts";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -36,7 +37,8 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
   }
 
   const value = parsed.data;
-  if (looksLikePaidService(`${value.displayName} ${value.bio ?? ""}`)) {
+  const prompts = cleanPrompts(value.prompts);
+  if (looksLikePaidService(`${value.displayName} ${value.bio ?? ""} ${prompts.map((p) => p.a).join(" ")}`)) {
     return { ok: false, error: { code: "paid_services", message: PAID_SERVICE_MESSAGE }, status: 422 };
   }
   const draft: ProfileDraft = {
@@ -49,6 +51,7 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
     bio: value.bio ?? "",
     gender: value.gender ?? null,
     lookingFor: value.lookingFor ?? null,
+    prompts,
     indexPublic: value.indexPublic,
     status: value.status,
     updatedAt: new Date().toISOString(),
@@ -103,6 +106,7 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
     bio: draft.bio || null,
     gender: draft.gender,
     looking_for: draft.lookingFor,
+    prompts: draft.prompts ?? [],
     status: draft.status,
   };
 

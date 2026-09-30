@@ -20,6 +20,8 @@ import { clearPendingEngage, readPendingEngage, writePendingEngage } from "@/lib
 import { postLike } from "@/lib/likes/client";
 import { engageProfile, type LikeUpsell } from "@/lib/likes/engage";
 import Link from "next/link";
+import { FiltersSheet } from "@/components/discover/filters-sheet";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { parseIdList } from "@/lib/safety/local-ids";
 import { useHiddenByReports } from "@/lib/reports/use-hidden";
@@ -43,7 +45,10 @@ export function DiscoverDeck({
   const { user, ready } = useAuth();
   const [feed, setFeed] = useState(initial);
   const [match, setMatch] = useState<SeedProfile | null>(null);
-  const [upsell, setUpsell] = useState<LikeUpsell | null>(null);
+  const [upsell, setUpsell] = useState<LikeUpsell | { code: "gold_required"; message: string } | null>(null);
+  const [filters, setFilters] = useState(false);
+  const [filtersVersion, setFiltersVersion] = useState(0);
+  const [plan, setPlan] = useState<string | null | undefined>(undefined);
   const [gate, setGate] = useState<AuthIntent | null>(null);
   const [ghost, setGhost] = useState(false);
   const [clock, setClock] = useState(0);
@@ -78,7 +83,15 @@ export function DiscoverDeck({
         if (json.data?.items) setFeed(json.data.items);
       })
       .catch(() => {});
-  }, [near, intents, citySlug]);
+  }, [near, intents, citySlug, filtersVersion]);
+
+  useEffect(() => {
+    if (!user || !isSupabaseConfigured()) return;
+    void fetch("/api/me/entitlements")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json: { data?: { plan: string | null } } | null) => setPlan(json?.data?.plan ?? null))
+      .catch(() => setPlan(null));
+  }, [user]);
 
   const raw = useSyncExternalStore(subscribeDiscoverActions, actionsSnapshot, () => null);
   const blockedRaw = useSyncExternalStore(subscribeBlocks, blocksSnapshot, () => null);
@@ -134,19 +147,30 @@ export function DiscoverDeck({
       {ghost ? <p className="mt-2 px-1 text-xs text-gold">You’re invisible</p> : null}
       <HereNowButton compact />
       <div className="mt-2 flex items-center justify-between px-1 text-xs">
+        <button type="button" className="text-muted" onClick={() => setFilters((open) => !open)}>
+          Filters
+        </button>
         <Link href="/likes" className="text-muted">
-          See who likes you
+          Likes you
         </Link>
         <Link href="/upgrade" className="text-gold">
           Boost · Gold
         </Link>
       </div>
+      {filters ? (
+        <FiltersSheet
+          onClose={() => {
+            setFilters(false);
+            setFiltersVersion((n) => n + 1);
+          }}
+        />
+      ) : null}
       {upsell ? (
         <div className="glass mt-3 rounded-2xl p-4 text-sm">
           <p>{upsell.message}</p>
           <div className="mt-3 flex gap-3">
             <Link href="/upgrade" className="text-gold">
-              {upsell.code === "like_limit" ? "Get Gold · from KES 149" : "Get Super Likes"}
+              {upsell.code === "no_super_likes" ? "Get Super Likes" : "Get Gold · from KES 149"}
             </Link>
             <button type="button" className="text-muted" onClick={() => setUpsell(null)}>
               Not now
@@ -174,6 +198,12 @@ export function DiscoverDeck({
           }
           notifyCity={catalogForCity(citySlug || "nairobi").length === 0 ? citySlug || null : null}
           onUndo={() => {
+            // Rewind is Gold for signed-in members; guests keep the local undo.
+            if (user && isSupabaseConfigured() && !plan) {
+              setUpsell({ code: "gold_required", message: "Rewind your last pass with Gold." });
+              return null;
+            }
+            if (user && isSupabaseConfigured()) void fetch("/api/likes/rewind", { method: "POST" });
             const id = undoLastPass();
             if (!id) return null;
             setFeed((current) => {

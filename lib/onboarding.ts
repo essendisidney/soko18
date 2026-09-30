@@ -3,6 +3,7 @@ export const ONBOARDING = {
   city: "soko18_city",
   intent: "soko18_intent",
   showMe: "soko18_show_me",
+  ageRange: "soko18_age_range",
   done: "soko18_onboarded",
   visits: "soko18_visits",
   welcomeSeen: "soko18_welcome_seen",
@@ -86,4 +87,29 @@ export function showMeSnapshot() {
 export function writeShowMe(value: ShowMe) {
   localStorage.setItem(ONBOARDING.showMe, value);
   intentListeners.forEach((listen) => listen());
+}
+
+export type AgeRange = { min: number; max: number };
+export const DEFAULT_AGE_RANGE: AgeRange = { min: 18, max: 60 };
+
+export function readAgeRange(): AgeRange {
+  if (typeof window === "undefined") return DEFAULT_AGE_RANGE;
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ONBOARDING.ageRange) ?? "null") as AgeRange | null;
+    if (!parsed) return DEFAULT_AGE_RANGE;
+    const min = Math.max(18, Math.min(99, Math.round(parsed.min)));
+    const max = Math.max(min, Math.min(99, Math.round(parsed.max)));
+    return { min, max };
+  } catch {
+    return DEFAULT_AGE_RANGE;
+  }
+}
+
+export function writeAgeRange(range: AgeRange) {
+  localStorage.setItem(ONBOARDING.ageRange, JSON.stringify(range));
+  intentListeners.forEach((listen) => listen());
+}
+
+export function ageRangeSnapshot() {
+  return localStorage.getItem(ONBOARDING.ageRange);
 }

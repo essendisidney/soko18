@@ -14,6 +14,11 @@ export const profileInputSchema = z
     bio: z.string().trim().max(280).optional().default(""),
     gender: z.enum(["man", "woman", "nonbinary"]).nullable().optional().default(null),
     lookingFor: z.enum(["relationship", "casual", "friends", "unsure"]).nullable().optional().default(null),
+    prompts: z
+      .array(z.object({ q: z.string().trim().min(1).max(80), a: z.string().trim().max(150) }))
+      .max(3)
+      .optional()
+      .default([]),
     indexPublic: z.boolean().optional().default(false),
     status: z.enum(OWNER_PROFILE_STATUSES).optional().default("draft"),
   })

@@ -24,6 +24,8 @@ export function getDiscoverFeed(
     impressedIds: ctx.impressedIds ?? [],
     excludeIds: ctx.excludeIds ?? [],
     reportCounts: ctx.reportCounts,
+    minAge: ctx.minAge,
+    maxAge: ctx.maxAge,
   });
   const visible = filterGhosts(ranked, seedIncognitoIds(pool), ctx.likedYouIds ?? SEED_INBOUND_IDS);
   const items = visible.slice(cursor, cursor + limit);

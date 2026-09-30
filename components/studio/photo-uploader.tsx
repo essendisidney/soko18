@@ -7,6 +7,8 @@ import { putMediaBlob } from "@/lib/media/blobs";
 import { upsertMedia } from "@/lib/media/store";
 import { useMediaQueue } from "@/lib/media/use-queue";
 import type { MediaItem } from "@/lib/media/types";
+import { useAuth } from "@/lib/auth/use-auth";
+import { RemotePhotos } from "@/components/studio/remote-photos";
 
 const MAX = 6;
 
@@ -21,6 +23,7 @@ export function PhotoUploader({
   area: string;
   city?: string;
 }) {
+  const { user, configured } = useAuth();
   const items = useMediaQueue().filter((item) => item.profileId === profileId);
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -87,6 +90,8 @@ export function PhotoUploader({
     upsertMedia(item);
     setNote("In review. Not public.");
   }
+
+  if (configured && user) return <RemotePhotos userId={user.id} />;
 
   return (
     <div>

@@ -12,6 +12,7 @@ export type ProfileDraft = {
   bio: string;
   gender: "man" | "woman" | "nonbinary" | null;
   lookingFor: "relationship" | "casual" | "friends" | "unsure" | null;
+  prompts?: { q: string; a: string }[];
   indexPublic: boolean;
   status: OwnerProfileStatus;
   updatedAt: string;

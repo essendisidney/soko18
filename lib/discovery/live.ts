@@ -1,5 +1,6 @@
 import { DEMO_SEED_ENABLED } from "@/lib/data/seed";
 import { getDiscoverFeed } from "@/lib/discovery/feed";
+import { browseFeed } from "@/lib/browse/feed";
 import { rankProfiles } from "@/lib/discovery/rank";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -103,11 +104,15 @@ export async function liveProfileBySlug(slug: string) {
   if (!data) return null;
   const row = data as CardRow;
   const [{ data: bioRow }, covers] = await Promise.all([
-    supabase.from("profiles").select("bio").eq("id", row.id).maybeSingle(),
+    supabase.from("profiles").select("bio, prompts").eq("id", row.id).maybeSingle(),
     signCovers(row.cover_path ? [row.cover_path] : []),
   ]);
   const profile = toProfile(row, row.cover_path ? covers.get(row.cover_path) : undefined, Date.now());
-  return { ...profile, bio: (bioRow?.bio as string | null) ?? "" };
+  return {
+    ...profile,
+    bio: (bioRow?.bio as string | null) ?? "",
+    prompts: (bioRow?.prompts as { q: string; a: string }[] | null) ?? [],
+  };
 }
 
 /**
@@ -125,6 +130,8 @@ export async function discoverFeedLive(
     intents: ctx.intents ?? [],
     impressedIds: ctx.impressedIds ?? [],
     excludeIds: ctx.excludeIds ?? [],
+    minAge: ctx.minAge,
+    maxAge: ctx.maxAge,
   });
   const seed = showSeedProfiles() ? getDiscoverFeed({ ...ctx, cursor: 0, limit: 200 }).items : [];
   const all = [...ranked, ...seed];
@@ -133,4 +140,44 @@ export async function discoverFeedLive(
   const items = all.slice(cursor, cursor + limit);
   const next = cursor + items.length;
   return { items, nextCursor: next < all.length ? next : null };
+}
+
+/** Browse grid / search for any city: real members first, demo profiles only when allowed. */
+export async function browseLive(input: {
+  city: string;
+  q?: string;
+  facet?: string;
+  cursor?: number;
+  limit?: number;
+  gender?: "man" | "woman" | "any";
+}) {
+  const q = (input.q ?? "").trim().toLowerCase();
+  let live = await liveProfiles({ citySlug: input.city, gender: input.gender ?? "any", limit: 120 });
+  if (q) live = live.filter((p) => `${p.name} ${p.area}`.toLowerCase().includes(q));
+  if (input.facet === "featured") live = live.filter((p) => p.featured);
+  if (input.facet === "verified") live = live.filter((p) => p.verified);
+  const seed = showSeedProfiles()
+    ? browseFeed({ city: input.city, q: input.q, facet: input.facet as never, cursor: 0, limit: 200 }).items
+    : [];
+  const all = [...live, ...seed];
+  const limit = input.limit ?? 16;
+  const cursor = input.cursor ?? 0;
+  const items = all.slice(cursor, cursor + limit);
+  const next = cursor + items.length;
+  return { items, nextCursor: next < all.length ? next : null, live: true, waitlist: false };
+}
+
+/** Cover photo links for a set of live profile ids (for Likes You and similar grids). */
+export async function coversFor(profileIds: string[]) {
+  if (!isSupabaseConfigured() || profileIds.length === 0) return new Map<string, string>();
+  const supabase = await createClient();
+  const { data } = await supabase.from("live_profile_cards").select("id, cover_path").in("id", profileIds);
+  const rows = (data ?? []) as { id: string; cover_path: string | null }[];
+  const signed = await signCovers(rows.map((r) => r.cover_path).filter((p): p is string => Boolean(p)));
+  const out = new Map<string, string>();
+  for (const row of rows) {
+    const url = row.cover_path ? signed.get(row.cover_path) : undefined;
+    if (url) out.set(row.id, url);
+  }
+  return out;
 }

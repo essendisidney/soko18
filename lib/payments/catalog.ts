@@ -48,7 +48,7 @@ export const PRODUCTS = {
   platinum_month: {
     sku: "platinum_month",
     title: "Platinum · 30 days",
-    line: "Gold, plus Incognito, a free Boost and 10 Super Likes.",
+    line: "Gold, plus message before matching, Incognito, a free Boost and 10 Super Likes.",
     amountKes: 999,
     kind: "plan",
     plan: "platinum",
@@ -122,8 +122,8 @@ export function ledgerPurpose(product: Product) {
 /** What each plan unlocks. Used on the upgrade screen. */
 export const PLAN_FEATURES: Record<"free" | PlanTier, readonly string[]> = {
   free: [`${FREE_DAILY_LIKES} likes a day`, "Matches and chat", "ID verification and safety tools"],
-  gold: ["Unlimited likes", "See who likes you", "Super Likes included"],
-  platinum: ["Everything in Gold", "Incognito included", "A free Boost", "10 Super Likes"],
+  gold: ["Unlimited likes", "See who likes you", "Rewind your last pass", "Super Likes included"],
+  platinum: ["Everything in Gold", "Message before you match (5 a day)", "Incognito included", "A free Boost", "10 Super Likes"],
 };
 
 /**

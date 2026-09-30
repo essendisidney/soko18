@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { SearchNotifyButton } from "@/components/nairobi/search-notify";
 import { emptySearchLine, searchCity } from "@/lib/browse/feed";
+import { useBrowse } from "@/lib/browse/use-browse";
+import { ProfileCard } from "@/components/soko/profile-card";
 import { areaBrowseHref, areasForCity, cityHomeHref, cityNameBySlug, kenyaDoorCities } from "@/lib/geo/kenya";
 import { cityPlaceLine } from "@/lib/nairobi/live";
 import { nearAreaSnapshot, subscribeNearArea } from "@/lib/nairobi/near";
@@ -19,7 +21,8 @@ export function CitySearch({
 }) {
   const [q, setQ] = useState("");
   const searching = Boolean(q.trim());
-  const matches = searching ? searchCity(citySlug, q) : [];
+  const live = useBrowse(citySlug, q, "trending");
+  const matches = searching ? (live ?? searchCity(citySlug, q)) : [];
 
   return (
     <>
@@ -32,6 +35,13 @@ export function CitySearch({
           className="w-full bg-transparent text-sm outline-none placeholder:text-muted"
         />
       </label>
+      {searching && matches.length > 0 ? (
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          {matches.map((profile) => (
+            <ProfileCard key={profile.id} profile={profile} compact href={`/profile/${profile.slug}`} />
+          ))}
+        </div>
+      ) : null}
       {searching && matches.length === 0 ? (
         <div className="mt-4">
           <p className="text-sm text-muted">{emptySearchLine(cityName)}</p>

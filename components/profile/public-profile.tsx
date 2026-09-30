@@ -1,6 +1,7 @@
 "use client";
 
 import { INTENTS } from "@/lib/data/nairobi";
+import { SendIntro } from "@/components/profile/send-intro";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -147,11 +148,19 @@ export function PublicProfile({
             </Button>
           </div>
         )}
+        {!matched && user ? <SendIntro profileId={profile.id} name={profile.name} /> : null}
 
         <section className="mt-10">
           <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">About</h2>
           <p className="mt-3 text-[17px] leading-relaxed text-cream/90">{profile.bio}</p>
         </section>
+
+        {(profile.prompts ?? []).map((prompt) => (
+          <section key={prompt.q} className="glass mt-6 rounded-3xl p-5">
+            <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">{prompt.q}</h2>
+            <p className="mt-2 font-display text-xl leading-snug">{prompt.a}</p>
+          </section>
+        ))}
 
         {profile.lookingFor ? (
           <section className="mt-10">

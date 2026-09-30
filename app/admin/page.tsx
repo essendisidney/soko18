@@ -5,7 +5,8 @@ import { getAdminOverview } from "@/lib/admin/overview";
 export const dynamic = "force-dynamic";
 
 const links = [
-  { href: "/admin/moderation", label: "Moderation" },
+  { href: "/admin/queue", label: "Review queue" },
+  { href: "/admin/moderation", label: "Moderation (local)" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/profiles", label: "Profiles" },
   { href: "/admin/payments", label: "Payments" },

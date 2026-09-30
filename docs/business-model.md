@@ -4,7 +4,7 @@ See `docs/PIVOT.md` for the price list. Short version:
 
 - **Freemium dating app.** Free gets you in the door (30 likes a day, matches, chat, safety).
 - **Gold** (KES 149 / week, 499 / month) — unlimited likes, see who likes you, Super Likes.
-- **Platinum** (KES 999 / month) — Gold plus Incognito, a Boost and 10 Super Likes.
+- **Platinum** (KES 999 / month) — Gold plus message before matching, Incognito, a Boost and 10 Super Likes.
 - **Consumables** — Boost KES 99 (5 for 399), Super Like KES 49 (5 for 199), Incognito KES 299 / month.
 - **M-Pesa STK only.** Weekly plans matter: people buy in small amounts, like data bundles.
 - Plans don't auto-renew. Remind people before expiry instead (push / SMS later).

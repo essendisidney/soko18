@@ -6,6 +6,7 @@ import { AuthGate } from "@/components/auth/auth-gate";
 import { useAuth } from "@/lib/auth/use-auth";
 import { readIdentityState, writeIdentityState } from "@/lib/trust/identity-local";
 import type { IdentityState } from "@/lib/trust/both-sides";
+import { SelfieVerify } from "@/components/trust/selfie-verify";
 
 const lines: Record<IdentityState, string> = {
   none: "Staff review a photo of your ID. Do not type the number here.",
@@ -50,6 +51,8 @@ export function IdentitySubmit() {
     setStatus("pending");
     setNote("Queued for staff. They will ask for a private photo.");
   }
+
+  if (configured && user) return <SelfieVerify userId={user.id} />;
 
   return (
     <section className="mt-10">

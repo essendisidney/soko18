@@ -2,6 +2,7 @@ import { currentUser } from "@/lib/auth/user";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import type { PlanTier } from "@/lib/payments/catalog";
+import { coversFor } from "@/lib/discovery/live";
 
 export type Entitlements = {
   plan: PlanTier | null;
@@ -71,12 +72,14 @@ export async function likedMe() {
   if (error || !data) {
     return { ok: false as const, status: 500, error: { code: "unavailable", message: "Could not load likes." } };
   }
-  return {
-    ok: true as const,
-    data: data as {
-      count: number;
-      locked: boolean;
-      people: { profileId: string; slug: string; name: string; super: boolean; at: string }[] | null;
-    },
+  const result = data as {
+    count: number;
+    locked: boolean;
+    people: { profileId: string; slug: string; name: string; super: boolean; at: string; photo?: string | null }[] | null;
   };
+  if (result.people?.length) {
+    const covers = await coversFor(result.people.map((p) => p.profileId));
+    result.people = result.people.map((p) => ({ ...p, photo: covers.get(p.profileId) ?? null }));
+  }
+  return { ok: true as const, data: result };
 }

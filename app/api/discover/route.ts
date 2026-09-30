@@ -14,7 +14,13 @@ export async function GET(request: Request) {
   const excludeIds = (searchParams.get("exclude") ?? "").split(",").filter(Boolean);
   const impressedIds = (searchParams.get("seen") ?? "").split(",").filter(Boolean);
 
+  const ageParam = (key: string) => {
+    const value = Number(searchParams.get(key));
+    return Number.isFinite(value) && value >= 18 && value <= 99 ? value : undefined;
+  };
   const feed = await discoverFeedLive({
+    minAge: ageParam("minAge"),
+    maxAge: ageParam("maxAge"),
     citySlug: city,
     nearArea: near,
     gender,
