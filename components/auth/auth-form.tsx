@@ -65,7 +65,6 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const heading = mode === "signup" ? "Create account" : "Sign in";
   const altHref = mode === "signup" ? `/login?next=${encodeURIComponent(next)}` : `/signup?next=${encodeURIComponent(next)}`;
   const altLabel = mode === "signup" ? "Already have an account? Sign in" : "New here? Create an account";
-  const discoverPrimary = status === "sent" || status === "offline" || !configured;
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center bg-bg px-6">
@@ -76,7 +75,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       {status === "sent" ? (
         <p className="mt-8 text-sm leading-relaxed text-cream/90">
-          Check your email. The link signs you in — we don’t keep a password here.
+          Check your email and tap the link to sign in. It can take a minute — check spam too.
         </p>
       ) : (
         <form onSubmit={onSubmit} className="mt-8 space-y-3">
@@ -98,15 +97,16 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             autoComplete="email"
             className="h-12 w-full rounded-full border border-line bg-glass px-4 text-sm outline-none"
           />
-          <Button className="w-full" variant={discoverPrimary ? "ghost" : "gold"} disabled={busy}>
-            {busy ? "Sending…" : "Continue"}
+          <Button className="w-full" variant="gold" disabled={busy}>
+            {busy ? "Sending…" : mode === "signup" ? "Create account" : "Email me a sign-in link"}
           </Button>
+          <p className="text-center text-xs text-muted">No password. We email you a one-tap link.</p>
         </form>
       )}
 
       {status === "offline" ? (
         <p className="mt-6 text-sm leading-relaxed text-muted">
-          Accounts open when the backend is connected. Keep discovering as a guest.
+          Sign-up isn’t open yet. You can keep browsing as a guest.
         </p>
       ) : null}
       {status === "error" ? <p className="mt-6 text-sm text-danger">{message}</p> : null}
@@ -114,31 +114,15 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <p className="mt-6 text-sm text-danger">That sign-in link didn’t work. Try again.</p>
       ) : null}
 
-      <p className="mt-6 text-xs leading-relaxed text-muted">
-        Phone verification lands with the live backend.
-      </p>
 
       {status !== "sent" ? (
         <Link href={altHref} className="mt-6 text-sm text-muted">
           {altLabel}
         </Link>
       ) : null}
-      {discoverPrimary ? (
-        <Link href="/discover" className="mt-8 block">
-          <Button variant="gold" className="w-full">
-            Discover
-          </Button>
-        </Link>
-      ) : (
-        <Link href="/discover" className="mt-4 text-sm text-muted">
-          Discover
-        </Link>
-      )}
-      {status !== "sent" ? (
-        <Link href={next} className="mt-5 text-sm text-muted" onClick={() => clearPendingEngage()}>
-          Not now
-        </Link>
-      ) : null}
+      <Link href={status === "sent" ? "/discover" : next} className="mt-6 text-sm text-muted" onClick={() => clearPendingEngage()}>
+        {status === "sent" ? "Keep browsing while you wait" : "Not now, keep browsing"}
+      </Link>
       <p className="mt-8 text-xs leading-relaxed text-muted">
         18+ only.{" "}
         <Link href="/terms" className="text-cream/70">

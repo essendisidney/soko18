@@ -32,7 +32,7 @@ export function DiscretionTools() {
     writeContactHashes(next);
     setCount(next.length);
     setPhone("");
-    setNote("Saved as a hash. The number is not stored.");
+    setNote("Blocked.");
   }
 
   async function uploadContacts() {
@@ -54,7 +54,7 @@ export function DiscretionTools() {
       }
       writeContactHashes(hashes);
       setCount(readContactHashes().length);
-      setNote("Contacts hashed on this device.");
+      setNote("Contacts blocked.");
     } catch {
       setNote("Contacts were not shared.");
     }
@@ -94,12 +94,12 @@ export function DiscretionTools() {
       </div>
 
       <div>
-        <h2 className="text-sm text-muted">Hide numbers</h2>
+        <h2 className="text-sm text-muted">Block contacts</h2>
         <p className="mt-2 text-sm text-muted">
-          Your people will not see you here. We store hashes only. {count} blocked.
+          People you block won’t see you and you won’t see them. We keep a scrambled code, never the number. {count} blocked.
         </p>
         <label className="mt-4 block">
-          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Phone to never see</span>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Phone number</span>
           <input
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -111,12 +111,12 @@ export function DiscretionTools() {
           Block number
         </Button>
         <Button className="mt-3 w-full" variant="ghost" onClick={() => void uploadContacts()}>
-          Hash my contacts
+          Choose from my contacts
         </Button>
       </div>
 
       <div>
-        <h2 className="text-sm text-muted">Stay private</h2>
+        <h2 className="text-sm text-muted">Dating safely</h2>
         <ul className="mt-2 space-y-1.5 text-sm text-muted">
           <li>A first name or nickname is enough.</li>
           <li>Keep your workplace and surname off your profile until you trust someone.</li>

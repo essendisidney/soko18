@@ -17,11 +17,14 @@ export function PhotoUploader({
   profileName,
   area,
   city,
+  ensureProfile,
 }: {
   profileId?: string;
   profileName: string;
   area: string;
   city?: string;
+  /** Saves a draft if needed so photos can be added before anything else. */
+  ensureProfile?: () => Promise<boolean>;
 }) {
   const { user, configured } = useAuth();
   const items = useMediaQueue().filter((item) => item.profileId === profileId);
@@ -30,8 +33,10 @@ export function PhotoUploader({
   const [note, setNote] = useState("");
 
   async function onFiles(list: FileList | null) {
-    if (!profileId || !list?.length) {
-      setNote("Save the draft first.");
+    if (!list?.length) return;
+    if (!profileId) {
+      setNote("Saving your profile first — tap Add photo again.");
+      await ensureProfile?.();
       return;
     }
     if (items.length >= MAX) {
@@ -91,12 +96,12 @@ export function PhotoUploader({
     setNote("In review. Not public.");
   }
 
-  if (configured && user) return <RemotePhotos userId={user.id} />;
+  if (configured && user) return <RemotePhotos userId={user.id} ensureProfile={ensureProfile} />;
 
   return (
     <div>
       <p className="text-[11px] tracking-[0.18em] text-muted uppercase">Photos</p>
-      <p className="mt-2 text-xs text-muted">Nothing publishes until SOKO18 approves it.</p>
+      <p className="mt-2 text-xs text-muted">Add at least 2. Clear photos of your face get the most matches.</p>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {items.map((item) => (
           <div key={item.id}>
@@ -122,12 +127,9 @@ export function PhotoUploader({
         variant="ghost"
         size="sm"
         className="mt-3"
-        disabled={busy || !profileId || items.length >= MAX}
-        onClick={() => {
-          if (!profileId) {
-            setNote("Save the draft first.");
-            return;
-          }
+        disabled={busy || items.length >= MAX}
+        onClick={async () => {
+          if (!profileId && !(await ensureProfile?.())) return;
           inputRef.current?.click();
         }}
       >

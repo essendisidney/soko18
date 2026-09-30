@@ -6,31 +6,31 @@ test.describe("390px surfaces", () => {
   test("discover", async ({ page }) => {
     await page.goto("/discover");
     await expect(page.getByRole("heading", { name: "Nairobi" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Like" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Like", exact: true })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
   });
 
   test("guest like waits for sign-in then Not now keeps the card", async ({ page }) => {
     await page.goto("/discover");
-    await page.getByRole("button", { name: "Like" }).click();
+    await page.getByRole("button", { name: "Like", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Sign in to like" })).toBeVisible();
     const pending = await page.evaluate(() => sessionStorage.getItem("soko18_pending_engage"));
     expect(pending).toContain("like");
     await page.getByRole("button", { name: "Not now" }).click();
     await expect(page.getByRole("heading", { name: "Sign in to like" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Like" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Like", exact: true })).toBeVisible();
     expect(await page.evaluate(() => sessionStorage.getItem("soko18_pending_engage"))).toBeNull();
   });
 
   test("guest like can return to Discover without dropping the hold", async ({ page }) => {
     await page.goto("/discover");
-    await page.getByRole("button", { name: "Like" }).click();
+    await page.getByRole("button", { name: "Like", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Sign in to like" })).toBeVisible();
     expect(await page.evaluate(() => sessionStorage.getItem("soko18_pending_engage"))).toContain("like");
     await page.getByRole("button", { name: "Discover" }).click();
     await expect(page).toHaveURL(/\/discover/);
     await expect(page.getByRole("heading", { name: "Sign in to like" })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Like" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Like", exact: true })).toBeVisible();
     expect(await page.evaluate(() => sessionStorage.getItem("soko18_pending_engage"))).toContain("like");
   });
 
@@ -38,17 +38,16 @@ test.describe("390px surfaces", () => {
     await page.goto("/nairobi/kilimani");
     await expect(page.getByRole("heading", { name: "Kilimani" })).toBeVisible();
     await page.goto("/discover");
-    await expect(page.getByRole("heading", { name: "Nairobi" })).toBeVisible();
-    await expect(page.getByText(/Kilimani ·/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Nairobi" })).toBeAttached();
+    await expect(page.locator("header").getByText("Kilimani")).toBeVisible();
   });
 
   test("matches empty sends you back to the card", async ({ page }) => {
     await page.goto("/matches");
     await expect(page.getByRole("heading", { name: "Matches" })).toBeVisible();
-    await expect(page.getByText("No matches in Nairobi yet. A like stays quiet until they like you back.")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Discover" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Westlands" })).toBeVisible();
-    await page.getByRole("button", { name: "Discover" }).click();
+    await expect(page.getByText("No matches yet. When someone you liked likes you back, they’ll show up here.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Improve profile" })).toBeVisible();
+    await page.getByRole("button", { name: "Keep swiping" }).click();
     await expect(page).toHaveURL(/\/discover/);
   });
 
@@ -173,12 +172,12 @@ test.describe("390px surfaces", () => {
     await page.goto("/profile/amani-nairobi");
     await expect(page.getByRole("heading", { name: "Amani" })).toBeVisible();
     await expect(page.getByText("SOKO18 Verified")).toBeVisible();
-    await expect(page.getByText("Reviews after a match — two-way, before you continue.")).toBeVisible();
+    
     await expect(page).toHaveTitle(/Amani, 26 · Kilimani, Nairobi/);
     await page.getByRole("button", { name: "View photos" }).click();
     await page.getByRole("button", { name: "Close photos" }).click();
     await expect(page.getByRole("heading", { name: "Amani" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Like" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Like", exact: true })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await expect(page.getByRole("navigation").locator('a[href="/discover"]')).toHaveClass(/text-cream/);
     const jsonLd = page.locator('script[type="application/ld+json"]');
@@ -211,19 +210,15 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("heading", { name: "Local discovery" })).toBeVisible();
   });
 
-  test("me keeps Safety and does not duplicate Nairobi", async ({ page }) => {
+  test("me groups dating and account links", async ({ page }) => {
     await page.goto("/me");
     await expect(page.getByRole("heading", { name: "Me" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Share Nairobi" })).toBeVisible();
-    await page.getByRole("button", { name: "I’m here" }).click();
-    await expect(page.getByText("Kilimani · here now")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Get started" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Likes you", exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "Saved" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Notify me" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Looking for" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Friend pass" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Safety" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "What I’m looking for" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Safety & verification" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Blocked" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Nairobi" })).toHaveCount(0);
     await expect(page.getByRole("navigation").getByText("Browse")).toBeVisible();
   });
 
@@ -238,13 +233,7 @@ test.describe("390px surfaces", () => {
     await expect(page).toHaveURL(/\/discover/);
   });
 
-  test("me shares the last Nairobi area", async ({ page }) => {
-    await page.goto("/nairobi/westlands");
-    await expect(page.getByRole("heading", { name: "Westlands" })).toBeVisible();
-    await page.goto("/me");
-    await expect(page.getByRole("button", { name: "Share Westlands" })).toBeVisible();
-  });
-
+  
   test("opted-out profiles stay off the index", async ({ page }) => {
     await page.goto("/profile/chebet-nairobi");
     await expect(page.getByRole("heading", { name: "Chebet" })).toBeVisible();
@@ -267,11 +256,10 @@ test.describe("390px surfaces", () => {
 
   test("other cities from Me does not restart onboarding", async ({ page }) => {
     await page.goto("/me");
-    await expect(page.getByRole("link", { name: "Other cities" })).toHaveAttribute("href", "/onboarding/city");
     await page.evaluate(() => localStorage.setItem("soko18_onboarded", "1"));
     await page.goto("/onboarding/city");
     await expect(page.getByRole("heading", { name: "SOKO18 is live in Kenya." })).toBeVisible();
-    await expect(page.getByText("Use my area finds men around you. Area-level only. Never a precise location.")).toBeVisible();
+    await expect(page.getByText("Use my area finds singles near you. Area-level only. Never a precise location.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Thika" })).toBeVisible();
     await page.getByRole("button", { name: "Discover Nairobi" }).click();
     await expect(page).toHaveURL(/\/discover/);
@@ -437,7 +425,7 @@ test.describe("390px surfaces", () => {
     await expect(page.getByRole("link", { name: "Kondele" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Nairobi" })).toBeVisible();
     await expect(page.getByRole("link", { name: /Amani/ })).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Like" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Like", exact: true })).toHaveCount(0);
     await page.getByRole("button", { name: "Notify me" }).click();
     await expect(page.getByRole("button", { name: "You’re on the list" })).toBeVisible();
     await page.getByRole("button", { name: "Browse Milimani" }).click();
@@ -528,17 +516,16 @@ test.describe("390px surfaces", () => {
     await page.goto("/profile/nia-nairobi");
     await expect(page.getByRole("heading", { name: "Nia" })).toBeVisible();
     await expect(page.getByText("SOKO18 Verified")).toHaveCount(0);
-    await expect(page.getByText("✓ Phone verified")).toBeVisible();
-    await expect(page.getByText("○ Identity verified")).toHaveCount(0);
-    await expect(page.getByText("○ Profile reviewed")).toBeVisible();
+    await expect(page.getByText("✓ Phone confirmed")).toBeVisible();
+    await expect(page.getByText(/Photo verified/)).toBeVisible();
   });
 
-  test("studio profile can send you to Discover before review", async ({ page }) => {
+  test("studio profile shows what is left to add", async ({ page }) => {
     await page.goto("/studio/profile");
-    await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
-    await expect(page.getByText("Draft · Nairobi · not public")).toBeVisible();
-    await page.getByRole("button", { name: "Discover" }).click();
-    await expect(page).toHaveURL(/\/discover/);
+    await expect(page.getByRole("heading", { name: "Your profile" })).toBeVisible();
+    await expect(page.getByText("Draft · not live yet")).toBeVisible();
+    await expect(page.getByText(/Still to add:/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Add photo" })).toBeEnabled();
   });
 
   test("studio draft in Kisumu stays a draft", async ({ page }) => {
@@ -548,7 +535,7 @@ test.describe("390px surfaces", () => {
       localStorage.setItem("soko18_near_area", "milimani");
     });
     await page.goto("/studio/profile");
-    await expect(page.getByText("Draft · Kisumu · not public")).toBeVisible();
+    await expect(page.getByText("Draft · not live yet")).toBeVisible();
     await expect(page.getByRole("button", { name: "Milimani" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Kilimani" })).toHaveCount(0);
     await page.getByLabel("Username").fill("Achieng");
@@ -560,7 +547,7 @@ test.describe("390px surfaces", () => {
     await page.getByRole("button", { name: "Discover" }).click();
     await expect(page).toHaveURL(/\/discover/);
     await expect(page.getByRole("heading", { name: "Kisumu" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Like" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Like", exact: true })).toHaveCount(0);
   });
 
   test("create profile in review returns to Discover", async ({ page }) => {
@@ -604,8 +591,8 @@ test.describe("390px surfaces", () => {
 
   test("studio stays on the Me tab", async ({ page }) => {
     await page.goto("/studio");
-    await expect(page.getByText("SOKO18 Studio")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Your studio" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your profile" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Your profile" })).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Me")).toBeVisible();
     await expect(page.getByRole("navigation").getByText("Discover")).toBeVisible();
     await expect(page.getByText("Boost your profile")).toHaveCount(0);
@@ -640,8 +627,8 @@ test.describe("390px surfaces", () => {
   test("upgrade store lists M-Pesa plans", async ({ page }) => {
     await page.goto("/upgrade");
     await expect(page.getByRole("heading", { name: "Get more matches" })).toBeVisible();
-    await expect(page.getByText("Gold · 7 days")).toBeVisible();
-    await expect(page.getByText("KES 149")).toBeVisible();
+    await expect(page.getByText("Gold · 7 days").first()).toBeVisible();
+    await expect(page.getByText("KES 149").first()).toBeVisible();
     await expect(page.getByText("Platinum · 30 days")).toBeVisible();
   });
 

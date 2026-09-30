@@ -4,7 +4,6 @@ import { useT } from "@/lib/i18n/use-t";
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { AnimatePresence } from "motion/react";
-import { AppHeader } from "@/components/nav/app-header";
 import { SwipeDeck } from "@/components/discover/swipe-deck";
 import { MatchOverlay } from "@/components/discover/match-overlay";
 import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
@@ -35,7 +34,8 @@ import { cityNameBySlug, areaBrowseHref } from "@/lib/geo/kenya";
 import { catalogForCity } from "@/lib/discovery/feed";
 import { ONBOARDING } from "@/lib/onboarding";
 import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
-import { HereNowButton } from "@/components/presence/here-now";
+import { Wordmark } from "@/components/brand/wordmark";
+import { Heart, SlidersHorizontal, Zap } from "lucide-react";
 import { readIncognito } from "@/lib/privacy/local";
 import type { SeedProfile } from "@/lib/types";
 
@@ -146,20 +146,38 @@ export function DiscoverDeck({
 
   return (
     <div className="flex h-[calc(100dvh-6.75rem-env(safe-area-inset-bottom,0px))] flex-col overflow-hidden">
-      <AppHeader title={cityNameBySlug(citySlug || "nairobi")} subtitle={subtitle} />
+      <header className="flex items-center justify-between gap-2 px-1 pt-1">
+        <h1 className="sr-only">{cityNameBySlug(citySlug || "nairobi")}</h1>
+        <Wordmark size="sm" />
+        <div className="flex items-center gap-1.5">
+          <span className="max-w-[9rem] truncate rounded-full border border-line px-3 py-1.5 text-xs text-muted" title={subtitle}>
+            {near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}
+          </span>
+          <button
+            type="button"
+            aria-label={t("discover.filters")}
+            onClick={() => setFilters((open) => !open)}
+            className="grid size-9 place-items-center rounded-full border border-line text-muted"
+          >
+            <SlidersHorizontal className="size-4" />
+          </button>
+          <Link
+            href="/likes"
+            aria-label={t("discover.likesYou")}
+            className="grid size-9 place-items-center rounded-full border border-line text-muted"
+          >
+            <Heart className="size-4" />
+          </Link>
+          <Link
+            href="/upgrade"
+            aria-label={t("discover.boostGold")}
+            className="grid size-9 place-items-center rounded-full border border-gold/60 text-gold"
+          >
+            <Zap className="size-4" />
+          </Link>
+        </div>
+      </header>
       {ghost ? <p className="mt-2 px-1 text-xs text-gold">You’re invisible</p> : null}
-      <HereNowButton compact />
-      <div className="mt-2 flex items-center justify-between px-1 text-xs">
-        <button type="button" className="text-muted" onClick={() => setFilters((open) => !open)}>
-          {t("discover.filters")}
-        </button>
-        <Link href="/likes" className="text-muted">
-          {t("discover.likesYou")}
-        </Link>
-        <Link href="/upgrade" className="text-gold">
-          {t("discover.boostGold")}
-        </Link>
-      </div>
       {filters ? (
         <FiltersSheet
           onClose={() => {
@@ -181,7 +199,7 @@ export function DiscoverDeck({
           </div>
         </div>
       ) : null}
-      <div className="mt-5 flex min-h-0 flex-1 flex-col">
+      <div className="mt-3 flex min-h-0 flex-1 flex-col">
         <SwipeDeck
           profiles={profiles}
           canUndo={canUndo}

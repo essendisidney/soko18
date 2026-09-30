@@ -18,7 +18,13 @@ const statusLabel: Record<string, string> = {
 };
 
 /** Real photo uploads to the member's private storage folder. Staff approve before anything is public. */
-export function RemotePhotos({ userId }: { userId: string }) {
+export function RemotePhotos({
+  userId,
+  ensureProfile,
+}: {
+  userId: string;
+  ensureProfile?: () => Promise<boolean>;
+}) {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState("");
@@ -70,7 +76,7 @@ export function RemotePhotos({ userId }: { userId: string }) {
   return (
     <div>
       <p className="text-[11px] tracking-[0.18em] text-muted uppercase">Photos</p>
-      <p className="mt-2 text-xs text-muted">Clear photos of your face get more matches. Nothing shows until approved.</p>
+      <p className="mt-2 text-xs text-muted">Add at least 2. Clear photos of your face get the most matches. We check each one first.</p>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {photos.map((photo) => (
           <div key={photo.id}>
@@ -104,7 +110,10 @@ export function RemotePhotos({ userId }: { userId: string }) {
         size="sm"
         className="mt-3"
         disabled={busy || photos.length >= MAX}
-        onClick={() => inputRef.current?.click()}
+        onClick={async () => {
+          if (ensureProfile && !(await ensureProfile())) return;
+          inputRef.current?.click();
+        }}
       >
         {busy ? "Uploading…" : "Add photo"}
       </Button>

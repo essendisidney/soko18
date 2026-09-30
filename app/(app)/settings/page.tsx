@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 import { Button } from "@/components/soko/button";
 import { DiscretionTools } from "@/components/privacy/discretion-tools";
 import { TwoStep } from "@/components/auth/two-step";
@@ -10,14 +10,8 @@ import { PushToggle } from "@/components/pwa/push-toggle";
 import { LanguagePicker } from "@/components/i18n/language-picker";
 import { CountryPicker } from "@/components/markets/country-picker";
 import { ConsentSettings } from "@/components/privacy/consent-settings";
-import { cityNameBySlug } from "@/lib/geo/kenya";
-import { cityPlaceLine } from "@/lib/nairobi/live";
-import { nearAreaSnapshot, subscribeNearArea } from "@/lib/nairobi/near";
-import { useSnappedCity } from "@/lib/nairobi/use-near-area";
 
 export default function SettingsPage() {
-  const citySlug = useSnappedCity();
-  const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
   const router = useRouter();
   const [note, setNote] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -63,10 +57,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <p className="text-[13px] tracking-[0.22em] text-gold uppercase">{cityNameBySlug(citySlug)}</p>
-      <h1 className="mt-3 font-display text-[34px] tracking-tight">Settings</h1>
-      <p className="mt-2 text-sm text-muted">Privacy is part of the product. Nickname. Hashed contacts. Incognito.</p>
-      <p className="mt-1 text-sm text-muted">{cityPlaceLine(citySlug, near)}</p>
+      <h1 className="font-display text-[34px] tracking-tight">Settings</h1>
       <div className="mt-8 space-y-3 text-sm">
         <button
           type="button"

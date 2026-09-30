@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { areasForCity, cityNameBySlug, placeShareName } from "@/lib/geo/kenya";
 import { citySnapshot, subscribeNearArea, writeNearArea } from "@/lib/nairobi/near";
 import { Button } from "@/components/soko/button";
@@ -11,7 +11,6 @@ import { useAuth } from "@/lib/auth/use-auth";
 import { saveProfileAction } from "@/lib/profile/actions";
 import { draftHealth } from "@/lib/profile/health";
 import { writeLocalDraft } from "@/lib/profile/local";
-import { uniqueProfileSlug } from "@/lib/profile/slug";
 import type { OwnerProfileStatus, ProfileDraft } from "@/lib/profile/types";
 import { INTENTS } from "@/lib/data/nairobi";
 import { MAX_PROMPT_ANSWER, MAX_PROMPTS, PROMPT_QUESTIONS } from "@/lib/profile/prompts";
@@ -79,21 +78,30 @@ export function ProfileEditor() {
     });
   }
 
-  const slug = useMemo(
-    () => uniqueProfileSlug(displayName || "profile", undefined, citySlug),
-    [displayName, citySlug],
-  );
   const health = draftHealth({
     displayName,
     birthYear: birthYear ? Number(birthYear) : null,
     areaSlug,
     bio,
+    gender,
+    lookingFor,
   });
+  const missing = health.checks.filter((c) => !c.ok).map((c) => c.label);
 
-  async function persist(nextStatus: OwnerProfileStatus) {
+  /** Photos need a saved profile. Save a draft first if the basics are there. */
+  async function ensureProfile() {
+    if (stored?.id) return true;
+    if (!displayName.trim() || !areaSlug) {
+      setNote("Add your first name and area first, then your photos.");
+      return false;
+    }
+    return persist("draft");
+  }
+
+  async function persist(nextStatus: OwnerProfileStatus): Promise<boolean> {
     if (configured && ready && !user) {
       setGate(true);
-      return;
+      return false;
     }
     setBusy(true);
     setNote("");
@@ -113,7 +121,7 @@ export function ProfileEditor() {
     setBusy(false);
     if (!result.ok) {
       setNote(result.error.message);
-      return;
+      return false;
     }
     writeLocalDraft(result.data);
     setNote(
@@ -123,19 +131,23 @@ export function ProfileEditor() {
           ? "Saved as a draft."
           : "Saved as a draft on this device. Not public.",
     );
+    return true;
   }
 
   return (
     <div>
-      <p className="text-[11px] tracking-[0.22em] text-gold uppercase">Your profile</p>
-      <h1 className="mt-3 font-display text-3xl tracking-tight">Profile</h1>
+      <h1 className="font-display text-3xl tracking-tight">Your profile</h1>
       <p className="mt-2 text-sm text-muted">
-        {statusLabel[status]} · {cityNameBySlug(citySlug)} · not public
+        {status === "pending_review" ? "In review — we’ll let you know when you’re live." : `${statusLabel[status]} · not live yet`}
       </p>
 
-      <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/10">
-        <div className="h-full rounded-full bg-gold" style={{ width: `${health.score}%` }} />
+      <div className="mt-5 flex items-center gap-3">
+        <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+          <div className="h-full rounded-full bg-gold" style={{ width: `${health.score}%` }} />
+        </div>
+        <span className="text-xs text-muted">{health.score}%</span>
       </div>
+      {missing.length > 0 ? <p className="mt-2 text-xs text-muted">Still to add: {missing.join(", ")}</p> : null}
 
       <form
         className="mt-8 space-y-5"
@@ -144,20 +156,28 @@ export function ProfileEditor() {
           void persist("draft");
         }}
       >
+        <PhotoUploader
+          profileId={stored?.id}
+          profileName={displayName || stored?.displayName || "Draft"}
+          area={placeShareName(citySlug, areaSlug)}
+          city={cityNameBySlug(citySlug)}
+          ensureProfile={ensureProfile}
+        />
+
         <label className="block">
-          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Username</span>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">First name</span>
           <input
             required
-            aria-label="Username"
+            aria-label="First name"
             value={displayName}
             onChange={(e) => patch({ displayName: e.target.value })}
             className="mt-2 h-12 w-full rounded-full border border-line bg-glass px-4 text-sm outline-none"
           />
-          <p className="mt-2 text-xs text-muted">A nickname. Not your legal name.</p>
+          <p className="mt-2 text-xs text-muted">This is how you’ll appear. A nickname is fine.</p>
         </label>
 
         <label className="block">
-          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Born</span>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Year of birth</span>
           <input
             type="number"
             inputMode="numeric"
@@ -165,7 +185,7 @@ export function ProfileEditor() {
             max={maxYear}
             value={birthYear}
             onChange={(e) => patch({ birthYear: e.target.value })}
-            placeholder={String(maxYear)}
+            placeholder="e.g. 1997"
             className="mt-2 h-12 w-full rounded-full border border-line bg-glass px-4 text-sm outline-none"
           />
         </label>
@@ -189,12 +209,13 @@ export function ProfileEditor() {
         </div>
 
         <label className="block">
-          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">About</span>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">About you</span>
           <textarea
             value={bio}
             onChange={(e) => patch({ bio: e.target.value })}
             maxLength={280}
             rows={4}
+            placeholder="What you’re into, what a good weekend looks like, what you’re looking for."
             className="mt-2 w-full rounded-3xl border border-line bg-glass px-4 py-3 text-sm outline-none"
           />
         </label>
@@ -263,13 +284,6 @@ export function ProfileEditor() {
           </div>
         </div>
 
-        <PhotoUploader
-          profileId={stored?.id}
-          profileName={displayName || stored?.displayName || "Draft"}
-          area={placeShareName(citySlug, areaSlug)}
-          city={cityNameBySlug(citySlug)}
-        />
-
         <button
           type="button"
           onClick={() => patch({ indexPublic: !indexPublic })}
@@ -279,35 +293,31 @@ export function ProfileEditor() {
           <span className="text-muted">{indexPublic ? "On" : "Off"}</span>
         </button>
 
-        <p className="text-xs text-muted">soko18.app/profile/{slug}</p>
-
         {note ? <p className="text-sm text-cream/90">{note}</p> : null}
 
-        <Button className="w-full" disabled={busy || !displayName.trim() || !areaSlug}>
-          Save draft
-        </Button>
+        {health.score >= 100 && status !== "pending_review" ? (
+          <Button
+            type="button"
+            variant="gold"
+            className="w-full"
+            disabled={busy}
+            onClick={() => void persist("pending_review")}
+          >
+            Submit — go live after a quick review
+          </Button>
+        ) : null}
         <Button
-          type="button"
-          variant="ghost"
           className="w-full"
-          disabled={busy || health.score < 100}
-          onClick={() => void persist("pending_review")}
+          variant={health.score >= 100 ? "ghost" : "gold"}
+          disabled={busy || !displayName.trim() || !areaSlug}
         >
-          Submit for review
+          Save
         </Button>
       </form>
 
       <p className="mt-6 text-xs leading-relaxed text-muted">
-        Photos stay in review until SOKO18 approves them. They never appear on Discover first.
+        We check every profile and photo before it goes live. Usually within a day.
       </p>
-      <Link href="/discover" className="mt-6 block">
-        <Button
-          className="w-full"
-          variant={status === "pending_review" || note.startsWith("In review") ? "gold" : "ghost"}
-        >
-          Discover
-        </Button>
-      </Link>
       <Link href={status === "pending_review" ? "/me" : "/studio"} className="mt-6 inline-block text-sm text-muted">
         {status === "pending_review" ? "Me" : "Back"}
       </Link>

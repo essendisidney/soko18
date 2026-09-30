@@ -15,12 +15,17 @@ export function profileHealth(profile: SeedProfile) {
   return { score, checks };
 }
 
-export function draftHealth(draft: Pick<ProfileDraft, "displayName" | "birthYear" | "areaSlug" | "bio">) {
+export function draftHealth(
+  draft: Pick<ProfileDraft, "displayName" | "birthYear" | "areaSlug" | "bio"> &
+    Partial<Pick<ProfileDraft, "gender" | "lookingFor">>,
+) {
   const checks = [
-    { ok: Boolean(draft.displayName.trim()), label: "Name" },
-    { ok: draft.birthYear !== null, label: "Age" },
+    { ok: Boolean(draft.displayName.trim()), label: "First name" },
+    { ok: draft.birthYear !== null, label: "Year of birth" },
     { ok: Boolean(draft.areaSlug), label: "Area" },
-    { ok: Boolean(draft.bio.trim()), label: "Bio" },
+    { ok: Boolean(draft.bio.trim()), label: "About you" },
+    ...(draft.gender !== undefined ? [{ ok: Boolean(draft.gender), label: "I am" }] : []),
+    ...(draft.lookingFor !== undefined ? [{ ok: Boolean(draft.lookingFor), label: "Looking for" }] : []),
   ];
   const score = Math.round((checks.filter((c) => c.ok).length / checks.length) * 100);
   return { score, checks };

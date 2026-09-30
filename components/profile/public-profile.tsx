@@ -33,7 +33,6 @@ import { useLocalIds } from "@/lib/safety/use-id-list";
 import { useHiddenByReports } from "@/lib/reports/use-hidden";
 import { cn } from "@/lib/utils";
 import { sokoVerified } from "@/lib/trust/verified";
-import { BothSidesLine } from "@/components/trust/both-sides-line";
 
 export function PublicProfile({
   profile,
@@ -189,24 +188,12 @@ export function PublicProfile({
         </section>
 
         <section className="mt-10">
-          <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Verification</h2>
-          <p className="mt-2 text-xs text-muted">Not a decorative tick. Each line is a real check. ID is both sides.</p>
-          <div className="mt-2">
-            <BothSidesLine themIdentity={v.identity} />
-          </div>
+          <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Trust</h2>
           <ul className="mt-3 space-y-2 text-sm">
-            <li className={cn(v.phone ? "text-cream" : "text-muted")}>
-              {v.phone ? "✓" : "○"} Phone verified
+            <li className={cn(v.identity || v.profile ? "text-cream" : "text-muted")}>
+              {v.identity || v.profile ? "✓ Photo verified — they matched a live selfie" : "○ Photos not verified yet"}
             </li>
-            <li className={cn(v.identity ? "text-cream" : "text-muted")}>
-              {v.identity ? "✓" : "○"} Identity verified
-            </li>
-            <li className={cn(v.profile ? "text-cream" : "text-muted")}>
-              {v.profile ? "✓" : "○"} Profile reviewed
-            </li>
-            <li className={cn(v.established ? "text-cream" : "text-muted")}>
-              {v.established ? "✓" : "○"} Account established
-            </li>
+            <li className={cn(v.phone ? "text-cream" : "text-muted")}>{v.phone ? "✓" : "○"} Phone confirmed</li>
           </ul>
         </section>
 

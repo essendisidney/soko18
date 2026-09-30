@@ -23,6 +23,8 @@ type CardRow = {
   area_slug: string | null;
   area_name: string | null;
   cover_path: string | null;
+  bio?: string | null;
+  prompts?: { q: string; a: string }[] | null;
 };
 
 /** Demo profiles are only for local development and previews, never alongside real members. */
@@ -55,7 +57,8 @@ function toProfile(row: CardRow, cover: string | undefined, now: number): SeedPr
     areaSlug: row.area_slug ?? "",
     verified: row.is_verified,
     presence: "recent",
-    bio: "",
+    bio: row.bio ?? "",
+    prompts: row.prompts ?? [],
     lookingFor: row.looking_for ?? undefined,
     photos: cover ? [cover] : [],
     verification: { phone: true, identity: row.is_verified, profile: true, established: row.is_verified },
@@ -73,7 +76,7 @@ export async function liveProfiles(input: { citySlug: string; gender: "man" | "w
   let query = supabase
     .from("live_profile_cards")
     .select(
-      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path",
+      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, bio, prompts",
     )
     .eq("city_slug", input.citySlug)
     .not("cover_path", "is", null)

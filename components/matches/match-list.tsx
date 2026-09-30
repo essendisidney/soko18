@@ -15,7 +15,6 @@ import {
   writeMatchWaiting,
 } from "@/lib/matches/waiting";
 import { matchPreview } from "@/lib/messages/preview";
-import { EmptyCityLoop } from "@/components/city/city-door";
 import { cityNameBySlug, emptyMatchesLine } from "@/lib/geo/kenya";
 import { useSnappedCity } from "@/lib/nairobi/use-near-area";
 import { useLocalIds } from "@/lib/safety/use-id-list";
@@ -43,7 +42,27 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
   return (
     <>
       {visible.length === 0 ? (
-        <p className="mt-10 text-sm text-muted">{emptyMatchesLine(cityNameBySlug(citySlug))}</p>
+        <div className="mt-10 rounded-3xl border border-line p-5">
+          <p className="text-sm text-muted">{emptyMatchesLine(cityNameBySlug(citySlug))}</p>
+          <p className="mt-4 text-sm font-medium">Get more matches</p>
+          <ul className="mt-2 space-y-1.5 text-sm text-muted">
+            <li>· Add 3 or more clear photos</li>
+            <li>· Answer a prompt — it gives people something to say</li>
+            <li>· Get verified with a selfie for the blue check</li>
+          </ul>
+          <div className="mt-4 flex gap-2">
+            <Link href="/studio/profile" className="flex-1">
+              <Button className="w-full" variant="ghost" size="sm">
+                Improve profile
+              </Button>
+            </Link>
+            <Link href="/upgrade" className="flex-1">
+              <Button className="w-full" variant="ghost" size="sm">
+                Boost · KES 99
+              </Button>
+            </Link>
+          </div>
+        </div>
       ) : (
         <ul className="mt-8 space-y-3">
           {visible.map((item) => (
@@ -75,10 +94,9 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
       )}
       <Link href="/discover" className="mt-8 inline-block w-full">
         <Button className="w-full" variant="gold">
-          Discover
+          Keep swiping
         </Button>
       </Link>
-      {visible.length === 0 ? <EmptyCityLoop citySlug={citySlug} /> : null}
     </>
   );
 }

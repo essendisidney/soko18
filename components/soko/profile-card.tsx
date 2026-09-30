@@ -8,6 +8,7 @@ import { coverPhoto } from "@/lib/media/public";
 import { PresenceDot } from "@/components/soko/presence-dot";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 import { sokoVerified } from "@/lib/trust/verified";
+import { INTENTS } from "@/lib/data/nairobi";
 
 export function ProfileCard({
   profile,
@@ -42,6 +43,13 @@ export function ProfileCard({
         unoptimized={cover.startsWith("http")}
       />
       <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/15 to-transparent" />
+      {!compact && profile.photos.length > 1 ? (
+        <div className="absolute inset-x-4 top-2.5 flex gap-1" aria-label={`${profile.photos.length} photos`}>
+          {profile.photos.map((src, i) => (
+            <span key={src} className={cn("h-1 flex-1 rounded-full", i === 0 ? "bg-cream/90" : "bg-cream/30")} />
+          ))}
+        </div>
+      ) : null}
       {profile.featured ? (
         <p className="absolute top-3 left-3 rounded-full border border-gold/70 bg-black/40 px-2 py-0.5 font-display text-[10px] tracking-[0.16em] text-gold">
           BOOSTED
@@ -58,6 +66,16 @@ export function ProfileCard({
           <span>{profile.area}</span>
           <PresenceDot presence={profile.presence} />
         </div>
+        {!compact && (profile.prompts?.[0]?.a || profile.bio) ? (
+          <p className="mt-2 line-clamp-2 text-sm leading-snug text-cream/85">
+            {profile.prompts?.[0]?.a ? `“${profile.prompts[0].a}”` : profile.bio}
+          </p>
+        ) : null}
+        {!compact && profile.lookingFor ? (
+          <span className="mt-2 inline-block rounded-full bg-black/40 px-2.5 py-1 text-[11px] text-cream/90">
+            {INTENTS.find((i) => i.id === profile.lookingFor)?.label}
+          </span>
+        ) : null}
       </div>
     </div>
   );

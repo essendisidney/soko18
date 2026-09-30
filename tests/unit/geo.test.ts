@@ -54,7 +54,7 @@ describe("kenya area snap", () => {
     expect(emptyNotifyLine("Kisumu")).toBe("Nothing waiting in Kisumu.");
     expect(emptyBlockedLine("Kisumu")).toBe("No one blocked in Kisumu.");
     expect(emptyMatchesLine("Kisumu")).toBe(
-      "No matches in Kisumu yet. A like stays quiet until they like you back.",
+      "No matches yet. When someone you liked likes you back, they’ll show up here.",
     );
     expect(emptyStudioLine("Kisumu")).toBe("Create a profile in Kisumu. Draft until review. Empty stays empty.");
   });

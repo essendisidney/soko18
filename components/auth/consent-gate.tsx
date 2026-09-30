@@ -45,7 +45,7 @@ export function ConsentGate() {
     setBusy(false);
     if (!res.ok) {
       setError(json?.error?.message ?? "Try again.");
-      if (json?.error?.code === "underage") window.location.href = "/";
+      if (json?.error?.code === "underage") window.location.assign(window.location.origin);
       return;
     }
     setOpen(false);
