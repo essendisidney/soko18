@@ -5,5 +5,5 @@ export function reviewPriority() {
 }
 
 export function reviewPriorityLine() {
-  return hasFriendPass() ? "Friend pass · first in review." : null;
+  return hasFriendPass() ? "Invited by a member · your welcome gift unlocks when you’re approved." : null;
 }

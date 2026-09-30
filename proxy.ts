@@ -1,6 +1,7 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 import { COUNTRY_COOKIE } from "@/lib/markets/constants";
+import { INVITE_COOKIE, normalizePass } from "@/lib/growth/referral";
 
 export async function proxy(request: NextRequest) {
   const response = await updateSession(request);
@@ -10,6 +11,11 @@ export async function proxy(request: NextRequest) {
     if (/^[A-Z]{2}$/.test(country)) {
       response.cookies.set(COUNTRY_COOKIE, country, { path: "/", maxAge: 60 * 60 * 24 * 30, sameSite: "lax" });
     }
+  }
+  // Invite links (/?invite=CODE): keep the code until the visitor signs up.
+  const invite = normalizePass(request.nextUrl.searchParams.get("invite") ?? "");
+  if (invite.length >= 4) {
+    response.cookies.set(INVITE_COOKIE, invite, { path: "/", maxAge: 60 * 60 * 24 * 30, sameSite: "lax" });
   }
   return response;
 }

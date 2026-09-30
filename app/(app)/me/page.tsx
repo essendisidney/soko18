@@ -30,7 +30,6 @@ const groups: { title: string; rows: { href: string; label: string }[] }[] = [
       { href: "/settings", label: "Settings & privacy" },
       { href: "/safety", label: "Safety & verification" },
       { href: "/blocked", label: "Blocked" },
-      { href: "/invite", label: "Invite a friend" },
       { href: "/admin", label: "Admin" },
     ],
   },
@@ -103,6 +102,14 @@ export default function MePage() {
       <Link href="/upgrade" className="mt-3 block rounded-3xl border border-gold/60 p-5">
         <p className="font-display text-xl text-gold">SOKO18 Gold</p>
         <p className="mt-1 text-sm text-muted">See who likes you and swipe without limits. From KES 149 a week.</p>
+      </Link>
+
+      <Link href="/invite" className="mt-3 flex items-center justify-between rounded-3xl border border-line p-5">
+        <div>
+          <p className="font-display text-xl">Invite friends, get Gold</p>
+          <p className="mt-1 text-sm text-muted">7 days of Gold for every friend who joins and gets approved.</p>
+        </div>
+        <ChevronRight className="size-5 shrink-0 text-muted" />
       </Link>
 
       {ready && user ? (

@@ -29,3 +29,13 @@ describe("friend pass", () => {
   });
 });
 
+
+describe("invite links", () => {
+  it("builds a clean link and a WhatsApp message", async () => {
+    const { inviteUrl, whatsappInviteUrl } = await import("@/lib/growth/referral");
+    expect(inviteUrl("https://soko18.vercel.app/", " ab-c123 ")).toBe("https://soko18.vercel.app/?invite=ABC123");
+    const wa = whatsappInviteUrl("https://soko18.vercel.app", "ABC123");
+    expect(wa.startsWith("https://wa.me/?text=")).toBe(true);
+    expect(decodeURIComponent(wa)).toContain("?invite=ABC123");
+  });
+});

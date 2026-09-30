@@ -7,17 +7,17 @@ import { writeCity } from "@/lib/nairobi/near";
 import { ONBOARDING } from "@/lib/onboarding";
 import { Button } from "@/components/soko/button";
 import { DiscretionTools } from "@/components/privacy/discretion-tools";
-import { redeemFriendPass } from "@/lib/growth/referral";
+import { rememberInvite } from "@/lib/growth/referral";
 
 export default function PrivacyOnboardingPage() {
   const router = useRouter();
   const [passNote, setPassNote] = useState<string | null>(null);
 
   useEffect(() => {
-    const incoming = new URLSearchParams(window.location.search).get("pass");
+    const params = new URLSearchParams(window.location.search);
+    const incoming = params.get("invite") ?? params.get("pass");
     if (!incoming) return;
-    const result = redeemFriendPass(incoming);
-    if (result.ok) setPassNote("Friend pass saved. Staff see you first when you submit.");
+    if (rememberInvite(incoming)) setPassNote("Invite saved. Your welcome gift unlocks when your profile is approved.");
   }, []);
 
   function finish() {

@@ -7,6 +7,7 @@ import { animate, motion, useMotionValue, useTransform, type PanInfo } from "mot
 import type { SeedProfile } from "@/lib/types";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { Button } from "@/components/soko/button";
+import type { ReactNode } from "react";
 import { Star, X, Heart } from "lucide-react";
 import { CityNotifyButton } from "@/components/nairobi/waitlist-button";
 import { EmptyCityLoop } from "@/components/city/city-door";
@@ -49,6 +50,7 @@ export function SwipeDeck({
   emptyTitle = "That’s everyone around you",
   emptyHint = "A pass stays off Discover for 30 days. Browse still open. Empty stays empty.",
   notifyCity,
+  emptyExtra,
   onEngage,
   onImpression,
 }: {
@@ -63,6 +65,8 @@ export function SwipeDeck({
   emptyTitle?: string;
   emptyHint?: string;
   notifyCity?: string | null;
+  /** Shown under the empty-state text, e.g. the launch meter. */
+  emptyExtra?: ReactNode;
   onEngage?: (profile: SeedProfile, kind: "like" | "super") => boolean;
   onImpression?: (profile: SeedProfile) => void;
 }) {
@@ -194,6 +198,7 @@ export function SwipeDeck({
       >
         <p className="font-display text-2xl">{emptyTitle}</p>
         <p className="mt-2 text-sm text-muted">{emptyHint}</p>
+        {emptyExtra ? <div className="mt-6 flex w-full justify-center">{emptyExtra}</div> : null}
         {notifyCity ? (
           <div className="mt-8 w-full max-w-xs">
             <CityNotifyButton slug={notifyCity} />

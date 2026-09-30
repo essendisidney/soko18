@@ -38,6 +38,7 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { Heart, SlidersHorizontal, Zap } from "lucide-react";
 import { readIncognito } from "@/lib/privacy/local";
 import type { SeedProfile } from "@/lib/types";
+import { LaunchMeter } from "@/components/growth/launch-meter";
 
 export function DiscoverDeck({
   initial,
@@ -214,8 +215,15 @@ export function DiscoverDeck({
           }
           emptyHint={
             catalogForCity(citySlug || "nairobi").length === 0
-              ? "Empty stays empty. Notify when someone is here."
-              : "A pass stays off Discover for 30 days. Browse still open. Empty stays empty."
+              ? "You’re early. Every profile here is a real, checked person — bring your friends and get it going."
+              : "People you pass stay hidden for 30 days. New people join every day."
+          }
+          emptyExtra={
+            <LaunchMeter
+              city={citySlug || "nairobi"}
+              area={near}
+              place={near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}
+            />
           }
           notifyCity={catalogForCity(citySlug || "nairobi").length === 0 ? citySlug || null : null}
           onUndo={() => {
