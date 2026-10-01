@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
 import { areasForCity, cityNameBySlug, placeShareName } from "@/lib/geo/kenya";
-import { citySnapshot, subscribeNearArea, writeNearArea } from "@/lib/nairobi/near";
+import { citySnapshot, readNearArea, subscribeNearArea, writeNearArea } from "@/lib/nairobi/near";
 import { Button } from "@/components/soko/button";
 import { Chip } from "@/components/soko/chip";
 import { AuthGate } from "@/components/auth/auth-gate";
@@ -16,8 +16,6 @@ import { INTENTS } from "@/lib/data/nairobi";
 import { MAX_PROMPT_ANSWER, MAX_PROMPTS, PROMPT_QUESTIONS } from "@/lib/profile/prompts";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 import { PhotoUploader } from "@/components/studio/photo-uploader";
-
-const maxYear = new Date().getFullYear() - 18;
 
 const statusLabel: Record<OwnerProfileStatus, string> = {
   draft: "Draft",
@@ -88,17 +86,31 @@ export function ProfileEditor() {
   });
   const missing = health.checks.filter((c) => !c.ok).map((c) => c.label);
 
-  /** Photos need a saved profile. Save a draft first if the basics are there. */
+  /**
+   * Photos need a saved profile. Create a draft quietly, filling the name from the
+   * account (e.g. Google) and the area from where they are, so photos can come first.
+   */
   async function ensureProfile() {
     if (stored?.id) return true;
-    if (!displayName.trim() || !areaSlug) {
-      setNote("Add your first name and area first, then your photos.");
+    const meta = (user?.user_metadata ?? {}) as Record<string, unknown>;
+    const fromAccount = String(meta.display_name ?? meta.given_name ?? meta.full_name ?? meta.name ?? "")
+      .trim()
+      .split(/\s+/)[0];
+    const name = displayName.trim() || fromAccount || (user?.email ?? "").split("@")[0].replace(/[^a-zA-Z]/g, "").slice(0, 20) || "Me";
+    const near = readNearArea();
+    const area = areaSlug || (areas.some((a) => a.slug === near) ? near : areas[0]?.slug) || "";
+    if (!area) {
+      setNote("Pick your area below, then add photos.");
       return false;
     }
-    return persist("draft");
+    if (name !== displayName || area !== areaSlug) patch({ displayName: name, areaSlug: area });
+    return persist("draft", { displayName: name, areaSlug: area });
   }
 
-  async function persist(nextStatus: OwnerProfileStatus): Promise<boolean> {
+  async function persist(
+    nextStatus: OwnerProfileStatus,
+    overrides: Partial<{ displayName: string; areaSlug: string }> = {},
+  ): Promise<boolean> {
     if (configured && ready && !user) {
       setGate(true);
       return false;
@@ -107,10 +119,10 @@ export function ProfileEditor() {
     setNote("");
     const result = await saveProfileAction({
       id: stored?.id,
-      displayName,
+      displayName: overrides.displayName ?? displayName,
       birthYear: birthYear ? Number(birthYear) : null,
       citySlug,
-      areaSlug,
+      areaSlug: overrides.areaSlug ?? areaSlug,
       bio,
       gender,
       lookingFor,
@@ -176,19 +188,6 @@ export function ProfileEditor() {
           <p className="mt-2 text-xs text-muted">This is how you’ll appear. A nickname is fine.</p>
         </label>
 
-        <label className="block">
-          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Year of birth</span>
-          <input
-            type="number"
-            inputMode="numeric"
-            min={1940}
-            max={maxYear}
-            value={birthYear}
-            onChange={(e) => patch({ birthYear: e.target.value })}
-            placeholder="e.g. 1997"
-            className="mt-2 h-12 w-full rounded-full border border-line bg-glass px-4 text-sm outline-none"
-          />
-        </label>
 
         <div>
           <p className="text-[11px] tracking-[0.18em] text-muted uppercase">Area</p>

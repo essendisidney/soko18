@@ -21,7 +21,6 @@ export function draftHealth(
 ) {
   const checks = [
     { ok: Boolean(draft.displayName.trim()), label: "First name" },
-    { ok: draft.birthYear !== null, label: "Year of birth" },
     { ok: Boolean(draft.areaSlug), label: "Area" },
     { ok: Boolean(draft.bio.trim()), label: "About you" },
     ...(draft.gender !== undefined ? [{ ok: Boolean(draft.gender), label: "I am" }] : []),

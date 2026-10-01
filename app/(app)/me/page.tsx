@@ -49,9 +49,9 @@ export default function MePage() {
 
   const health = draft
     ? Math.round(
-        ([draft.displayName, draft.birthYear, draft.areaSlug, draft.bio, draft.gender, draft.lookingFor].filter(Boolean)
+        ([draft.displayName, draft.areaSlug, draft.bio, draft.gender, draft.lookingFor].filter(Boolean)
           .length /
-          6) *
+          5) *
           100,
       )
     : 0;

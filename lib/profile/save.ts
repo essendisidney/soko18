@@ -96,11 +96,14 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
     .maybeSingle();
 
   const slug = existing?.slug ?? draft.slug;
+  // Age comes from the date of birth given at sign-up, not a second form field.
+  const { data: account } = await supabase.from("accounts").select("date_of_birth").eq("id", user.id).maybeSingle();
+  const birthYear = account?.date_of_birth ? new Date(account.date_of_birth as string).getUTCFullYear() : draft.birthYear;
   const row = {
     account_id: user.id,
     slug,
     display_name: draft.displayName,
-    birth_year: draft.birthYear,
+    birth_year: birthYear,
     city_id: city.id,
     area_id: area?.id ?? null,
     bio: draft.bio || null,
@@ -133,6 +136,7 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
     ok: true,
     data: {
       ...draft,
+      birthYear,
       id: data.id,
       slug: data.slug,
       status: toOwnerStatus(data.status),

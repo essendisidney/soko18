@@ -46,8 +46,22 @@ export function RemotePhotos({
       return;
     }
     setBusy(true);
-    setNote("");
-    const blob = await resizeImage(file);
+    setNote("Saving…");
+    // The gallery opens straight from the tap; the profile draft is made after a photo is picked.
+    if (ensureProfile && !(await ensureProfile())) {
+      setBusy(false);
+      setNote("Pick your area below first, then add the photo again.");
+      return;
+    }
+    setNote("Uploading…");
+    let blob: Blob;
+    try {
+      blob = await resizeImage(file);
+    } catch {
+      setBusy(false);
+      setNote("That photo couldn’t be read. Try a JPG or PNG from your gallery.");
+      return;
+    }
     const path = `${userId}/${crypto.randomUUID()}.jpg`;
     const supabase = createClient();
     const { error } = await supabase.storage
@@ -97,7 +111,7 @@ export function RemotePhotos({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/*"
         className="hidden"
         onChange={(event) => {
           void onFile(event.target.files?.[0]);
@@ -110,10 +124,7 @@ export function RemotePhotos({
         size="sm"
         className="mt-3"
         disabled={busy || photos.length >= MAX}
-        onClick={async () => {
-          if (ensureProfile && !(await ensureProfile())) return;
-          inputRef.current?.click();
-        }}
+        onClick={() => inputRef.current?.click()}
       >
         {busy ? "Uploading…" : "Add photo"}
       </Button>
