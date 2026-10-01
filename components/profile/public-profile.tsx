@@ -99,7 +99,7 @@ export function PublicProfile({
       </div>
 
       <div className="-mt-16 relative px-5">
-        {sokoVerified(profile) ? <VerificationBadge label="SOKO18 Verified" /> : null}
+        {sokoVerified(profile) ? <VerificationBadge label="Kutana Verified" /> : null}
         <h1 className="mt-3 font-display text-4xl tracking-tight">{profile.name}</h1>
         <p className="mt-1 text-cream/80">
           {profile.age} · {profile.city} · {profile.area}

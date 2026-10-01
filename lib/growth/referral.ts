@@ -22,7 +22,7 @@ export function inviteUrl(origin: string, code: string) {
 }
 
 export function inviteMessage(origin: string, code: string) {
-  return `I'm on SOKO — dating in Kenya with verified people and real privacy. Join with my link and get free Super Likes: ${inviteUrl(origin, code)}`;
+  return `I'm on Kutana — dating in Kenya with verified people and real privacy. Join with my link and get free Super Likes: ${inviteUrl(origin, code)}`;
 }
 
 export function whatsappInviteUrl(origin: string, code: string) {

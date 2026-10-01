@@ -20,4 +20,4 @@ export function looksLikePaidService(text: string | null | undefined) {
 }
 
 export const PAID_SERVICE_MESSAGE =
-  "SOKO18 is for dating, not selling. Profiles and messages about rates, fees or paid meetups aren’t allowed.";
+  "Kutana is for dating, not selling. Profiles and messages about rates, fees or paid meetups aren’t allowed.";

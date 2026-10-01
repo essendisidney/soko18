@@ -31,7 +31,7 @@ export function TwoStep() {
   async function start() {
     setBusy(true);
     setNote(null);
-    const { data, error } = await createClient().auth.mfa.enroll({ factorType: "totp", friendlyName: "SOKO18" });
+    const { data, error } = await createClient().auth.mfa.enroll({ factorType: "totp", friendlyName: "Kutana" });
     setBusy(false);
     if (error || !data) {
       setNote("Could not start 2-step sign-in.");

@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "SOKO18",
-    short_name: "SOKO18",
+    name: "Kutana",
+    short_name: "Kutana",
     description: "Verified dating for adults. Kenya first, then Africa.",
     start_url: "/",
     scope: "/",

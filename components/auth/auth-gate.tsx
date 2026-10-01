@@ -20,7 +20,7 @@ const copy: Record<AuthIntent, { title: string; line: string }> = {
   panic: { title: "Sign in to send a panic alert", line: "The alert goes to your trusted contact only." },
   share: { title: "Sign in to share location", line: "Live location goes to your trusted contact only." },
   upgrade: { title: "Sign in to upgrade", line: "Gold and Platinum are tied to your account." },
-  verify: { title: "Sign in to verify ID", line: "Everyone on SOKO18 verifies. We never show your ID number." },
+  verify: { title: "Sign in to verify ID", line: "Everyone on Kutana verifies. We never show your ID number." },
 };
 
 export function AuthGate({
@@ -45,8 +45,7 @@ export function AuthGate({
       exit={{ opacity: 0 }}
     >
       <Wordmark size="sm" />
-      <p className="mt-10 font-display text-[13px] tracking-[0.28em] text-gold">SOKO18</p>
-      <h2 className="mt-4 font-display text-4xl tracking-tight">{text.title}</h2>
+      <h2 className="mt-10 font-display text-4xl tracking-tight">{text.title}</h2>
       <p className="mt-4 max-w-xs text-sm text-muted">{text.line}</p>
       <Link href={`/login?next=${next}`} className="mt-10 w-full max-w-xs">
         <Button className="w-full" variant="gold">

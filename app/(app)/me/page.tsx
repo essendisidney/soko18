@@ -130,7 +130,7 @@ export default function MePage() {
         className="relative mt-6 block overflow-hidden rounded-3xl bg-linear-to-br from-[#ecd79c] via-gold to-[#8f7331] p-5 text-bg"
       >
         <Crown className="absolute -top-3 -right-3 size-28 rotate-12 opacity-15" />
-        <p className="font-display text-sm tracking-[0.2em] uppercase">SOKO Gold</p>
+        <p className="font-display text-sm tracking-[0.2em] uppercase">Kutana Gold</p>
         <p className="mt-1 font-display text-2xl leading-tight">See who likes you</p>
         <p className="mt-1 text-sm opacity-80">Unlimited likes, rewind and Super Likes. From KES 149 a week.</p>
         <span className="mt-4 inline-flex rounded-full bg-bg px-4 py-2 text-sm font-medium text-gold">Get Gold</span>
@@ -197,7 +197,7 @@ export default function MePage() {
         </section>
       ))}
       <p className="mt-8 text-xs leading-relaxed text-muted">
-        SOKO18 is 18+. You can report or block anyone from their profile or your chat.
+        Kutana is 18+. You can report or block anyone from their profile or your chat.
       </p>
       <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted">
         <Link href="/terms">Terms</Link>

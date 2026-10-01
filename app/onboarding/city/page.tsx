@@ -59,7 +59,7 @@ export default function CityOnboardingPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-bg px-6 pt-16 pb-10">
       <p className="text-[13px] tracking-[0.2em] text-gold uppercase">{done ? cityName : "Kenya"}</p>
-      <h1 className="mt-4 font-display text-4xl tracking-tight">SOKO18 is live in Kenya.</h1>
+      <h1 className="mt-4 font-display text-4xl tracking-tight">Kutana is live in Kenya.</h1>
       <p className="mt-3 text-sm text-muted">
         Use my area finds singles near you. Area-level only. Never a precise location.
       </p>

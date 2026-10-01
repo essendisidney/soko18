@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Syne } from "next/font/google";
+import { Big_Shoulders, Geist, Syne } from "next/font/google";
 import { siteUrl } from "@/lib/site";
 import { PwaRegister } from "@/components/pwa/register";
 import "./globals.css";
@@ -15,19 +15,25 @@ const syne = Syne({
   weight: ["500", "600", "700", "800"],
 });
 
+const brand = Big_Shoulders({
+  variable: "--font-kutana",
+  subsets: ["latin"],
+  weight: ["800", "900"],
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: "SOKO18",
-    template: "%s · SOKO18",
+    default: "Kutana",
+    template: "%s · Kutana",
   },
   description: "Real, verified people near you. Private dating in Kenya — pay with M-Pesa.",
-  applicationName: "SOKO18",
+  applicationName: "Kutana",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "SOKO18",
+    title: "Kutana",
   },
 };
 
@@ -43,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geist.variable} ${syne.variable} bg-bg antialiased`}
+      className={`${geist.variable} ${syne.variable} ${brand.variable} bg-bg antialiased`}
     >
       <body className="min-h-dvh bg-bg text-cream">
         <PwaRegister />

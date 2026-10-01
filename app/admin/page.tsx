@@ -35,7 +35,7 @@ export default async function AdminPage() {
 
   return (
     <main className="min-h-dvh bg-bg px-5 py-6 text-cream md:px-10">
-      <p className="text-[11px] tracking-[0.22em] text-gold uppercase">SOKO18 Admin</p>
+      <p className="text-[11px] tracking-[0.22em] text-gold uppercase">Kutana Admin</p>
       <h1 className="mt-3 font-display text-4xl tracking-tight">Overview</h1>
 
       <section className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-5">

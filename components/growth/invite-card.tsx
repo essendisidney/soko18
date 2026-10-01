@@ -122,7 +122,7 @@ export function InviteCard() {
         <p className="text-xs text-muted">
           {left > 0
             ? `You can earn Gold for ${left} more ${left === 1 ? "friend" : "friends"}. Real people only — fake accounts are removed.`
-            : "You’ve earned the maximum free Gold. Thank you for building SOKO."}
+            : "You’ve earned the maximum free Gold. Thank you for building Kutana."}
         </p>
       </section>
 

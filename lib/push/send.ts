@@ -30,7 +30,7 @@ export async function dispatchNotification(notificationId: string) {
     .eq("account_id", note.account_id);
 
   // Lock-screen text stays discreet: no names, no message content.
-  const payload = JSON.stringify({ title: note.title, body: "Open SOKO18 to see it.", href: note.href ?? "/" });
+  const payload = JSON.stringify({ title: note.title, body: "Open Kutana to see it.", href: note.href ?? "/" });
   let sent = 0;
   for (const sub of subs ?? []) {
     try {

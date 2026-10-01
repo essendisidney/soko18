@@ -73,7 +73,7 @@ export async function intasendStkPush(input: { phone: string; amount: number; ap
       email: input.email ?? undefined,
       method: "M-PESA",
       currency: "KES",
-      narrative: "SOKO",
+      narrative: "KUTANA",
     },
     "secret",
   );

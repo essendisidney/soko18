@@ -1,5 +1,5 @@
 /**
- * What SOKO18 sells. Mirrors `public.products` (supabase/migrations/00010_dating_pivot.sql).
+ * What Kutana sells. Mirrors `public.products` (supabase/migrations/00010_dating_pivot.sql).
  * The database price is the one that counts — a transaction whose amount doesn't match is refused.
  *
  * Everyone is a member and everyone can pay. We sell visibility, reach and privacy.

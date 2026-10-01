@@ -3,7 +3,7 @@ import { areaBrowseHref } from "@/lib/geo/kenya";
 export async function shareProfile(name: string, url: string) {
   if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
     try {
-      await navigator.share({ title: `${name} on SOKO18`, url });
+      await navigator.share({ title: `${name} on Kutana`, url });
       return "shared" as const;
     } catch {
       // User cancelled or share failed — fall through to copy.

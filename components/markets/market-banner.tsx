@@ -31,7 +31,7 @@ export function MarketBanner() {
 
   return (
     <div className="glass relative z-10 mt-6 w-full max-w-sm rounded-2xl p-4 text-left text-sm">
-      <p>SOKO18 is coming to {info.market.name}.</p>
+      <p>Kutana is coming to {info.market.name}.</p>
       {joined ? (
         <p className="mt-2 text-gold">You’re on the list. We’ll email you when we open.</p>
       ) : (

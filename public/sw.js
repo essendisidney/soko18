@@ -1,4 +1,4 @@
-// SOKO18 service worker: offline shell, discreet push notifications.
+// Kutana service worker: offline shell, discreet push notifications.
 const CACHE = "soko18-v2";
 const OFFLINE_URL = "/offline.html";
 
@@ -42,7 +42,7 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  let data = { title: "SOKO18", body: "Open SOKO18 to see it.", href: "/" };
+  let data = { title: "Kutana", body: "Open Kutana to see it.", href: "/" };
   try {
     data = { ...data, ...event.data.json() };
   } catch {}

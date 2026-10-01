@@ -120,7 +120,7 @@ export function Store() {
         <div className="flex items-center gap-2">
           <Crown className={cn("size-6", tier === "platinum" ? "text-slate-200" : "text-gold")} />
           <p className={cn("font-display text-sm tracking-[0.22em] uppercase", tier === "platinum" ? "text-slate-200" : "text-gold")}>
-            SOKO {tier === "platinum" ? "Platinum" : "Gold"}
+            Kutana {tier === "platinum" ? "Platinum" : "Gold"}
           </p>
         </div>
         <h1 className="mt-3 font-display text-[32px] leading-[1.05] tracking-tight">{t("store.title")}</h1>
@@ -146,7 +146,7 @@ export function Store() {
       {resumeId ? <PaymentReturn id={resumeId} onPaid={refresh} /> : null}
       {info && info.market.status !== "live" ? (
         <p className="mt-3 rounded-2xl border border-gold/60 p-3 text-sm">
-          SOKO isn’t open in {info.market.name} yet. Prices shown are for when we launch there.
+          Kutana isn’t open in {info.market.name} yet. Prices shown are for when we launch there.
         </p>
       ) : null}
 

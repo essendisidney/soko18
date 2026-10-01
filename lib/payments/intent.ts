@@ -36,7 +36,7 @@ export async function createPaymentIntent(input: unknown) {
   const country = await resolveCountry();
   const market = await getMarket(country);
   if (market && market.status !== "live") {
-    return fail(403, "market_closed", `SOKO18 isn’t open in ${market.name} yet. Join the waitlist and we’ll tell you.`);
+    return fail(403, "market_closed", `Kutana isn’t open in ${market.name} yet. Join the waitlist and we’ll tell you.`);
   }
   const price = (await pricesFor(country)).find((p) => p.sku === product.sku);
   if (!price) return fail(400, "invalid", "This isn’t available in your country yet.");
@@ -77,7 +77,7 @@ export async function createPaymentIntent(input: unknown) {
   let authorizationUrl: string | null = null;
 
   if (provider === "mpesa" && phone) {
-    const push = await stkPush({ phone, amountKes: Math.round(price.amount), accountRef: "SOKO18", description: product.title });
+    const push = await stkPush({ phone, amountKes: Math.round(price.amount), accountRef: "KUTANA", description: product.title });
     if (!push.ok || !push.checkoutRequestId) {
       return fail(502, "mpesa_failed", push.ok ? "M-Pesa did not start." : push.error);
     }

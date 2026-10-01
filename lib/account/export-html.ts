@@ -98,7 +98,7 @@ export function exportToHtml(data: Row) {
 
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your SOKO data</title>
+<title>Your Kutana data</title>
 <style>
   :root { color-scheme: light; }
   body { font: 15px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: #1a1a1a; background: #faf8f3; margin: 0; padding: 24px 16px 48px; }
@@ -122,7 +122,7 @@ export function exportToHtml(data: Row) {
 </style></head>
 <body><main>
 <header>
-  <div class="brand">SOKO</div>
+  <div class="brand">KUTANA</div>
   <h1>Your data</h1>
   <p class="muted">Everything we hold about your account, exported ${esc(exported)}.</p>
   <div class="actions"><button onclick="window.print()">Save as PDF / Print</button></div>

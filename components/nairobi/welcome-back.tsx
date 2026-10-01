@@ -34,8 +34,7 @@ export function WelcomeBack({ onDone }: { onDone: () => void }) {
     >
       <div className="flex w-full max-w-sm flex-1 flex-col items-center justify-center">
         <Wordmark size="sm" />
-        <p className="mt-10 font-display text-[13px] tracking-[0.28em] text-gold">SOKO18</p>
-        <h1 className="mt-4 font-display text-4xl tracking-tight">{greeting}</h1>
+        <h1 className="mt-10 font-display text-4xl tracking-tight">{greeting}</h1>
         <p className="mt-3 text-sm text-muted">{alive}</p>
         {inventory ? (
           <ul className="mt-8 space-y-3 text-lg text-cream/90">

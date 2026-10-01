@@ -15,7 +15,7 @@ export default function SafetyPage() {
         <p>Not matching. A free site can connect people. You pay for trust: ID on both sides, two-way ratings before you continue, panic and live location to a trusted contact, chat receipts, and report.</p>
       </LegalSection>
       <LegalSection title="Rules">
-        <p>18+ only. Date of birth at the door. Identity review on both sides for Verified. No content involving minors, ever. No impersonation. No harassment. Meet in public if you meet at all — SOKO18 does not arrange meetings.</p>
+        <p>18+ only. Date of birth at the door. Identity review on both sides for Verified. No content involving minors, ever. No impersonation. No harassment. Meet in public if you meet at all — Kutana does not arrange meetings.</p>
         <p>Discover is area-level. Panic and live location go only to a trusted contact you set — not a public map.</p>
       </LegalSection>
       <LegalSection title="Report and block">

@@ -44,7 +44,7 @@ export function MfaGate() {
     <div className="fixed inset-0 z-[60] grid place-items-center bg-bg/95 px-6 backdrop-blur" role="dialog" aria-modal>
       <div className="w-full max-w-sm">
         <h2 className="font-display text-3xl tracking-tight">Enter your code</h2>
-        <p className="mt-2 text-sm text-muted">Open your authenticator app and type the 6-digit SOKO18 code.</p>
+        <p className="mt-2 text-sm text-muted">Open your authenticator app and type the 6-digit Kutana code.</p>
         <input
           value={code}
           onChange={(e) => setCode(e.target.value)}

@@ -31,6 +31,7 @@
   --color-live: var(--live);
   --font-sans: var(--font-geist-sans);
   --font-display: var(--font-syne);
+  --font-brand: var(--font-kutana), var(--font-syne), sans-serif;
   --radius-card: 28px;
 }
 

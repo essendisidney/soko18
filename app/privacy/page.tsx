@@ -10,7 +10,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage kicker="Privacy" title="Privacy">
       <LegalSection title="Who we are">
-        <p>SOKO18 is a dating app operated from Nairobi, Kenya. We process personal data under the Kenya Data Protection Act, 2019, and follow equivalent rules (such as the GDPR) for members in other countries.</p>
+        <p>Kutana is a dating app operated from Nairobi, Kenya. We process personal data under the Kenya Data Protection Act, 2019, and follow equivalent rules (such as the GDPR) for members in other countries.</p>
       </LegalSection>
       <LegalSection title="What we collect and why">
         <p><strong>Account:</strong> email, display name and date of birth — to run your account and confirm you are 18+.</p>

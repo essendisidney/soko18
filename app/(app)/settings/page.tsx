@@ -100,7 +100,7 @@ export default function SettingsPage() {
       <TwoStep />
       <ConsentSettings />
       <p className="mt-6 text-xs leading-relaxed text-muted">
-        Location is shown at area level only (Kilimani, Nyali, Milimani). SOKO18 never shows a live pin.
+        Location is shown at area level only (Kilimani, Nyali, Milimani). Kutana never shows a live pin.
       </p>
       <p className="mt-3 text-xs leading-relaxed text-muted">
         Public search indexing lives on your profile in Studio. It is off until you turn it on.
