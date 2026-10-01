@@ -10,6 +10,7 @@ import { PushToggle } from "@/components/pwa/push-toggle";
 import { LanguagePicker } from "@/components/i18n/language-picker";
 import { CountryPicker } from "@/components/markets/country-picker";
 import { ConsentSettings } from "@/components/privacy/consent-settings";
+import { exportToHtml } from "@/lib/account/export-html";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -17,24 +18,30 @@ export default function SettingsPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  async function exportData() {
+  async function exportData(format: "page" | "json" = "page") {
     setBusy(true);
     setNote(null);
     const res = await fetch("/api/account/export", { method: "POST" });
-    const json = (await res.json().catch(() => null)) as { data?: unknown; error?: { message: string } } | null;
+    const json = (await res.json().catch(() => null)) as { data?: Record<string, unknown>; error?: { message: string } } | null;
     setBusy(false);
-    if (!res.ok) {
-      setNote(json && "error" in json && json.error ? json.error.message : "Sign in to export.");
+    if (!res.ok || !json?.data) {
+      setNote(json?.error?.message ?? "Sign in to download your data.");
       return;
     }
-    const blob = new Blob([JSON.stringify(json?.data ?? {}, null, 2)], { type: "application/json" });
+    const stamp = new Date().toISOString().slice(0, 10);
+    const blob =
+      format === "json"
+        ? new Blob([JSON.stringify(json.data, null, 2)], { type: "application/json" })
+        : new Blob([exportToHtml(json.data)], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "soko18-data.json";
+    a.download = format === "json" ? `soko-my-data-${stamp}.json` : `soko-my-data-${stamp}.html`;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
-    setNote("Download started.");
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    setNote(format === "json" ? "Download started." : "Downloaded. Open it to read your data, or save it as a PDF.");
   }
 
   async function deleteAccount() {
@@ -62,11 +69,19 @@ export default function SettingsPage() {
         <button
           type="button"
           disabled={busy}
-          onClick={() => void exportData()}
+          onClick={() => void exportData("page")}
           className="flex w-full items-center justify-between rounded-2xl border border-line bg-glass px-5 py-4 text-left"
         >
           Download my data
-          <span className="text-muted">JSON</span>
+          <span className="text-muted">Readable page · PDF</span>
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void exportData("json")}
+          className="block w-full px-5 text-left text-xs text-muted underline-offset-2 hover:underline"
+        >
+          Need it for another app? Download as JSON
         </button>
         <button
           type="button"
