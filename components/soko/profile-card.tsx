@@ -50,6 +50,11 @@ export function ProfileCard({
           ))}
         </div>
       ) : null}
+      {profile.isTest ? (
+        <p className="absolute top-3 right-3 rounded-full bg-sky-500/90 px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em] text-white">
+          TEST
+        </p>
+      ) : null}
       {profile.featured ? (
         <p className="absolute top-3 left-3 rounded-full border border-gold/70 bg-black/40 px-2 py-0.5 font-display text-[10px] tracking-[0.16em] text-gold">
           BOOSTED

@@ -25,6 +25,7 @@ type CardRow = {
   cover_path: string | null;
   bio?: string | null;
   prompts?: { q: string; a: string }[] | null;
+  is_test?: boolean | null;
 };
 
 /** Demo profiles are only for local development and previews, never alongside real members. */
@@ -66,6 +67,7 @@ function toProfile(row: CardRow, cover: string | undefined, now: number): SeedPr
     views: 0,
     likes: 0,
     indexPublic: false,
+    isTest: Boolean(row.is_test),
   };
 }
 
@@ -76,7 +78,7 @@ export async function liveProfiles(input: { citySlug: string; gender: "man" | "w
   let query = supabase
     .from("live_profile_cards")
     .select(
-      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, bio, prompts",
+      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, bio, prompts, is_test",
     )
     .eq("city_slug", input.citySlug)
     .not("cover_path", "is", null)
@@ -100,7 +102,7 @@ export async function liveProfileBySlug(slug: string) {
   const { data } = await supabase
     .from("live_profile_cards")
     .select(
-      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path",
+      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, is_test",
     )
     .eq("slug", slug)
     .maybeSingle();

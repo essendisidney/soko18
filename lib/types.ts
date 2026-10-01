@@ -13,6 +13,8 @@ export type LookingFor = "relationship" | "casual" | "friends" | "unsure";
 
 export type SeedProfile = {
   id: string;
+  /** A clearly labelled test person (removed before launch). */
+  isTest?: boolean;
   slug: string;
   name: string;
   age: number;

@@ -37,6 +37,7 @@ import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ChevronDown, LayoutGrid, MapPin, SlidersHorizontal, Zap } from "lucide-react";
 import { PlaceSheet } from "@/components/discover/place-sheet";
+import { ProfileNudge } from "@/components/discover/profile-nudge";
 import { readIncognito } from "@/lib/privacy/local";
 import type { SeedProfile } from "@/lib/types";
 import { cityHomeHref } from "@/lib/geo/kenya";
@@ -189,6 +190,7 @@ export function DiscoverDeck({
           </Link>
         </div>
       </header>
+      <ProfileNudge />
       {ghost ? <p className="mt-2 px-1 text-xs text-gold">You’re invisible</p> : null}
       <AnimatePresence>
         {placeOpen ? <PlaceSheet citySlug={citySlug || "nairobi"} near={near} onClose={() => setPlaceOpen(false)} /> : null}
