@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { SeedProfile } from "@/lib/types";
-import { coverPhoto } from "@/lib/media/public";
+import { coverPhoto, publicPhotos } from "@/lib/media/public";
 import { PresenceDot } from "@/components/soko/presence-dot";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 import { sokoVerified } from "@/lib/trust/verified";
@@ -15,17 +15,22 @@ export function ProfileCard({
   className,
   href,
   compact = false,
+  photoIndex = 0,
 }: {
   profile: SeedProfile;
   className?: string;
   href?: string;
   compact?: boolean;
+  /** Which photo to show (Discover lets you tap through them). */
+  photoIndex?: number;
 }) {
-  const cover = coverPhoto(profile);
+  const all = publicPhotos(profile);
+  const cover = all[Math.min(photoIndex, all.length - 1)] ?? coverPhoto(profile);
   if (!cover) return null;
 
   const inner = (
     <div
+      data-card
       className={cn(
         "relative overflow-hidden bg-bg-elevated",
         compact ? "aspect-[3/4] rounded-[22px]" : "h-full rounded-[28px]",
@@ -39,6 +44,7 @@ export function ProfileCard({
         className="object-cover"
         sizes={compact ? "50vw" : "100vw"}
         priority={!compact}
+        key={cover}
         // Member photos are already resized on upload; skip paid image optimisation.
         unoptimized={cover.startsWith("http")}
       />
@@ -46,7 +52,7 @@ export function ProfileCard({
       {!compact && profile.photos.length > 1 ? (
         <div className="absolute inset-x-4 top-2.5 flex gap-1" aria-label={`${profile.photos.length} photos`}>
           {profile.photos.map((src, i) => (
-            <span key={src} className={cn("h-1 flex-1 rounded-full", i === 0 ? "bg-cream/90" : "bg-cream/30")} />
+            <span key={src} className={cn("h-1 flex-1 rounded-full", i === Math.min(photoIndex, all.length - 1) ? "bg-cream/90" : "bg-cream/30")} />
           ))}
         </div>
       ) : null}

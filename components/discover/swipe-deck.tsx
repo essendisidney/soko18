@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { animate, motion, useMotionValue, useTransform, type PanInfo } from "motion/react";
 import type { SeedProfile } from "@/lib/types";
 import { ProfileCard } from "@/components/soko/profile-card";
+import { publicPhotos } from "@/lib/media/public";
 import { Button } from "@/components/soko/button";
 import type { ReactNode } from "react";
 import { Star, X, Heart, RotateCcw, Zap } from "lucide-react";
@@ -77,6 +78,12 @@ export function SwipeDeck({
   const busy = useRef(false);
   const queue = profiles.filter((profile) => !gone.has(profile.id));
   const current = queue[0];
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const [photoFor, setPhotoFor] = useState<string | null>(null);
+  if ((current?.id ?? null) !== photoFor) {
+    setPhotoFor(current?.id ?? null);
+    setPhotoIndex(0);
+  }
   const behind = queue[1];
 
   const x = useMotionValue(0);
@@ -266,13 +273,28 @@ export function SwipeDeck({
               y.stop();
             }}
             onDragEnd={onDragEnd}
-            onTap={() => {
+            onTap={(event, info) => {
               if (busy.current) return;
               if (Math.abs(x.get()) > 8 || Math.abs(y.get()) > 8) return;
+              // Tap the left or right edge to flip photos; the middle opens the profile.
+              const target = (event.target as HTMLElement | null)?.closest("[data-card]") as HTMLElement | null;
+              const rect = target?.getBoundingClientRect();
+              const total = publicPhotos(current).length;
+              if (rect && total > 1) {
+                const rel = (info.point.x - rect.left) / rect.width;
+                if (rel < 0.3) {
+                  setPhotoIndex((i) => Math.max(0, i - 1));
+                  return;
+                }
+                if (rel > 0.7) {
+                  setPhotoIndex((i) => Math.min(total - 1, i + 1));
+                  return;
+                }
+              }
               router.push(`/profile/${current.slug}`);
             }}
           >
-            <ProfileCard profile={current} />
+            <ProfileCard profile={current} photoIndex={photoIndex} />
             <motion.div
               style={{ opacity: goldWash }}
               className="pointer-events-none absolute inset-0 rounded-[28px] bg-gold/40"

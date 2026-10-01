@@ -44,6 +44,36 @@ async function signCovers(paths: string[]) {
   return out;
 }
 
+
+/** All approved photos for these live profiles, main photo first, as signed links. */
+async function approvedPhotos(profileIds: string[]) {
+  const out = new Map<string, string[]>();
+  const admin = createServiceClient();
+  if (!admin || profileIds.length === 0) return out;
+  const { data } = await admin
+    .from("profile_media")
+    .select("profile_id, storage_path, is_cover, sort_order")
+    .in("profile_id", profileIds)
+    .eq("status", "approved")
+    .order("is_cover", { ascending: false })
+    .order("sort_order", { ascending: true });
+  const rows = (data ?? []) as { profile_id: string; storage_path: string }[];
+  const signed = await signCovers(rows.map((r) => r.storage_path));
+  for (const row of rows) {
+    const url = signed.get(row.storage_path);
+    if (!url) continue;
+    const list = out.get(row.profile_id) ?? [];
+    if (list.length < 6) list.push(url);
+    out.set(row.profile_id, list);
+  }
+  return out;
+}
+
+function withPhotos(profile: SeedProfile, photos: Map<string, string[]>) {
+  const all = photos.get(profile.id);
+  return all && all.length > 0 ? { ...profile, photos: all } : profile;
+}
+
 function toProfile(row: CardRow, cover: string | undefined, now: number): SeedProfile {
   const age = row.birth_year ? new Date().getFullYear() - row.birth_year : 18;
   return {
@@ -88,10 +118,13 @@ export async function liveProfiles(input: { citySlug: string; gender: "man" | "w
 
   const { data } = await query;
   const rows = (data ?? []) as CardRow[];
-  const covers = await signCovers(rows.map((row) => row.cover_path).filter((p): p is string => Boolean(p)));
+  const [covers, photos] = await Promise.all([
+    signCovers(rows.map((row) => row.cover_path).filter((p): p is string => Boolean(p))),
+    approvedPhotos(rows.map((row) => row.id)),
+  ]);
   const now = Date.now();
   return rows
-    .map((row) => toProfile(row, row.cover_path ? covers.get(row.cover_path) : undefined, now))
+    .map((row) => withPhotos(toProfile(row, row.cover_path ? covers.get(row.cover_path) : undefined, now), photos))
     .filter((profile) => profile.photos.length > 0);
 }
 
@@ -108,11 +141,12 @@ export async function liveProfileBySlug(slug: string) {
     .maybeSingle();
   if (!data) return null;
   const row = data as CardRow;
-  const [{ data: bioRow }, covers] = await Promise.all([
+  const [{ data: bioRow }, covers, photos] = await Promise.all([
     supabase.from("profiles").select("bio, prompts").eq("id", row.id).maybeSingle(),
     signCovers(row.cover_path ? [row.cover_path] : []),
+    approvedPhotos([row.id]),
   ]);
-  const profile = toProfile(row, row.cover_path ? covers.get(row.cover_path) : undefined, Date.now());
+  const profile = withPhotos(toProfile(row, row.cover_path ? covers.get(row.cover_path) : undefined, Date.now()), photos);
   return {
     ...profile,
     bio: (bioRow?.bio as string | null) ?? "",
