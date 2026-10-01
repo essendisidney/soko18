@@ -3,6 +3,8 @@ import { currentUser } from "@/lib/auth/user";
 import { ledgerPurpose, PRODUCTS, SKUS } from "@/lib/payments/catalog";
 import { mpesaConfigured, normalizeKenyanPhone, stkPush } from "@/lib/payments/daraja";
 import { initializePaystack, paystackConfigured } from "@/lib/payments/paystack";
+import { intasendCheckout, intasendConfigured, intasendStkPush } from "@/lib/payments/intasend";
+import { reconcileIntasend } from "@/lib/payments/intasend-settle";
 import { getMarket, pricesFor, resolveCountry } from "@/lib/markets/server";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -41,12 +43,14 @@ export async function createPaymentIntent(input: unknown) {
 
   const providers = market?.payment_providers ?? ["mpesa"];
   const wantsCard = parsed.data.method === "card" || !providers.includes("mpesa");
-  let provider: "mpesa" | "paystack" | "sandbox" = "sandbox";
-  if (wantsCard && providers.includes("paystack") && paystackConfigured()) provider = "paystack";
+  let provider: "mpesa" | "paystack" | "intasend" | "sandbox" = "sandbox";
+  // IntaSend first (M-Pesa STK, or its hosted page for cards), then Daraja / Paystack.
+  if (providers.includes("intasend") && price.currency === "KES" && intasendConfigured()) provider = "intasend";
+  else if (wantsCard && providers.includes("paystack") && paystackConfigured()) provider = "paystack";
   else if (!wantsCard && price.currency === "KES" && mpesaConfigured()) provider = "mpesa";
 
   const phone = parsed.data.phone ? normalizeKenyanPhone(parsed.data.phone) : null;
-  if (provider === "mpesa" && !phone) {
+  if ((provider === "mpesa" || (provider === "intasend" && !wantsCard)) && !phone) {
     return fail(400, "invalid_phone", "Enter your M-Pesa number, e.g. 0712 345 678.");
   }
 
@@ -80,6 +84,34 @@ export async function createPaymentIntent(input: unknown) {
     const admin = createServiceClient();
     if (!admin) return fail(500, "misconfigured", "Payments are not fully configured.");
     await admin.rpc("attach_mpesa_checkout", { p_tx: tx.id, p_checkout: push.checkoutRequestId, p_phone: phone });
+  }
+
+  if (provider === "intasend") {
+    const admin = createServiceClient();
+    if (!admin) return fail(500, "misconfigured", "Payments are not fully configured.");
+    if (!wantsCard && phone) {
+      const push = await intasendStkPush({ phone, amount: price.amount, apiRef: tx.id, email: user.email });
+      if (!push.ok) {
+        await admin.rpc("fail_intasend", { p_tx: tx.id, p_desc: push.error });
+        return fail(502, "mpesa_failed", push.error);
+      }
+      await admin.rpc("attach_intasend_invoice", { p_tx: tx.id, p_invoice: push.invoiceId, p_phone: phone });
+    } else {
+      if (!user.email) return fail(400, "no_email", "Add an email to your account to pay by card.");
+      const base = process.env.NEXT_PUBLIC_APP_URL || "https://soko18.vercel.app";
+      const page = await intasendCheckout({
+        amount: price.amount,
+        currency: price.currency,
+        apiRef: tx.id,
+        email: user.email,
+        redirectUrl: `${base}/upgrade?paid=${tx.id}`,
+      });
+      if (!page.ok) {
+        await admin.rpc("fail_intasend", { p_tx: tx.id, p_desc: page.error });
+        return fail(502, "card_failed", page.error);
+      }
+      authorizationUrl = page.url;
+    }
   }
 
   if (provider === "paystack") {
@@ -120,11 +152,18 @@ export async function paymentStatus(transactionId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("transactions")
-    .select("id, status, sku, amount, currency, result_desc")
+    .select("id, status, sku, amount, currency, result_desc, provider, checkout_request_id")
     .eq("id", transactionId)
     .eq("account_id", user.id)
     .maybeSingle();
   if (!data) return fail(404, "not_found", "Payment not found.");
+  // IntaSend: don't wait for the webhook — ask IntaSend directly while the member waits.
+  if (data.provider === "intasend" && data.status === "pending" && data.checkout_request_id) {
+    const checked = await reconcileIntasend(data.checkout_request_id as string, data.id as string);
+    if (checked.status === "completed" || checked.status === "failed") {
+      data.status = checked.status;
+    }
+  }
   return {
     ok: true as const,
     data: {

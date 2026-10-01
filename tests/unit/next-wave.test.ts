@@ -39,3 +39,16 @@ describe("invite links", () => {
     expect(decodeURIComponent(wa)).toContain("?invite=ABC123");
   });
 });
+
+describe("intasend webhook challenge", () => {
+  it("rejects when no challenge is configured or it doesn't match", async () => {
+    const { intasendChallengeOk } = await import("@/lib/payments/intasend");
+    delete process.env.INTASEND_WEBHOOK_CHALLENGE;
+    expect(intasendChallengeOk("anything")).toBe(false);
+    process.env.INTASEND_WEBHOOK_CHALLENGE = "s3cret-challenge";
+    expect(intasendChallengeOk("nope")).toBe(false);
+    expect(intasendChallengeOk(undefined)).toBe(false);
+    expect(intasendChallengeOk("s3cret-challenge")).toBe(true);
+    delete process.env.INTASEND_WEBHOOK_CHALLENGE;
+  });
+});

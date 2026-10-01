@@ -151,7 +151,7 @@ export function Checkout({
 
   return (
     <div className="mt-4">
-      {choosing && hasMpesa && providers.includes("paystack") ? (
+      {choosing && hasMpesa && (providers.includes("paystack") || providers.includes("intasend")) ? (
         <div className="mb-3 flex gap-2 text-sm">
           {(["mpesa", "card"] as const).map((m) => (
             <button
