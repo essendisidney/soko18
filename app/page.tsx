@@ -9,7 +9,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { ageGateMaxDate, isAdultBirthDate, MIN_BIRTH_DATE } from "@/lib/age";
 import { locateHere } from "@/lib/geo/locate";
-import { writeCity } from "@/lib/nairobi/near";
+import { guessedCity, writeCity } from "@/lib/nairobi/near";
+import { cityNameBySlug } from "@/lib/geo/kenya";
 import { ONBOARDING, bumpVisit, confirmAge, markWelcomeSeen } from "@/lib/onboarding";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
@@ -32,6 +33,7 @@ export default function WelcomePage() {
   const [dob, setDob] = useState("");
   const [locating, setLocating] = useState(false);
   const adult = isAdultBirthDate(dob);
+  const homeCity = useSyncExternalStore(subscribe, guessedCity, () => "nairobi");
   const underage = Boolean(dob) && !adult;
 
   useEffect(() => {
@@ -50,14 +52,14 @@ export default function WelcomePage() {
     setLocating(true);
     const result = await locateHere();
     setLocating(false);
-    if (!result.ok) writeCity("nairobi");
+    if (!result.ok) writeCity(guessedCity());
     router.push("/onboarding/intent");
   }
 
   function continueInNairobi() {
     if (!adult) return;
     confirmAge();
-    writeCity("nairobi");
+    writeCity(homeCity);
     router.push("/onboarding/intent");
   }
 
@@ -129,7 +131,7 @@ export default function WelcomePage() {
           {locating ? t("welcome.finding") : t("welcome.useArea")}
         </Button>
         <Button className="mt-3 w-full" variant="ghost" disabled={!adult} onClick={continueInNairobi}>
-          {t("welcome.continueNairobi")}
+          {t("welcome.continueNairobi").replace("{city}", cityNameBySlug(homeCity))}
         </Button>
         <button
           type="button"

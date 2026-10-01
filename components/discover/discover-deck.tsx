@@ -35,7 +35,8 @@ import { catalogForCity } from "@/lib/discovery/feed";
 import { ONBOARDING } from "@/lib/onboarding";
 import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
 import { Wordmark } from "@/components/brand/wordmark";
-import { SlidersHorizontal, Zap, LayoutGrid } from "lucide-react";
+import { ChevronDown, LayoutGrid, MapPin, SlidersHorizontal, Zap } from "lucide-react";
+import { PlaceSheet } from "@/components/discover/place-sheet";
 import { readIncognito } from "@/lib/privacy/local";
 import type { SeedProfile } from "@/lib/types";
 import { cityHomeHref } from "@/lib/geo/kenya";
@@ -58,6 +59,7 @@ export function DiscoverDeck({
   const [ghost, setGhost] = useState(false);
   const [clock, setClock] = useState(0);
   const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
+  const [placeOpen, setPlaceOpen] = useState(false);
   const citySlug = useSyncExternalStore(
     subscribeNearArea,
     () => localStorage.getItem(ONBOARDING.city),
@@ -152,9 +154,17 @@ export function DiscoverDeck({
         <h1 className="sr-only">{cityNameBySlug(citySlug || "nairobi")}</h1>
         <Wordmark size="sm" />
         <div className="flex items-center gap-1.5">
-          <span className="max-w-[9rem] truncate rounded-full border border-line px-3 py-1.5 text-xs text-muted" title={subtitle}>
-            {near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}
-          </span>
+          <button
+            type="button"
+            onClick={() => setPlaceOpen(true)}
+            className="inline-flex max-w-[9.5rem] items-center gap-1 truncate rounded-full border border-line px-3 py-1.5 text-xs text-cream/90"
+            title={subtitle}
+            aria-label="Change area"
+          >
+            <MapPin className="size-3.5 shrink-0 text-gold" />
+            <span className="truncate">{near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}</span>
+            <ChevronDown className="size-3 shrink-0 text-muted" />
+          </button>
           <button
             type="button"
             aria-label={t("discover.filters")}
@@ -180,6 +190,9 @@ export function DiscoverDeck({
         </div>
       </header>
       {ghost ? <p className="mt-2 px-1 text-xs text-gold">You’re invisible</p> : null}
+      <AnimatePresence>
+        {placeOpen ? <PlaceSheet citySlug={citySlug || "nairobi"} near={near} onClose={() => setPlaceOpen(false)} /> : null}
+      </AnimatePresence>
       {filters ? (
         <FiltersSheet
           onClose={() => {

@@ -1,6 +1,7 @@
 import { cityNameBySlug, snapPlace, type GeoPlace } from "@/lib/geo/kenya";
 import { ONBOARDING } from "@/lib/onboarding";
 import { checkIn } from "@/lib/presence/here";
+import { guessedCity } from "@/lib/nairobi/near";
 
 export type LocateResult =
   | { ok: true; place: GeoPlace }
@@ -12,7 +13,7 @@ function applyPlace(place: GeoPlace) {
 
 export function readCitySlug() {
   if (typeof window === "undefined") return "nairobi";
-  return localStorage.getItem(ONBOARDING.city) || "nairobi";
+  return localStorage.getItem(ONBOARDING.city) || guessedCity();
 }
 
 export function readCityName() {

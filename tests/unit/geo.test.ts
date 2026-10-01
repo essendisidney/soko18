@@ -59,3 +59,14 @@ describe("kenya area snap", () => {
     expect(emptyStudioLine("Kisumu")).toBe("Create a profile in Kisumu. Draft until review. Empty stays empty.");
   });
 });
+
+describe("network city guess", () => {
+  it("maps a Mombasa network location to Mombasa and stays quiet outside Kenya", async () => {
+    const { nearestCitySlug } = await import("@/lib/geo/kenya");
+    expect(nearestCitySlug(-4.05, 39.67)).toBe("mombasa");
+    expect(nearestCitySlug(-1.29, 36.82)).toBe("nairobi");
+    expect(nearestCitySlug(-0.1, 34.75)).toBe("kisumu");
+    expect(nearestCitySlug(51.5, -0.12)).toBeNull();
+    expect(nearestCitySlug(Number.NaN, 1)).toBeNull();
+  });
+});

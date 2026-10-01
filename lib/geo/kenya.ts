@@ -203,3 +203,19 @@ export function placeShareName(citySlug: string, areaSlug?: string | null) {
   if (citySlug === "nairobi") return areaBySlug(area)?.name ?? cityNameBySlug(citySlug);
   return waitlistAreas(citySlug).find((item) => item.slug === area)?.name ?? cityNameBySlug(citySlug);
 }
+
+/** Nearest Kenya city to a point (e.g. the visitor's network location). Null if outside Kenya. */
+export function nearestCitySlug(lat: number, lng: number): string | null {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  let best: string | null = null;
+  let bestKm = Infinity;
+  for (const [slug, center] of Object.entries(CITY_CENTERS)) {
+    if (!isKenyaCitySlug(slug)) continue;
+    const km = haversineKm({ lat, lng }, center);
+    if (km < bestKm) {
+      bestKm = km;
+      best = slug;
+    }
+  }
+  return bestKm <= 150 ? best : null;
+}

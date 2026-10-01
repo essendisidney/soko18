@@ -1,6 +1,6 @@
 import { areaBySlug } from "@/lib/data/nairobi";
 import { waitlistAreas } from "@/lib/data/waitlist";
-import { writeCityCookie } from "@/lib/geo/city-cookie";
+import { CITY_COOKIE, parseCityCookie, writeCityCookie } from "@/lib/geo/city-cookie";
 import { areaSlugInCity, areasForCity } from "@/lib/geo/kenya";
 import { ONBOARDING } from "@/lib/onboarding";
 
@@ -24,9 +24,16 @@ export function subscribeNearArea(onChange: () => void) {
   };
 }
 
+/** City the server guessed from the network, before the visitor picks one. */
+export function guessedCity() {
+  if (typeof document === "undefined") return "nairobi";
+  const raw = document.cookie.split("; ").find((part) => part.startsWith(`${CITY_COOKIE}=`));
+  return parseCityCookie(raw?.split("=")[1]);
+}
+
 function storedCity() {
   if (typeof window === "undefined") return "nairobi";
-  return localStorage.getItem(ONBOARDING.city) || "nairobi";
+  return localStorage.getItem(ONBOARDING.city) || guessedCity();
 }
 
 function storedNear() {
