@@ -9,7 +9,7 @@ import { ProfileCard } from "@/components/soko/profile-card";
 import { publicPhotos } from "@/lib/media/public";
 import { Button } from "@/components/soko/button";
 import type { ReactNode } from "react";
-import { Star, X, Heart, RotateCcw, Zap } from "lucide-react";
+import { Star, X, Heart, RotateCcw } from "lucide-react";
 import { CityNotifyButton } from "@/components/nairobi/waitlist-button";
 import { EmptyCityLoop } from "@/components/city/city-door";
 import { cn } from "@/lib/utils";
@@ -50,11 +50,12 @@ export function SwipeDeck({
   browseHref = "/browse",
   browseLabel = "Browse",
   emptyTitle = "That’s everyone around you",
-  emptyHint = "A pass stays off Discover for 30 days. Browse still open. Empty stays empty.",
+  emptyHint = "People you pass stay hidden for 30 days. New people join every day.",
   notifyCity,
   emptyExtra,
   onEngage,
   onImpression,
+  restore,
 }: {
   profiles: SeedProfile[];
   onEmpty?: () => void;
@@ -71,11 +72,22 @@ export function SwipeDeck({
   emptyExtra?: ReactNode;
   onEngage?: (profile: SeedProfile, kind: "like" | "super") => boolean;
   onImpression?: (profile: SeedProfile) => void;
+  /** Bring a card back (e.g. a like that didn't go through). Bump `n` to trigger. */
+  restore?: { id: string; n: number } | null;
 }) {
   const router = useRouter();
   const [gone, setGone] = useState<Set<string>>(() => new Set());
   const [exits, setExits] = useState<Exit[]>([]);
   const busy = useRef(false);
+  const [restored, setRestored] = useState(0);
+  if (restore && restore.n !== restored) {
+    setRestored(restore.n);
+    if (gone.has(restore.id)) {
+      const next = new Set(gone);
+      next.delete(restore.id);
+      setGone(next);
+    }
+  }
   const queue = profiles.filter((profile) => !gone.has(profile.id));
   const current = queue[0];
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -362,13 +374,6 @@ export function SwipeDeck({
         <ActionButton label="Like" size="lg" gold onClick={() => commit("right")}>
           <Heart className="size-8 fill-bg text-bg" />
         </ActionButton>
-        <Link
-          href="/upgrade#boost"
-          aria-label="Boost"
-          className="grid size-11 place-items-center rounded-full border border-line bg-bg-elevated shadow-[0_6px_20px_rgba(0,0,0,0.45)] transition-transform active:scale-90"
-        >
-          <Zap className="size-[18px] fill-violet-400 text-violet-400" />
-        </Link>
       </div>
     </div>
   );

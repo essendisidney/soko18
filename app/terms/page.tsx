@@ -11,7 +11,7 @@ export default function TermsPage() {
   return (
     <LegalPage kicker="18+" title="Terms">
       <LegalSection title="Who this is for">
-        <p>Kutana is a dating app for adults in Kenya. You must be 18 or older. On first open you confirm that with your date of birth, and every profile is reviewed before it goes live.</p>
+        <p>Kutana is a dating app for adults in Kenya. You must be 18 or older. On first open you confirm that with your date of birth, Profiles show as soon as they’re complete and are checked by our team; we remove fake, paid or unsafe profiles.</p>
         <p>Use my area finds singles near you at area level only. We never show anyone your precise location.</p>
       </LegalSection>
       <LegalSection title="What’s not allowed">

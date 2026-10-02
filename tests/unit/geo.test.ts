@@ -56,7 +56,7 @@ describe("kenya area snap", () => {
     expect(emptyMatchesLine("Kisumu")).toBe(
       "No matches yet. When someone you liked likes you back, they’ll show up here.",
     );
-    expect(emptyStudioLine("Kisumu")).toBe("Create a profile in Kisumu. Draft until review. Empty stays empty.");
+    expect(emptyStudioLine("Kisumu")).toBe("Create a profile in Kisumu. Add a photo and a few details and you’re live.");
   });
 });
 

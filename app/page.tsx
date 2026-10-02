@@ -11,7 +11,7 @@ import { ageGateMaxDate, isAdultBirthDate, MIN_BIRTH_DATE } from "@/lib/age";
 import { locateHere } from "@/lib/geo/locate";
 import { guessedCity, writeCity } from "@/lib/nairobi/near";
 import { cityNameBySlug } from "@/lib/geo/kenya";
-import { ONBOARDING, bumpVisit, confirmAge, markWelcomeSeen } from "@/lib/onboarding";
+import { ONBOARDING, bumpVisit, confirmAge, markWelcomeSeen, welcomeSeenToday } from "@/lib/onboarding";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
 import { WelcomeBack } from "@/components/nairobi/welcome-back";
@@ -22,7 +22,7 @@ function subscribe() {
 
 function openMode() {
   if (localStorage.getItem(ONBOARDING.done) !== "1") return "age";
-  if (sessionStorage.getItem(ONBOARDING.welcomeSeen) !== "1") return "pulse";
+  if (!welcomeSeenToday()) return "pulse";
   return "go";
 }
 
@@ -48,7 +48,7 @@ export default function WelcomePage() {
 
   async function useMyArea() {
     if (!adult) return;
-    confirmAge();
+    confirmAge(dob);
     setLocating(true);
     const result = await locateHere();
     setLocating(false);
@@ -58,14 +58,14 @@ export default function WelcomePage() {
 
   function continueInNairobi() {
     if (!adult) return;
-    confirmAge();
+    confirmAge(dob);
     writeCity(homeCity);
     router.push("/onboarding/intent");
   }
 
   function otherCities() {
     if (!adult) return;
-    confirmAge();
+    confirmAge(dob);
     router.push("/onboarding/city");
   }
 

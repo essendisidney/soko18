@@ -61,9 +61,8 @@ export default function CityOnboardingPage() {
       <p className="text-[13px] tracking-[0.2em] text-gold uppercase">{done ? cityName : "Kenya"}</p>
       <h1 className="mt-4 font-display text-4xl tracking-tight">Kutana is live in Kenya.</h1>
       <p className="mt-3 text-sm text-muted">
-        Use my area finds singles near you. Area-level only. Never a precise location.
+        “Use my area” finds people near you. We only ever show your area, never your exact location.
       </p>
-      <p className="mt-1 text-sm text-muted">Empty stays empty. Never a borrowed catalog.</p>
       <Button className="mt-10 w-full" variant="gold" onClick={() => void useMyArea()}>
         Use my area
       </Button>
@@ -85,7 +84,7 @@ export default function CityOnboardingPage() {
                 <span className="block text-cream/90">{city.name}</span>
                 <span className="mt-1 block text-xs text-muted">{cityPlaceLine(city.slug)}</span>
               </span>
-              <span className="text-xs text-muted">{city.slug === "nairobi" ? "Live" : "Open"}</span>
+              <span className="text-xs text-muted">Live</span>
             </button>
           ))}
         </div>

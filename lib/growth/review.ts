@@ -5,5 +5,5 @@ export function reviewPriority() {
 }
 
 export function reviewPriorityLine() {
-  return hasFriendPass() ? "Invited by a member · your welcome gift unlocks when you’re approved." : null;
+  return hasFriendPass() ? "Invited by a member · your welcome gift unlocks when you go live." : null;
 }

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/soko/button";
 import { useAuth } from "@/lib/auth/use-auth";
 import { needsConsent, type ConsentState } from "@/lib/account/consent-client";
+import { takeDobHandoff } from "@/lib/onboarding";
 
 /**
  * First sign-in: date of birth (server-checked 18+), Terms + Privacy, and explicit consent
@@ -15,7 +16,7 @@ import { needsConsent, type ConsentState } from "@/lib/account/consent-client";
 export function ConsentGate() {
   const { user, ready, configured } = useAuth();
   const [open, setOpen] = useState(false);
-  const [dob, setDob] = useState("");
+  const [dob, setDob] = useState(() => (typeof window === "undefined" ? "" : takeDobHandoff()));
   const [terms, setTerms] = useState(false);
   const [sensitive, setSensitive] = useState(false);
   const [marketing, setMarketing] = useState(false);
@@ -48,6 +49,9 @@ export function ConsentGate() {
       if (json?.error?.code === "underage") window.location.assign(window.location.origin);
       return;
     }
+    try {
+      sessionStorage.removeItem("soko18_dob_once");
+    } catch {}
     setOpen(false);
   }
 

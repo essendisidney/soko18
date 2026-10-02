@@ -27,7 +27,7 @@ export function writeLocalDraft(draft: ProfileDraft) {
 export function subscribeLocalDraft(onChange: () => void) {
   listeners.add(onChange);
   function handle(event: StorageEvent) {
-    if (event.key === DRAFT_KEY) onChange();
+    if (event.key === DRAFT_KEY || event.key === "soko18_profile_meta") onChange();
   }
   window.addEventListener("storage", handle);
   return () => {
@@ -38,4 +38,30 @@ export function subscribeLocalDraft(onChange: () => void) {
 
 export function draftSnapshot() {
   return localStorage.getItem(DRAFT_KEY);
+}
+
+export function clearLocalDraft() {
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch {}
+  emit();
+}
+
+/** Server facts the editor and nudges need: approved photo count and why a profile is held. */
+export const META_KEY = "soko18_profile_meta";
+export type ProfileMeta = { photos: number; coverUrl?: string | null; heldReason: string | null; syncedAt: number };
+
+export function writeProfileMeta(meta: ProfileMeta) {
+  try {
+    localStorage.setItem(META_KEY, JSON.stringify(meta));
+  } catch {}
+  emit();
+}
+
+export function metaSnapshot() {
+  try {
+    return localStorage.getItem(META_KEY);
+  } catch {
+    return null;
+  }
 }

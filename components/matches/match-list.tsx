@@ -19,6 +19,7 @@ import { cityNameBySlug, emptyMatchesLine } from "@/lib/geo/kenya";
 import { useSnappedCity } from "@/lib/nairobi/use-near-area";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth/use-auth";
 
 function Avatar({ item, size }: { item: MatchListItem; size: number }) {
   return (
@@ -40,6 +41,7 @@ function Avatar({ item, size }: { item: MatchListItem; size: number }) {
 }
 
 export function MatchList({ items }: { items: MatchListItem[] }) {
+  const { user, ready, configured } = useAuth();
   const citySlug = useSnappedCity();
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
   const seen = useLocalIds(subscribeMatchSeen, matchSeenSnapshot);
@@ -60,6 +62,23 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
       writeMatchWaiting(item.profileId, isFreshMatch(item.lastMessage, opened.has(item.profileId)));
     }
   }, [items, blocked, seen]);
+
+  if (configured && ready && !user) {
+    return (
+      <div className="mt-10 flex flex-col items-center text-center">
+        <div className="grid size-20 place-items-center rounded-full border border-gold/40 bg-gold/10">
+          <MessageCircle className="size-9 text-gold" />
+        </div>
+        <p className="mt-5 font-display text-2xl">Your chats live here</p>
+        <p className="mt-2 max-w-xs text-sm text-muted">Sign in to match and message people near you.</p>
+        <Link href="/login?next=/matches" className="mt-6 w-full max-w-xs">
+          <Button className="w-full" variant="gold">
+            Sign in
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <>

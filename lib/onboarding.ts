@@ -10,9 +10,27 @@ export const ONBOARDING = {
   nearArea: "soko18_near_area",
 } as const;
 
-/** Guest 18+ flag only. Date of birth is not stored on the device. */
-export function confirmAge() {
+/**
+ * Guest 18+ flag. The date of birth itself is only kept for this browser tab (sessionStorage),
+ * so the sign-up step can pre-fill it instead of asking twice. It is never kept long-term on the device.
+ */
+export const DOB_HANDOFF = "soko18_dob_once";
+
+export function confirmAge(dob?: string) {
   localStorage.setItem(ONBOARDING.age, "1");
+  if (dob) {
+    try {
+      sessionStorage.setItem(DOB_HANDOFF, dob);
+    } catch {}
+  }
+}
+
+export function takeDobHandoff() {
+  try {
+    return sessionStorage.getItem(DOB_HANDOFF) ?? "";
+  } catch {
+    return "";
+  }
 }
 
 export function readOnboarding() {
@@ -62,14 +80,29 @@ export function bumpVisit() {
   return next;
 }
 
+/** The "welcome back" screen shows at most once a day, not on every open of the installed app. */
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function welcomeSeenToday() {
+  try {
+    return localStorage.getItem(ONBOARDING.welcomeSeen) === today();
+  } catch {
+    return true;
+  }
+}
+
 export function shouldShowWelcomeBack() {
   if (typeof window === "undefined") return false;
   if (localStorage.getItem(ONBOARDING.done) !== "1") return false;
-  return sessionStorage.getItem(ONBOARDING.welcomeSeen) !== "1";
+  return !welcomeSeenToday();
 }
 
 export function markWelcomeSeen() {
-  sessionStorage.setItem(ONBOARDING.welcomeSeen, "1");
+  try {
+    localStorage.setItem(ONBOARDING.welcomeSeen, today());
+  } catch {}
 }
 
 export type ShowMe = "woman" | "man" | "any";

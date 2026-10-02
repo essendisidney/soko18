@@ -13,8 +13,6 @@ import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
 import { ReportReasons } from "@/components/safety/report-reasons";
 import { writeReportFlag } from "@/lib/reports/local";
 import { writeDiscoverAction } from "@/lib/discovery/actions";
-import { BothSidesLine } from "@/components/trust/both-sides-line";
-import { UnmaskLine } from "@/components/trust/unmask-line";
 import { goBackOr } from "@/components/profile/profile-back";
 import { useAuth } from "@/lib/auth/use-auth";
 import { writeBlock } from "@/lib/blocks/local";
@@ -28,10 +26,17 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/client";
 import type { SeedProfile } from "@/lib/types";
 import { lastOwnReceipt, markThreadRead, type ThreadMessage } from "@/lib/messages/engine";
-import { chatExpiresAt, chatOpen, extendChat, remainingLabel } from "@/lib/messages/expiry";
-import { ensureChatExpiry, writeChatExpiry } from "@/lib/messages/ttl-local";
-import { readExtendVotes, tapExtendLocal, writeExtendVotes } from "@/lib/messages/extend-local";
-import { extendReady } from "@/lib/messages/extend";
+
+/** First-message ideas, built from what they wrote so the opener isn't just "hi". */
+function icebreakers(profile: SeedProfile): string[] {
+  const ideas: string[] = [];
+  const prompt = profile.prompts?.find((p) => p.a?.trim());
+  if (prompt) ideas.push(`Okay, “${prompt.a.trim().slice(0, 40)}” — tell me more 😄`);
+  if (profile.area) ideas.push(`What’s your favourite spot in ${profile.area}?`);
+  ideas.push(`Hey ${profile.name} 👋 how’s your week going?`);
+  ideas.push("Nyama choma or pizza — choose wisely.");
+  return ideas.slice(0, 3);
+}
 
 export function ThreadShell({
   profile,
@@ -63,31 +68,8 @@ export function ThreadShell({
   const [blocked, setBlocked] = useState(initialBlocked);
   const [notice, setNotice] = useState<string | null>(null);
   const [gate, setGate] = useState<AuthIntent | null>(null);
-  const [justSent, setJustSent] = useState(false);
   const [panicNote, setPanicNote] = useState<string | null>(null);
-  const [expiresAt, setExpiresAt] = useState<string | null>(null);
-  const [nowTick, setNowTick] = useState(() => new Date().toISOString());
-  const [extendVotes, setExtendVotes] = useState<string[]>([]);
-  const meId = actorId ?? "local";
-
-  useEffect(() => {
-    if (!open || !conversationId) return;
-    const deadline = ensureChatExpiry(conversationId, new Date().toISOString(), chatExpiresAt);
-    setExpiresAt(deadline);
-    setExtendVotes(readExtendVotes(conversationId));
-    const id = window.setInterval(() => setNowTick(new Date().toISOString()), 30_000);
-    return () => window.clearInterval(id);
-  }, [open, conversationId]);
-
-  useEffect(() => {
-    if (!open) return;
-    function onKey(event: KeyboardEvent) {
-      if (event.key !== "PrintScreen") return;
-      setNotice("Screenshot attempt noted. Native builds block capture. This PWA cannot stop every screenshot.");
-    }
-    window.addEventListener("keyup", onKey);
-    return () => window.removeEventListener("keyup", onKey);
-  }, [open]);
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -186,20 +168,17 @@ export function ThreadShell({
         >
           <ArrowLeft className="size-5" />
         </button>
-        <div className="relative size-10 overflow-hidden rounded-full">
-          {cover ? <Image src={cover} alt="" fill sizes="40px" className="object-cover" unoptimized={cover.startsWith("http")} /> : null}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="font-medium">
-            {profile.name} {sokoVerified(profile) ? "✓" : ""}
-          </p>
-          <PresenceDot presence={profile.presence} className="text-xs" />
-          <BothSidesLine themIdentity={profile.verification.identity} />
-          {open ? <UnmaskLine themIdentity={profile.verification.identity} /> : null}
-          {expiresAt ? (
-            <p className="text-[11px] tracking-wide text-gold">{remainingLabel(expiresAt, nowTick)}</p>
-          ) : null}
-        </div>
+        <Link href={`/profile/${profile.slug}`} className="flex min-w-0 flex-1 items-center gap-3" aria-label={`Open ${profile.name}’s profile`}>
+          <span className="relative size-10 shrink-0 overflow-hidden rounded-full bg-white/5">
+            {cover ? <Image src={cover} alt="" fill sizes="40px" className="object-cover" unoptimized={cover.startsWith("http")} /> : null}
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate font-medium">
+              {profile.name} {sokoVerified(profile) ? "✓" : ""}
+            </span>
+            <PresenceDot presence={profile.presence} className="text-xs" />
+          </span>
+        </Link>
         <button type="button" className="grid size-10 place-items-center" onClick={() => setMenu((v) => !v)}>
           <MoreHorizontal className="size-5" />
         </button>
@@ -284,7 +263,6 @@ export function ThreadShell({
           >
             Block
           </button>
-          <p className="px-2 py-2 text-xs text-muted">Media is off until both of you agree.</p>
         </div>
       ) : null}
 
@@ -319,7 +297,22 @@ export function ThreadShell({
 
       <div className="flex flex-1 flex-col justify-end gap-3 py-6">
         {messages.length === 0 ? (
-          <p className="text-center text-sm text-muted">You both liked each other. Say hello.</p>
+          <div className="text-center">
+            <p className="font-display text-2xl">You matched with {profile.name} 🎉</p>
+            <p className="mt-1 text-sm text-muted">Be the one who says hi first. Tap one to start:</p>
+            <div className="mt-4 flex flex-col items-center gap-2">
+              {icebreakers(profile).map((idea) => (
+                <button
+                  key={idea}
+                  type="button"
+                  onClick={() => setText(idea)}
+                  className="max-w-[90%] rounded-full border border-gold/50 bg-gold/10 px-4 py-2 text-sm text-cream active:scale-[0.98]"
+                >
+                  {idea}
+                </button>
+              ))}
+            </div>
+          </div>
         ) : null}
         {messages.map((m, i) => {
           const lastOwnIndex = messages.reduce(
@@ -348,34 +341,10 @@ export function ThreadShell({
       </div>
 
 
-      {expiresAt && !chatOpen(expiresAt, nowTick) && conversationId ? (
-        <Button
-          className="mb-3 w-full"
-          variant="gold"
-          onClick={() => {
-            const tapper = extendVotes.includes(meId) ? profile.id : meId;
-            const votes = tapExtendLocal(conversationId, tapper);
-            setExtendVotes(votes);
-            if (!extendReady(votes, meId, profile.id)) {
-              setNotice("Waiting for them. Sandbox: tap again as them.");
-              return;
-            }
-            const next = extendChat(new Date().toISOString());
-            writeChatExpiry(conversationId, next);
-            writeExtendVotes(conversationId, []);
-            setExtendVotes([]);
-            setExpiresAt(next);
-            setNotice("Extended 24 hours. Both sides tapped.");
-          }}
-        >
-          {extendVotes.includes(meId) ? "They extended (sandbox)" : "Extend chat"}
-        </Button>
-      ) : null}
-
-      {justSent || blocked ? (
+      {blocked ? (
         <Link href="/discover" className="mb-3 block">
-          <Button className="w-full" variant="gold">
-            Discover
+          <Button className="w-full" variant="ghost">
+            Back to Discover
           </Button>
         </Link>
       ) : null}
@@ -388,14 +357,12 @@ export function ThreadShell({
             setGate("message");
             return;
           }
-          if (!canSend) return;
-          if (expiresAt && !chatOpen(expiresAt, new Date().toISOString())) {
-            setNotice("Chat ended. Extend to keep it 24 hours.");
-            return;
-          }
+          if (!canSend || sending) return;
           const body = text.trim();
           if (!body) return;
           setText("");
+          setSending(true);
+          setNotice(null);
           void fetch(`/api/conversations/${conversationId}/messages`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -405,33 +372,44 @@ export function ThreadShell({
               | { data?: ThreadMessage }
               | { error?: { code: string; message: string } }
               | null;
+            setSending(false);
             if (!res.ok) {
               if (res.status === 403) {
                 setCanSend(false);
                 setBlocked(true);
                 setNotice("You can’t message this person.");
+                return;
               }
+              // Give the words back so nothing typed is lost.
+              setText(body);
+              setNotice(
+                json && "error" in json && json.error?.message ? json.error.message : "Not sent. Check your connection and tap send again.",
+              );
               return;
             }
             if (json && "data" in json && json.data) {
               setMessages((list) => (list.some((row) => row.id === json.data!.id) ? list : [...list, json.data!]));
-              setJustSent(true);
-              router.refresh();
             }
+          })
+          .catch(() => {
+            setSending(false);
+            setText(body);
+            setNotice("Not sent. Check your connection and tap send again.");
           });
         }}
       >
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder={canSend ? (expiresAt && !chatOpen(expiresAt, nowTick) ? "Chat ended" : "Message...") : "Sending is closed"}
-          disabled={!canSend || Boolean(expiresAt && !chatOpen(expiresAt, nowTick))}
+          placeholder={canSend ? `Message ${profile.name}…` : "Sending is closed"}
+          disabled={!canSend}
+          enterKeyHint="send"
           className="h-12 flex-1 rounded-full border border-line bg-glass px-4 text-sm outline-none disabled:opacity-40"
         />
         <button
           type="submit"
           aria-label="Send"
-          disabled={!canSend || Boolean(expiresAt && !chatOpen(expiresAt, nowTick))}
+          disabled={!canSend || sending || !text.trim()}
           className="grid size-12 place-items-center rounded-full bg-gold text-bg disabled:opacity-40"
         >
           <Send className="size-4" />

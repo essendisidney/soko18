@@ -27,7 +27,16 @@ export function StudioHome({
   const name = overview?.profile?.displayName ?? draft?.displayName;
   const cityName = cityNameBySlug(draft?.citySlug || snappedCity);
   const area = draft ? placeShareName(draft.citySlug || snappedCity, draft.areaSlug) : null;
-  const status = overview?.profile?.status ?? (draft ? (draft.status === "pending_review" ? "In review" : "Draft") : null);
+  const statusWords: Record<string, string> = {
+    live: "Live",
+    pending_review: "Quick check in progress",
+    paused: "Paused",
+    suspended: "Taken down",
+    removed: "Taken down",
+    draft: "Not live yet",
+  };
+  const rawStatus = overview?.profile?.status ?? draft?.status ?? null;
+  const status = rawStatus ? statusWords[rawStatus] ?? rawStatus : null;
   const live = profileCanPromote(overview?.profile?.status);
   const [priority, setPriority] = useState<string | null>(null);
 
@@ -46,7 +55,7 @@ export function StudioHome({
           ? `${overview.profile.status === "live" ? `Live in ${cityName}` : status}`
           : draft
             ? `${area ?? cityName} · ${status}`
-            : "Create a profile. It stays a draft until review."}
+            : "Add a photo and a few details — you’re live in about a minute."}
       </p>
       {draft?.status === "pending_review" && priority ? (
         <p className="mt-2 text-xs text-gold">{priority}</p>

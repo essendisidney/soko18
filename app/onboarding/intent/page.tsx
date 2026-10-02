@@ -5,7 +5,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { ONBOARDING } from "@/lib/onboarding";
 import { IntentPicker } from "@/components/onboarding/intent-picker";
 import { cityNameBySlug } from "@/lib/geo/kenya";
-import { citySnapshot, subscribeNearArea } from "@/lib/nairobi/near";
+import { citySnapshot, subscribeNearArea, writeCity } from "@/lib/nairobi/near";
 
 export default function IntentOnboardingPage() {
   const router = useRouter();
@@ -21,9 +21,11 @@ export default function IntentOnboardingPage() {
       <h1 className="mt-4 font-display text-4xl tracking-tight">What are you looking for?</h1>
       <p className="mt-3 text-sm text-muted">Pick one or two. You can change this any time.</p>
       <IntentPicker
-        doneLabel="Continue"
+        doneLabel="Show me people"
         onDone={() => {
-          router.push("/onboarding/privacy");
+          localStorage.setItem(ONBOARDING.done, "1");
+          writeCity(localStorage.getItem(ONBOARDING.city) || "nairobi");
+          router.push("/discover");
         }}
       />
     </main>

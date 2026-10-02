@@ -69,3 +69,10 @@ export function undoLastPass() {
 export function excludedProfileIds() {
   return readDiscoverActions().map((row) => row.profileId);
 }
+
+/** Undo a like that didn't go through, so the person comes back to the deck. */
+export function forgetDiscoverAction(profileId: string) {
+  const next = readDiscoverActions().filter((row) => row.profileId !== profileId);
+  localStorage.setItem(ACTIONS_KEY, JSON.stringify(next));
+  emit();
+}

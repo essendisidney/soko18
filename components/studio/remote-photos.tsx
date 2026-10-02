@@ -5,20 +5,21 @@ import { Plus, Star, Trash2, X } from "lucide-react";
 import { Button } from "@/components/soko/button";
 import { resizeImage } from "@/lib/media/resize";
 import { createClient } from "@/lib/supabase/client";
+import { refreshMyProfile } from "@/lib/profile/sync";
 
 type Photo = { id: string; url: string | null; status: string; isCover: boolean; reason: string | null };
 
 const MAX = 6;
 
 const statusLabel: Record<string, string> = {
-  uploaded: "In review",
-  scanning: "In review",
-  pending_review: "In review",
-  approved: "Approved",
-  rejected: "Not approved",
+  uploaded: "Checking",
+  scanning: "Checking",
+  pending_review: "Checking",
+  approved: "",
+  rejected: "Removed by us",
 };
 
-/** Real photo uploads to the member's private storage folder. Staff approve before anything is public. */
+/** Real photo uploads to the member's storage folder. They show straight away; we check them after. */
 export function RemotePhotos({
   userId,
   ensureProfile,
@@ -86,8 +87,9 @@ export function RemotePhotos({
       setNote(json?.error?.message ?? "Could not save photo.");
       return;
     }
-    setNote("Uploaded. We review every photo before it shows.");
+    setNote(photos.length === 0 ? "Nice — that’s your main photo." : "Added.");
     load();
+    void refreshMyProfile();
   }
 
   async function remove(id: string) {
@@ -105,6 +107,7 @@ export function RemotePhotos({
     setPhotos((list) => list.filter((p) => p.id !== id));
     setNote("Photo removed.");
     load();
+    void refreshMyProfile();
   }
 
   async function makeMain(id: string) {
@@ -135,7 +138,7 @@ export function RemotePhotos({
         <p className="text-xs text-muted">{photos.length}/{MAX}</p>
       </div>
       <p className="mt-2 text-xs text-muted">
-        Add at least 2. Clear photos of your face get the most matches. Tap a photo to make it your main one or remove it.
+        One photo gets you live. Three or more clear face photos get the most matches. Tap a photo to make it main or remove it.
       </p>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {photos.map((photo) => (
@@ -155,9 +158,11 @@ export function RemotePhotos({
               {photo.isCover ? (
                 <span className="absolute top-1.5 left-1.5 rounded-full bg-gold px-2 py-0.5 text-[9px] font-semibold text-bg">MAIN</span>
               ) : null}
-              <span className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent px-2 pt-4 pb-1.5 text-left text-[10px] text-cream/90">
-                {statusLabel[photo.status] ?? photo.status}
-              </span>
+              {statusLabel[photo.status] ? (
+                <span className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/70 to-transparent px-2 pt-4 pb-1.5 text-left text-[10px] text-cream/90">
+                  {statusLabel[photo.status]}
+                </span>
+              ) : null}
             </button>
             <button
               type="button"

@@ -117,7 +117,7 @@ export function InviteCard() {
       <section className="mt-6 space-y-3 text-sm">
         <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">How it works</h2>
         <Step n={1} text="A friend joins with your link and makes a profile." />
-        <Step n={2} text={`We check their photos and selfie. Once approved, you get ${summary.rewardDays} days of Gold.`} />
+        <Step n={2} text={`When their profile goes live, you get ${summary.rewardDays} days of Gold.`} />
         <Step n={3} text={`They get ${summary.friendSuperLikes} free Super Likes to start.`} />
         <p className="text-xs text-muted">
           {left > 0
@@ -143,7 +143,7 @@ export function InviteCard() {
               disabled={code.trim().length < 4}
               onClick={async () => {
                 const result = await claim(code);
-                setNote(result.ok ? "Done. Your welcome gift unlocks when your profile is approved." : result.message ?? "Couldn’t use that code.");
+                setNote(result.ok ? "Done. Your welcome gift unlocks when your profile goes live." : result.message ?? "Couldn’t use that code.");
                 if (result.ok) setSummary(await fetchSummary());
               }}
             >

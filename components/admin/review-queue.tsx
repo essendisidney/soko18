@@ -66,7 +66,10 @@ export function ReviewQueue() {
       {note ? <p className="text-sm text-gold">{note}</p> : null}
       {items.map((item) => (
         <article key={`${item.kind}-${item.id}`} className="rounded-3xl border border-line p-4">
-          <p className="text-[11px] tracking-[0.18em] text-gold uppercase">{title[item.kind]}</p>
+          <p className="text-[11px] tracking-[0.18em] text-gold uppercase">
+            {title[item.kind]}
+            {(item.kind === "profile" || item.kind === "media") && item.live ? " · already showing" : ""}
+          </p>
           <div className="mt-3 flex gap-4">
             {item.kind === "media" ? <Img src={item.url} label="Upload" /> : null}
             {item.kind === "profile" ? <Img src={item.url} label="Main photo" /> : null}
@@ -118,10 +121,10 @@ export function ReviewQueue() {
             ) : (
               <>
                 <Button size="sm" variant="gold" disabled={busy === item.id} onClick={() => void decide(item, "approve")}>
-                  Approve
+                  {(item.kind === "profile" || item.kind === "media") && item.live ? "Looks good" : "Approve"}
                 </Button>
                 <Button size="sm" variant="ghost" disabled={busy === item.id} onClick={() => void decide(item, "reject")}>
-                  Reject
+                  {(item.kind === "profile" || item.kind === "media") && item.live ? "Take down" : "Reject"}
                 </Button>
               </>
             )}

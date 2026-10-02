@@ -13,6 +13,9 @@ import { accountRole, useAuth } from "@/lib/auth/use-auth";
 import { isStaffRole } from "@/lib/admin/roles";
 import { signOutAction } from "@/lib/auth/actions";
 import { useDraftProfile } from "@/lib/profile/use-draft";
+import { useProfileMeta } from "@/lib/profile/sync";
+import { missingToGoLive } from "@/lib/profile/ready";
+import { cityNameBySlug } from "@/lib/geo/kenya";
 import { readIncognito } from "@/lib/privacy/local";
 
 const groups: { title: string; rows: { href: string; label: string }[] }[] = [
@@ -47,14 +50,11 @@ export default function MePage() {
     setGhost(readIncognito());
   }, []);
 
-  const health = draft
-    ? Math.round(
-        ([draft.displayName, draft.areaSlug, draft.bio, draft.gender, draft.lookingFor].filter(Boolean)
-          .length /
-          5) *
-          100,
-      )
-    : 0;
+  const meta = useProfileMeta();
+  const missing = draft ? missingToGoLive(draft, meta?.photos ?? 0) : [];
+  const live = draft?.status === "live";
+  const checking = draft?.status === "pending_review";
+  const health = live ? 100 : draft ? Math.round(((5 - missing.length) / 5) * 100) : 0;
 
   return (
     <div className="pb-8">
@@ -78,12 +78,21 @@ export default function MePage() {
             router.push("/studio/profile");
           }}
         >
-          <CompletionRing percent={draft ? (draft.status === "pending_review" ? 100 : health) : 0} />
-          <span className="absolute inset-[9px] grid place-items-center rounded-full bg-bg-elevated font-display text-4xl text-gold">
-            {(draft?.displayName || user?.email || "?").slice(0, 1).toUpperCase()}
+          <CompletionRing percent={health} />
+          <span className="absolute inset-[9px] grid place-items-center overflow-hidden rounded-full bg-bg-elevated font-display text-4xl text-gold">
+            {meta?.coverUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={meta.coverUrl} alt="Your main photo" className="h-full w-full object-cover" />
+            ) : (
+              (draft?.displayName || user?.email || "?").slice(0, 1).toUpperCase()
+            )}
           </span>
-          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-gold px-2.5 py-0.5 text-[11px] font-semibold text-bg">
-            {draft ? (draft.status === "pending_review" ? "In review" : `${health}%`) : "New"}
+          <span
+            className={`absolute -bottom-2 left-1/2 -translate-x-1/2 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+              live ? "bg-emerald-400 text-bg" : "bg-gold text-bg"
+            }`}
+          >
+            {!draft ? "New" : live ? "● Live" : checking ? "Checking" : draft.status === "paused" ? "Paused" : `${health}%`}
           </span>
         </button>
         <h1 className="mt-5 font-display text-[28px] leading-none tracking-tight">
@@ -92,18 +101,29 @@ export default function MePage() {
         </h1>
         <p className="mt-2 text-sm text-muted">
           {!draft
-            ? "Photos and a line about you — then you’re ready to match."
-            : draft.status === "pending_review"
-              ? "We’re checking your profile. You’ll be live soon."
-              : health < 100
-                ? "Complete profiles get up to 3× more matches."
-                : "Looking good."}
+            ? "Add a photo and a few details — you’re live in about a minute."
+            : live
+              ? `You’re live in ${cityNameBySlug(draft.citySlug)}. People near you can see you.`
+              : checking
+                ? "We’re taking a quick look. You’ll get a notification."
+                : draft.status === "paused"
+                  ? "Paused — you’re hidden from Discover."
+                  : draft.status === "suspended"
+                    ? "Your profile was taken down."
+                    : missing.length
+                      ? `Add ${missing.join(", ")} to go live.`
+                      : "All set — open your profile and tap Go live."}
         </p>
         {ghost ? <p className="mt-1 text-xs text-gold">You’re in Incognito</p> : null}
+        {live && draft?.slug ? (
+          <Link href={`/profile/${draft.slug}`} className="mt-2 text-xs text-gold underline-offset-4 hover:underline">
+            See how others see you
+          </Link>
+        ) : null}
         <div className="mt-4 flex w-full max-w-xs gap-2">
           <Button
             className="flex-1"
-            variant={!draft || health < 100 ? "gold" : "ghost"}
+            variant={!live ? "gold" : "ghost"}
             size="md"
             onClick={() => {
               if (!draft && configured && ready && !user) {
@@ -113,7 +133,7 @@ export default function MePage() {
               router.push("/studio/profile");
             }}
           >
-            <Pencil className="size-4" /> {!draft ? "Create profile" : health < 100 ? "Finish profile" : "Edit profile"}
+            <Pencil className="size-4" /> {!draft ? "Create profile" : live ? "Edit profile" : "Finish profile"}
           </Button>
           <Link href="/safety" className="flex-1">
             <Button className="w-full" variant="ghost" size="md">
@@ -142,7 +162,7 @@ export default function MePage() {
         </span>
         <div className="min-w-0 flex-1">
           <p className="font-medium">Invite friends, get Gold</p>
-          <p className="mt-0.5 text-sm text-muted">7 days free for every friend who’s approved.</p>
+          <p className="mt-0.5 text-sm text-muted">7 days of Gold for every friend who goes live.</p>
         </div>
         <ChevronRight className="size-5 shrink-0 text-muted" />
       </Link>

@@ -152,7 +152,7 @@ export function emptyMatchesLine(_cityName?: string) {
 }
 
 export function emptyStudioLine(cityName: string) {
-  return `Create a profile in ${cityName}. Draft until review. Empty stays empty.`;
+  return `Create a profile in ${cityName}. Add a photo and a few details and you’re live.`;
 }
 
 export function areasForCity(citySlug = "nairobi") {

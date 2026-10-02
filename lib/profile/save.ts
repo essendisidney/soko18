@@ -11,9 +11,11 @@ export type SaveProfileResult =
   | { ok: true; data: ProfileDraft; persisted: boolean }
   | { ok: false; error: { code: string; message: string }; status: number };
 
-function toOwnerStatus(status: string): ProfileDraft["status"] {
+export function toProfileStatus(status: string): ProfileDraft["status"] {
+  if (status === "live") return "live";
   if (status === "paused") return "paused";
   if (status === "pending_review") return "pending_review";
+  if (status === "suspended" || status === "removed") return "suspended";
   return "draft";
 }
 
@@ -139,7 +141,7 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
       birthYear,
       id: data.id,
       slug: data.slug,
-      status: toOwnerStatus(data.status),
+      status: toProfileStatus(data.status),
     },
     persisted: true,
   };

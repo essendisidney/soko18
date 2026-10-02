@@ -27,6 +27,8 @@ import { PhotoViewer } from "@/components/profile/photo-viewer";
 import { useAuth } from "@/lib/auth/use-auth";
 import { clearPendingEngage, readPendingEngage, writePendingEngage } from "@/lib/auth/pending-engage";
 import { engageProfile } from "@/lib/likes/engage";
+import { useDraftProfile } from "@/lib/profile/use-draft";
+import { canEngage } from "@/lib/profile/ready";
 import { blocksSnapshot, subscribeBlocks } from "@/lib/blocks/local";
 import { hideBlocked } from "@/lib/safety/flags";
 import { useLocalIds } from "@/lib/safety/use-id-list";
@@ -47,6 +49,41 @@ export function PublicProfile({
   const [gate, setGate] = useState<AuthIntent | null>(null);
   const [match, setMatch] = useState(false);
   const [needMatch, setNeedMatch] = useState(false);
+  const [note, setNote] = useState<{ text: string; href?: string; cta?: string } | null>(null);
+  const myProfile = useDraftProfile();
+
+  function like(kind: "like" | "super") {
+    if (!ready || !user) {
+      writePendingEngage({ profileId: profile.id, kind, at: Date.now() });
+      setGate(kind);
+      return;
+    }
+    if (!canEngage(myProfile)) {
+      setNote({ text: "Finish your profile first so they can like you back.", href: "/studio/profile", cta: "Finish profile" });
+      return;
+    }
+    let stay = false;
+    engageProfile(
+      profile,
+      kind,
+      () => {
+        stay = true;
+        setMatch(true);
+      },
+      (upsell) => {
+        stay = true;
+        setNote({ text: upsell.message, href: "/upgrade", cta: "Get Gold" });
+      },
+      (_p, message) => {
+        stay = true;
+        if (message) setNote({ text: message });
+      },
+    );
+    setNote({ text: kind === "super" ? "Super Like sent ⭐" : "Liked ♥" });
+    window.setTimeout(() => {
+      if (!stay) goBackOr(router, "/discover");
+    }, 900);
+  }
   const blockedIds = useLocalIds(subscribeBlocks, blocksSnapshot);
   const reported = useHiddenByReports();
   const blocked = blockedIds.includes(profile.id);
@@ -212,12 +249,7 @@ export function PublicProfile({
             type="button"
             aria-label="Super Like"
             onClick={() => {
-              if (!ready || !user) {
-                writePendingEngage({ profileId: profile.id, kind: "super", at: Date.now() });
-                setGate("super");
-                return;
-              }
-              engageProfile(profile, "super", () => setMatch(true));
+              like("super");
             }}
             className="pointer-events-auto grid size-11 place-items-center rounded-full border border-line bg-bg-elevated shadow-[0_8px_30px_rgba(0,0,0,0.6)] active:scale-90"
           >
@@ -237,18 +269,23 @@ export function PublicProfile({
               type="button"
               aria-label="Like"
               onClick={() => {
-                if (!ready || !user) {
-                  writePendingEngage({ profileId: profile.id, kind: "like", at: Date.now() });
-                  setGate("like");
-                  return;
-                }
-                engageProfile(profile, "like", () => setMatch(true));
+                like("like");
               }}
               className="pointer-events-auto grid size-14 place-items-center rounded-full bg-gold shadow-[0_10px_36px_rgba(212,181,106,0.35)] active:scale-90"
             >
               <Heart className="size-7 fill-bg text-bg" />
             </button>
           )}
+        </div>
+      ) : null}
+      {note ? (
+        <div role="status" className="fixed inset-x-4 bottom-44 z-40 mx-auto flex max-w-sm items-center justify-between gap-3 rounded-full bg-bg-elevated px-5 py-3 text-sm shadow-lg">
+          <span>{note.text}</span>
+          {note.href ? (
+            <Link href={note.href} className="shrink-0 font-medium text-gold">
+              {note.cta}
+            </Link>
+          ) : null}
         </div>
       ) : null}
       {photo !== null ? (

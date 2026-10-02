@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChevronRight, Clock, Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth/use-auth";
 import { useDraftProfile } from "@/lib/profile/use-draft";
+import { useProfileMeta } from "@/lib/profile/sync";
 
 const DISMISS_KEY = "soko18_nudge_dismissed";
 
@@ -15,7 +16,8 @@ const DISMISS_KEY = "soko18_nudge_dismissed";
 export function ProfileNudge() {
   const { user, ready } = useAuth();
   const draft = useDraftProfile();
-  const [photos, setPhotos] = useState<number | null>(null);
+  const meta = useProfileMeta();
+  const photos = meta ? meta.photos : null;
   const [hidden, setHidden] = useState(() => {
     if (typeof window === "undefined") return true;
     try {
@@ -25,41 +27,25 @@ export function ProfileNudge() {
     }
   });
 
-  useEffect(() => {
-    if (!ready || !user) return;
-    let alive = true;
-    fetch("/api/media/mine")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((json: { data?: { items: unknown[] } } | null) => {
-        if (alive) setPhotos(json?.data?.items.length ?? 0);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, [ready, user]);
-
   if (!ready || !user || hidden) return null;
-  if (draft?.status === "paused") return null;
+  if (draft?.status === "live" || draft?.status === "paused" || draft?.status === "suspended") return null;
 
   const inReview = draft?.status === "pending_review";
   const steps = [
-    { ok: (photos ?? 0) >= 2, label: "2 photos" },
-    { ok: Boolean(draft?.displayName && draft?.areaSlug), label: "name & area" },
-    { ok: Boolean(draft?.bio), label: "a line about you" },
-    { ok: Boolean(draft?.gender && draft?.lookingFor), label: "who you are & looking for" },
+    { ok: (photos ?? 0) >= 1, label: "a photo" },
+    { ok: Boolean(draft?.displayName && draft?.areaSlug), label: "your name & area" },
+    { ok: Boolean(draft?.gender && draft?.lookingFor), label: "who you are & what you want" },
   ];
   const done = steps.filter((s) => s.ok).length;
   const next = steps.find((s) => !s.ok);
   if (!inReview && draft && done === steps.length && photos !== null) {
-    // Everything filled in but not submitted yet.
     return (
-      <Bar href="/studio/profile" icon={<Sparkles className="size-4 text-bg" />} gold title="Your profile is ready" line="Submit it for review so people can see you." onClose={() => close(setHidden)} />
+      <Bar href="/studio/profile" icon={<Sparkles className="size-4 text-bg" />} gold title="One tap to go live" line="Open your profile and tap Go live." onClose={() => close(setHidden)} />
     );
   }
   if (inReview) {
     return (
-      <Bar href="/studio/profile" icon={<Clock className="size-4 text-gold" />} title="Your profile is in review" line="We check every profile. You’ll get a notification when you’re live." onClose={() => close(setHidden)} />
+      <Bar href="/studio/profile" icon={<Clock className="size-4 text-gold" />} title="Quick check in progress" line="We’re taking a look. You’ll get a notification." onClose={() => close(setHidden)} />
     );
   }
   return (
@@ -67,8 +53,8 @@ export function ProfileNudge() {
       href="/studio/profile"
       icon={<Sparkles className="size-4 text-bg" />}
       gold
-      title={draft ? `Finish your profile · ${done}/${steps.length}` : "Create your profile to match"}
-      line={next ? `Next: add ${next.label}. People can’t see you until it’s done.` : "People can’t see you until it’s done."}
+      title={draft ? `Go live · ${done}/${steps.length} done` : "Make your profile — about a minute"}
+      line={next ? `Next: add ${next.label}. Then people near you can see you.` : "Then people near you can see you."}
       onClose={() => close(setHidden)}
     />
   );

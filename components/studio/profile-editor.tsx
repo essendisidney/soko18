@@ -13,15 +13,12 @@ import { draftHealth } from "@/lib/profile/health";
 import { writeLocalDraft } from "@/lib/profile/local";
 import type { OwnerProfileStatus, ProfileDraft } from "@/lib/profile/types";
 import { INTENTS } from "@/lib/data/nairobi";
+import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
 import { MAX_PROMPT_ANSWER, MAX_PROMPTS, PROMPT_QUESTIONS } from "@/lib/profile/prompts";
 import { useDraftProfile } from "@/lib/profile/use-draft";
+import { refreshMyProfile, useProfileMeta } from "@/lib/profile/sync";
+import { missingToGoLive } from "@/lib/profile/ready";
 import { PhotoUploader } from "@/components/studio/photo-uploader";
-
-const statusLabel: Record<OwnerProfileStatus, string> = {
-  draft: "Draft",
-  pending_review: "In review",
-  paused: "Paused",
-};
 
 type Fields = {
   displayName: string;
@@ -40,8 +37,39 @@ const GENDERS = [
   { id: "nonbinary", label: "Non-binary" },
 ] as const;
 
+function StatusLine({
+  status,
+  ready,
+  missing,
+  city,
+}: {
+  status: ProfileDraft["status"];
+  ready: boolean;
+  missing: string[];
+  city: string;
+}) {
+  const line =
+    status === "live"
+      ? `You’re live in ${city}. Changes show straight away.`
+      : status === "pending_review"
+        ? "We’re taking a quick look at your profile. You’ll get a notification."
+        : status === "paused"
+          ? "Paused — you’re hidden. Save to show your profile again."
+          : status === "suspended"
+            ? "Your profile was taken down. Reply to our notification if you think this is a mistake."
+            : ready
+              ? "All set. Tap Go live."
+              : `Add ${missing.join(", ")} to go live.`;
+  return (
+    <p className={`mt-2 text-sm ${status === "live" ? "text-gold" : "text-muted"}`}>
+      {status === "live" ? <span className="mr-1.5 inline-block size-2 rounded-full bg-emerald-400 align-middle" /> : null}
+      {line}
+    </p>
+  );
+}
+
 export function ProfileEditor() {
-  const { user, ready, configured } = useAuth();
+  const { user, ready: authReady, configured } = useAuth();
   const stored = useDraftProfile();
   const snappedCity = useSyncExternalStore(subscribeNearArea, citySnapshot, () => "nairobi");
   const citySlug = stored?.citySlug || snappedCity || "nairobi";
@@ -57,10 +85,16 @@ export function ProfileEditor() {
   const areaSlug = areas.some((area) => area.slug === rawArea) ? rawArea : "";
   const bio = fields?.bio ?? stored?.bio ?? "";
   const gender = fields?.gender ?? stored?.gender ?? null;
-  const lookingFor = fields?.lookingFor ?? stored?.lookingFor ?? null;
+  // What they picked during onboarding pre-fills "Looking for", so nobody answers it twice.
+  const onboardingIntent = useSyncExternalStore(subscribeIntents, intentSnapshot, () => null);
+  const firstIntent = INTENTS.find((i) => i.id === (onboardingIntent ?? "").split(",").filter(Boolean)[0])?.id ?? null;
+  const lookingFor = fields?.lookingFor ?? stored?.lookingFor ?? firstIntent;
   const prompts = fields?.prompts ?? stored?.prompts ?? [];
   const indexPublic = fields?.indexPublic ?? stored?.indexPublic ?? false;
   const status = stored?.status ?? "draft";
+  const meta = useProfileMeta();
+  const photoCount = meta?.photos ?? 0;
+  const [justLive, setJustLive] = useState(false);
 
   function patch(next: Partial<Fields>) {
     setFields({
@@ -84,7 +118,14 @@ export function ProfileEditor() {
     gender,
     lookingFor,
   });
-  const missing = health.checks.filter((c) => !c.ok).map((c) => c.label);
+  // What it takes to go live (matches the database rule). Bio and prompts are extras.
+  const missing = missingToGoLive({ displayName, areaSlug, gender, lookingFor }, photoCount);
+  const ready = missing.length === 0;
+  const progress = Math.round(((5 - missing.length) / 5) * 100);
+  const extras = [!bio.trim() ? "a line about you" : null, prompts.length === 0 ? "a prompt" : null, photoCount < 3 ? "more photos" : null].filter(
+    (x): x is string => Boolean(x),
+  );
+  void health;
 
   /**
    * Photos need a saved profile. Create a draft quietly, filling the name from the
@@ -111,7 +152,7 @@ export function ProfileEditor() {
     nextStatus: OwnerProfileStatus,
     overrides: Partial<{ displayName: string; areaSlug: string }> = {},
   ): Promise<boolean> {
-    if (configured && ready && !user) {
+    if (configured && authReady && !user) {
       setGate(true);
       return false;
     }
@@ -135,37 +176,60 @@ export function ProfileEditor() {
       setNote(result.error.message);
       return false;
     }
+    const wasLive = status === "live";
     writeLocalDraft(result.data);
-    setNote(
-      result.data.status === "pending_review"
-        ? "In review. Not public."
-        : result.persisted
-          ? "Saved as a draft."
-          : "Saved as a draft on this device. Not public.",
-    );
+    void refreshMyProfile();
+    if (result.data.status === "live" && !wasLive) {
+      setJustLive(true);
+      setNote("");
+    } else {
+      setNote(
+        result.data.status === "live"
+          ? "Saved. Your changes are live."
+          : result.data.status === "pending_review"
+            ? "Saved. We’re taking a quick look and will let you know."
+            : missing.length
+              ? `Saved. Add ${missing.join(", ")} to go live.`
+              : "Saved.",
+      );
+    }
     return true;
   }
 
   return (
     <div>
       <h1 className="font-display text-3xl tracking-tight">Your profile</h1>
-      <p className="mt-2 text-sm text-muted">
-        {status === "pending_review" ? "In review — we’ll let you know when you’re live." : `${statusLabel[status]} · not live yet`}
-      </p>
-
-      <div className="mt-5 flex items-center gap-3">
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-          <div className="h-full rounded-full bg-gold" style={{ width: `${health.score}%` }} />
+      {justLive ? (
+        <div className="mt-4 rounded-3xl border border-gold/60 bg-gold/10 p-5 text-center">
+          <p className="font-display text-2xl">You’re live 🎉</p>
+          <p className="mt-1 text-sm text-muted">People near you can see you now.</p>
+          <Link href="/discover" className="mt-4 block">
+            <Button variant="gold" className="w-full">
+              Start discovering
+            </Button>
+          </Link>
         </div>
-        <span className="text-xs text-muted">{health.score}%</span>
-      </div>
-      {missing.length > 0 ? <p className="mt-2 text-xs text-muted">Still to add: {missing.join(", ")}</p> : null}
+      ) : (
+        <StatusLine status={status} ready={ready} missing={missing} city={cityNameBySlug(citySlug)} />
+      )}
+
+      {status !== "live" ? (
+        <div className="mt-5 flex items-center gap-3">
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+            <div className="h-full rounded-full bg-gold transition-[width]" style={{ width: `${progress}%` }} />
+          </div>
+          <span className="text-xs text-muted">{progress}%</span>
+        </div>
+      ) : extras.length ? (
+        <p className="mt-3 text-xs text-muted">Stand out: add {extras.join(", ")}.</p>
+      ) : null}
 
       <form
         className="mt-8 space-y-5"
         onSubmit={(event) => {
           event.preventDefault();
-          void persist("draft");
+          // A finished profile asks to go live; the database decides (live straight away, or held for a look).
+          void persist(ready && status !== "live" ? "pending_review" : "draft");
         }}
       >
         <PhotoUploader
@@ -283,42 +347,20 @@ export function ProfileEditor() {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => patch({ indexPublic: !indexPublic })}
-          className="flex w-full items-center justify-between rounded-2xl border border-line bg-glass px-5 py-4 text-left text-sm"
-        >
-          Allow public search indexing
-          <span className="text-muted">{indexPublic ? "On" : "Off"}</span>
-        </button>
-
         {note ? <p className="text-sm text-cream/90">{note}</p> : null}
 
-        {health.score >= 100 && status !== "pending_review" ? (
-          <Button
-            type="button"
-            variant="gold"
-            className="w-full"
-            disabled={busy}
-            onClick={() => void persist("pending_review")}
-          >
-            Submit — go live after a quick review
+        <div className="sticky bottom-24 z-10 -mx-1 rounded-full bg-bg/80 p-1 backdrop-blur">
+          <Button className="w-full" variant="gold" disabled={busy || !displayName.trim() || !areaSlug}>
+            {busy ? "Saving…" : status === "live" ? "Save changes" : ready && status !== "suspended" ? "Go live" : "Save"}
           </Button>
-        ) : null}
-        <Button
-          className="w-full"
-          variant={health.score >= 100 ? "ghost" : "gold"}
-          disabled={busy || !displayName.trim() || !areaSlug}
-        >
-          Save
-        </Button>
+        </div>
       </form>
 
       <p className="mt-6 text-xs leading-relaxed text-muted">
-        We check every profile and photo before it goes live. Usually within a day.
+        Your profile shows as soon as it’s complete. We check new profiles to keep Kutana real — fake or paid profiles are removed.
       </p>
-      <Link href={status === "pending_review" ? "/me" : "/studio"} className="mt-6 inline-block text-sm text-muted">
-        {status === "pending_review" ? "Me" : "Back"}
+      <Link href="/me" className="mt-6 inline-block text-sm text-muted">
+        Back
       </Link>
       {gate ? <AuthGate intent="profile" onClose={() => setGate(false)} /> : null}
     </div>

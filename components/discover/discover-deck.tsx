@@ -35,13 +35,17 @@ import { catalogForCity } from "@/lib/discovery/feed";
 import { ONBOARDING } from "@/lib/onboarding";
 import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
 import { Wordmark } from "@/components/brand/wordmark";
-import { ChevronDown, LayoutGrid, MapPin, SlidersHorizontal, Zap } from "lucide-react";
+import { ChevronDown, Crown, LayoutGrid, MapPin, SlidersHorizontal, Sparkles } from "lucide-react";
 import { PlaceSheet } from "@/components/discover/place-sheet";
 import { ProfileNudge } from "@/components/discover/profile-nudge";
 import { readIncognito } from "@/lib/privacy/local";
 import type { SeedProfile } from "@/lib/types";
 import { cityHomeHref } from "@/lib/geo/kenya";
 import { LaunchMeter } from "@/components/growth/launch-meter";
+import { useDraftProfile } from "@/lib/profile/use-draft";
+import { useProfileMeta } from "@/lib/profile/sync";
+import { canEngage, missingToGoLive } from "@/lib/profile/ready";
+import { Button } from "@/components/soko/button";
 
 export function DiscoverDeck({
   initial,
@@ -61,6 +65,20 @@ export function DiscoverDeck({
   const [clock, setClock] = useState(0);
   const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
   const [placeOpen, setPlaceOpen] = useState(false);
+  const myProfile = useDraftProfile();
+  const myMeta = useProfileMeta();
+  const [needProfile, setNeedProfile] = useState(false);
+  const [restore, setRestore] = useState<{ id: string; n: number } | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const onLikeFailed = useCallback((profile: SeedProfile, message: string | null) => {
+    setRestore((r) => ({ id: profile.id, n: (r?.n ?? 0) + 1 }));
+    if (message) setToast(message);
+  }, []);
+  useEffect(() => {
+    if (!toast) return;
+    const id = window.setTimeout(() => setToast(null), 3500);
+    return () => window.clearTimeout(id);
+  }, [toast]);
   const citySlug = useSyncExternalStore(
     subscribeNearArea,
     () => localStorage.getItem(ONBOARDING.city),
@@ -137,8 +155,8 @@ export function DiscoverDeck({
     if (!profile) return;
     clearPendingEngage();
     resumed.current = true;
-    engageProfile(profile, pending.kind, setMatch, setUpsell);
-  }, [ready, user, feed, initial, blockedRaw]);
+    engageProfile(profile, pending.kind, setMatch, setUpsell, onLikeFailed);
+  }, [ready, user, feed, initial, blockedRaw, onLikeFailed]);
 
   const onImpression = useCallback((profile: SeedProfile) => {
     writeImpression({ profileId: profile.id, surface: "discover", at: Date.now() });
@@ -181,13 +199,6 @@ export function DiscoverDeck({
           >
             <LayoutGrid className="size-4" />
           </Link>
-          <Link
-            href="/upgrade"
-            aria-label={t("discover.boostGold")}
-            className="grid size-9 place-items-center rounded-full border border-gold/60 text-gold"
-          >
-            <Zap className="size-4" />
-          </Link>
         </div>
       </header>
       <ProfileNudge />
@@ -204,17 +215,52 @@ export function DiscoverDeck({
         />
       ) : null}
       {upsell ? (
-        <div className="glass mt-3 rounded-2xl p-4 text-sm">
-          <p>{upsell.message}</p>
-          <div className="mt-3 flex gap-3">
-            <Link href="/upgrade" className="text-gold">
+        <Sheet onClose={() => setUpsell(null)}>
+          <span className="mx-auto grid size-12 place-items-center rounded-full bg-gold/15">
+            <Crown className="size-6 text-gold" />
+          </span>
+          <p className="mt-3 font-display text-2xl">
+            {upsell.code === "like_limit" ? "You’re out of likes for today" : upsell.code === "no_super_likes" ? "No Super Likes left" : "That’s a Gold feature"}
+          </p>
+          <p className="mt-1 text-sm text-muted">{upsell.message}</p>
+          <Link href="/upgrade" className="mt-5 block">
+            <Button variant="gold" className="w-full">
               {upsell.code === "no_super_likes" ? t("discover.getSuper") : t("discover.getGold")}
-            </Link>
-            <button type="button" className="text-muted" onClick={() => setUpsell(null)}>
-              {t("discover.notNow")}
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Link>
+          <button type="button" className="mt-3 text-sm text-muted" onClick={() => setUpsell(null)}>
+            {t("discover.notNow")}
+          </button>
+        </Sheet>
+      ) : null}
+      {needProfile ? (
+        <Sheet onClose={() => setNeedProfile(false)}>
+          <span className="mx-auto grid size-12 place-items-center rounded-full bg-gold/15">
+            <Sparkles className="size-6 text-gold" />
+          </span>
+          <p className="mt-3 font-display text-2xl">First, let them see you</p>
+          <p className="mt-1 text-sm text-muted">
+            {(() => {
+              const missing = missingToGoLive(myProfile, myMeta?.photos ?? 0);
+              return missing.length
+                ? `Add ${missing.join(", ")} and you’re live. It takes about a minute.`
+                : "Open your profile and tap Go live.";
+            })()}
+          </p>
+          <Link href="/studio/profile" className="mt-5 block">
+            <Button variant="gold" className="w-full">
+              {myProfile ? "Finish my profile" : "Make my profile"}
+            </Button>
+          </Link>
+          <button type="button" className="mt-3 text-sm text-muted" onClick={() => setNeedProfile(false)}>
+            Keep looking
+          </button>
+        </Sheet>
+      ) : null}
+      {toast ? (
+        <p role="status" className="fixed inset-x-6 bottom-28 z-40 mx-auto max-w-sm rounded-full bg-bg-elevated px-4 py-2.5 text-center text-sm shadow-lg">
+          {toast}
+        </p>
       ) : null}
       <div className="mt-3 flex min-h-0 flex-1 flex-col">
         <SwipeDeck
@@ -263,15 +309,20 @@ export function DiscoverDeck({
             writeDiscoverAction({ profileId: profile.id, kind: "pass", at: Date.now() });
             if (user) void postLike(profile.id, "pass");
           }}
+          restore={restore}
           onEngage={(profile, kind) => {
             if (!ready) return false;
+            if (user && isSupabaseConfigured() && !canEngage(myProfile)) {
+              setNeedProfile(true);
+              return false;
+            }
             if (user) return true;
             writePendingEngage({ profileId: profile.id, kind, at: Date.now() });
             setGate(kind);
             return false;
           }}
           onLike={(profile, kind) => {
-            engageProfile(profile, kind, setMatch, setUpsell);
+            engageProfile(profile, kind, setMatch, setUpsell, onLikeFailed);
           }}
         />
       </div>
@@ -301,6 +352,21 @@ export function DiscoverDeck({
           />
         ) : null}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function Sheet({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 px-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)]" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="w-full max-w-md rounded-[28px] border border-line bg-bg-elevated p-6 text-center"
+        onClick={(event) => event.stopPropagation()}
+      >
+        {children}
+      </div>
     </div>
   );
 }

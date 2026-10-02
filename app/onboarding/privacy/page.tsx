@@ -17,7 +17,7 @@ export default function PrivacyOnboardingPage() {
     const params = new URLSearchParams(window.location.search);
     const incoming = params.get("invite") ?? params.get("pass");
     if (!incoming) return;
-    if (rememberInvite(incoming)) setPassNote("Invite saved. Your welcome gift unlocks when your profile is approved.");
+    if (rememberInvite(incoming)) setPassNote("Invite saved. Your welcome gift unlocks when your profile goes live.");
   }, []);
 
   function finish() {
@@ -37,9 +37,6 @@ export default function PrivacyOnboardingPage() {
       <div className="mt-auto space-y-3 pt-10">
         <Button className="w-full" variant="gold" onClick={finish}>
           Discover
-        </Button>
-        <Button className="w-full" variant="ghost" onClick={finish}>
-          Skip
         </Button>
       </div>
     </main>

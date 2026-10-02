@@ -1,6 +1,7 @@
 "use client";
 
 import { useT } from "@/lib/i18n/use-t";
+import { useDraftProfile } from "@/lib/profile/use-draft";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -26,6 +27,7 @@ export function LikedMeList() {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [intros, setIntros] = useState<Intro[]>([]);
   const t = useT();
+  const myLive = useDraftProfile()?.status === "live";
 
   useEffect(() => {
     void fetch("/api/likes/received")
@@ -100,19 +102,31 @@ export function LikedMeList() {
           </div>
           <p className="mt-5 font-display text-2xl">No likes yet</p>
           <p className="mt-2 max-w-xs text-sm text-muted">
-            Great photos and a prompt answer get the most likes. A Boost puts you at the top of the deck for 30 minutes.
+            {myLive
+              ? "Likes show up here. The more you swipe, the more people see you."
+              : "People can only like you once your profile is live. It takes about a minute."}
           </p>
           <div className="mt-6 flex w-full max-w-xs flex-col gap-3">
-            <Link href="/upgrade#boost">
-              <Button className="w-full" variant="gold">
-                <Zap className="size-4 fill-bg" /> Boost me
-              </Button>
-            </Link>
-            <Link href="/studio/profile">
-              <Button className="w-full" variant="ghost">
-                Improve my profile
-              </Button>
-            </Link>
+            {myLive ? (
+              <>
+                <Link href="/discover">
+                  <Button className="w-full" variant="gold">
+                    Keep swiping
+                  </Button>
+                </Link>
+                <Link href="/upgrade#boost">
+                  <Button className="w-full" variant="ghost">
+                    <Zap className="size-4" /> Get seen first with a Boost
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <Link href="/studio/profile">
+                <Button className="w-full" variant="gold">
+                  Finish my profile
+                </Button>
+              </Link>
+            )}
           </div>
         </section>
       ) : null}

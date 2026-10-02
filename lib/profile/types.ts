@@ -2,6 +2,9 @@ export const OWNER_PROFILE_STATUSES = ["draft", "pending_review", "paused"] as c
 
 export type OwnerProfileStatus = (typeof OWNER_PROFILE_STATUSES)[number];
 
+/** What the server says the profile is. Members ask for draft/paused; going live is decided by the database. */
+export type ProfileStatus = OwnerProfileStatus | "live" | "suspended";
+
 export type ProfileDraft = {
   id: string;
   slug: string;
@@ -14,7 +17,7 @@ export type ProfileDraft = {
   lookingFor: "relationship" | "casual" | "friends" | "unsure" | null;
   prompts?: { q: string; a: string }[];
   indexPublic: boolean;
-  status: OwnerProfileStatus;
+  status: ProfileStatus;
   updatedAt: string;
 };
 

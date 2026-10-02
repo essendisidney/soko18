@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/soko/button";
 import { AuthGate } from "@/components/auth/auth-gate";
@@ -58,6 +59,7 @@ export function Checkout({
   const hasMpesa = providers.includes("mpesa") && (price?.currency ?? "KES") === "KES";
   const [method, setMethod] = useState<Method>(hasMpesa ? "mpesa" : "card");
   const [gate, setGate] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const polls = useRef(0);
   const t = useT();
   const locale = useLocale();
@@ -82,10 +84,12 @@ export function Checkout({
         onPaid?.();
       } else if (status === "failed") {
         window.clearInterval(id);
-        setPhase({ kind: "error", message: "The payment was cancelled or failed. Try again." });
+        setError("The payment was cancelled or didn’t go through. You can try again.");
+        setPhase({ kind: "choose" });
       } else if (polls.current >= POLL_LIMIT) {
         window.clearInterval(id);
-        setPhase({ kind: "error", message: "Still waiting on the payment. If you paid, it will show up shortly." });
+        setError("Still waiting on M-Pesa. If you paid, your plan turns on by itself in a minute.");
+        setPhase({ kind: "choose" });
       }
     }, POLL_MS);
     return () => window.clearInterval(id);
@@ -105,6 +109,7 @@ export function Checkout({
         localStorage.setItem(PHONE_KEY, phone);
       } catch {}
     }
+    setError(null);
     setPhase({ kind: "starting" });
     const res = await fetch("/api/payments/checkout", {
       method: "POST",
@@ -118,7 +123,8 @@ export function Checkout({
     if (!res.ok || !json || !("data" in json) || !json.data) {
       const message = json && "error" in json && json.error ? json.error.message : "Could not start payment.";
       if (res.status === 401) setGate(true);
-      setPhase({ kind: "error", message });
+      setError(message);
+      setPhase({ kind: "choose" });
       return;
     }
     if (json.data.authorizationUrl) {
@@ -139,7 +145,8 @@ export function Checkout({
       body: JSON.stringify({ transactionId }),
     });
     if (!res.ok) {
-      setPhase({ kind: "error", message: "Test payment did not settle." });
+      setError("Test payment did not settle.");
+      setPhase({ kind: "choose" });
       return;
     }
     setPhase({ kind: "done" });
@@ -185,11 +192,27 @@ export function Checkout({
           Complete test payment · {money}
         </Button>
       ) : phase.kind === "waiting" ? (
-        <p className="text-sm text-cream/90">
-          {method === "mpesa" && !resumeId ? `${t("pay.checkPhone")} ${money}.` : "Confirming your payment…"}
-        </p>
+        <div className="rounded-2xl border border-gold/50 bg-gold/10 p-4 text-sm">
+          <p className="text-cream/90">
+            {method === "mpesa" && !resumeId ? `${t("pay.checkPhone")} ${money}.` : "Confirming your payment…"}
+          </p>
+          <p className="mt-1 text-xs text-muted">This page updates by itself once it’s paid.</p>
+          <button type="button" className="mt-3 text-xs text-muted underline" onClick={() => setPhase({ kind: "choose" })}>
+            Didn’t get the prompt? Try again
+          </button>
+        </div>
       ) : phase.kind === "done" ? (
-        <p className="text-sm text-gold">{t("pay.done")}</p>
+        <div className="rounded-2xl border border-gold/60 bg-gold/10 p-4 text-sm">
+          <p className="font-medium text-gold">{t("pay.done")} 🎉</p>
+          <div className="mt-3 flex gap-4">
+            <Link href="/likes" className="text-cream underline-offset-4 hover:underline">
+              See who likes you →
+            </Link>
+            <Link href="/discover" className="text-muted">
+              Back to Discover
+            </Link>
+          </div>
+        </div>
       ) : (
         <Button
           className="w-full"
@@ -205,7 +228,7 @@ export function Checkout({
         </Button>
       )}
 
-      {phase.kind === "error" ? <p className="mt-2 text-xs text-muted">{phase.message}</p> : null}
+      {error ? <p className="mt-2 text-xs text-gold">{error}</p> : null}
       {gate ? <AuthGate intent="upgrade" onClose={() => setGate(false)} /> : null}
     </div>
   );

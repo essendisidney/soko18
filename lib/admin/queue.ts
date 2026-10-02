@@ -3,8 +3,18 @@ import { requireStaff } from "@/lib/admin/staff";
 import { createClient } from "@/lib/supabase/server";
 
 export type QueueItem =
-  | { kind: "media"; id: string; url: string | null; profileName: string; profileId: string; at: string }
-  | { kind: "profile"; id: string; name: string; bio: string; lookingFor: string | null; url: string | null; at: string }
+  | { kind: "media"; id: string; url: string | null; profileName: string; profileId: string; at: string; live: boolean }
+  | {
+      kind: "profile";
+      id: string;
+      name: string;
+      bio: string;
+      lookingFor: string | null;
+      url: string | null;
+      at: string;
+      /** Already showing (live first, checked after) vs held for a person to look. */
+      live: boolean;
+    }
   | { kind: "selfie"; id: string; name: string; challenge: string; selfieUrl: string | null; photoUrl: string | null; at: string }
   | { kind: "case"; id: string; targetType: string; targetId: string; reason: string; text: string; at: string };
 
@@ -24,14 +34,14 @@ export async function loadQueue() {
   const [media, profiles, selfies, cases] = await Promise.all([
     supabase
       .from("profile_media")
-      .select("id, storage_path, created_at, profile_id, profiles(display_name)")
-      .in("status", ["uploaded", "scanning", "pending_review"])
+      .select("id, storage_path, status, created_at, profile_id, profiles(display_name)")
+      .or("status.in.(uploaded,scanning,pending_review),and(status.eq.approved,reviewed_at.is.null)")
       .order("created_at")
       .limit(50),
     supabase
       .from("profiles")
-      .select("id, display_name, bio, looking_for, created_at, profile_media(storage_path, status, is_cover)")
-      .eq("status", "pending_review")
+      .select("id, display_name, bio, looking_for, status, created_at, profile_media(storage_path, status, is_cover)")
+      .or("status.eq.pending_review,and(status.eq.live,checked_at.is.null)")
       .order("updated_at")
       .limit(50),
     supabase
@@ -124,6 +134,7 @@ export async function loadQueue() {
       profileName: one(m.profiles as unknown as { display_name: string } | null)?.display_name ?? "Member",
       profileId: m.profile_id as string,
       at: m.created_at as string,
+      live: m.status === "approved",
     })),
     ...(profiles.data ?? []).map((p) => {
       const cover = coverOf(p.profile_media as MediaRow[]);
@@ -135,6 +146,7 @@ export async function loadQueue() {
         lookingFor: (p.looking_for as string | null) ?? null,
         url: cover ? mediaUrls.get(cover) ?? null : null,
         at: p.created_at as string,
+        live: p.status === "live",
       };
     }),
   ];
