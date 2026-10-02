@@ -110,7 +110,7 @@ export function InviteCard() {
 
       <section className="mt-3 grid grid-cols-3 gap-2 text-center">
         <Stat value={summary.invited} label="Joined" />
-        <Stat value={summary.approved} label="Approved" />
+        <Stat value={summary.approved} label="Live" />
         <Stat value={summary.goldDaysEarned} label="Gold days" gold />
       </section>
 
