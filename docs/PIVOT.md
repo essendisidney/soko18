@@ -97,8 +97,11 @@ Grow campus by campus with verified students (`00030_campuses.sql`, `/campus`, `
   (`POST /api/campus/code` → `/api/campus/confirm`). Codes: 15 min, 1 per minute, 5 per day,
   5 wrong tries. One student email verifies one account; we store a peppered SHA-256 of it, never the
   address. Only accounts with a server-checked 18+ date of birth can verify.
-- **Email domains** match the domain and any subdomain (`uonbi.ac.ke` covers `students.uonbi.ac.ke`).
-  Confirm each university's student domain before marketing there:
+- **Email domains** match the domain and any subdomain. Student-only domains are confirmed for UoN
+  (`students.uonbi.ac.ke`), KU (`students.ku.ac.ke`), JKUAT (`students.jkuat.ac.ke`), Moi
+  (`students.mu.ac.ke`), Egerton (`student.egerton.ac.ke`), Maseno (`student.maseno.ac.ke`) and TUK
+  (`students.tukenya.ac.ke`). Strathmore, USIU, MMU, Daystar and DeKUT use their main domain (so staff
+  could verify) until someone confirms their student domain:
   `update public.campuses set email_domains = array['...'] where slug = '...';`
 - **Opening:** a campus is `waitlist` until `unlock_target` students verify, then it opens by itself and
   every verified student there is notified. The Campus race board shows real counts only.

@@ -9,8 +9,10 @@
 --   * Verified students get a campus badge on their card (they can hide it) and, once their campus
 --     is open, a campus deck on Discover.
 --   * Campus never skips the 18+ check: only accounts with a server-checked date of birth can verify.
---   * Email domains match the domain and any subdomain (uonbi.ac.ke also matches students.uonbi.ac.ke).
---     Confirm the list with each university before marketing there.
+--   * Email domains match the domain and any subdomain. Where a university gives students their own
+--     subdomain (students.uonbi.ac.ke, student.egerton.ac.ke) we list that, so staff addresses don't count.
+--     Strathmore, USIU, MMU, Daystar and DeKUT still use the main domain: confirm their student domain
+--     before marketing there.
 
 insert into private.settings (key, value) values
   ('campus_email_pepper', encode(sha256(convert_to(gen_random_uuid()::text || gen_random_uuid()::text, 'UTF8')), 'hex')),
@@ -383,17 +385,17 @@ create or replace view public.live_profile_cards as
 -- ---------------------------------------------------------------------------
 
 insert into public.campuses (slug, name, short_name, town, email_domains, unlock_target, sort_order) values
-  ('uon', 'University of Nairobi', 'UoN', 'Nairobi', array['uonbi.ac.ke'], 300, 0),
-  ('ku', 'Kenyatta University', 'KU', 'Nairobi', array['ku.ac.ke'], 300, 1),
-  ('jkuat', 'Jomo Kenyatta University of Agriculture and Technology', 'JKUAT', 'Juja', array['jkuat.ac.ke'], 300, 2),
+  ('uon', 'University of Nairobi', 'UoN', 'Nairobi', array['students.uonbi.ac.ke'], 300, 0),
+  ('ku', 'Kenyatta University', 'KU', 'Nairobi', array['students.ku.ac.ke'], 300, 1),
+  ('jkuat', 'Jomo Kenyatta University of Agriculture and Technology', 'JKUAT', 'Juja', array['students.jkuat.ac.ke'], 300, 2),
   ('strathmore', 'Strathmore University', 'Strathmore', 'Nairobi', array['strathmore.edu'], 200, 3),
   ('usiu', 'United States International University – Africa', 'USIU', 'Nairobi', array['usiu.ac.ke'], 200, 4),
-  ('tuk', 'Technical University of Kenya', 'TUK', 'Nairobi', array['tukenya.ac.ke'], 200, 5),
+  ('tuk', 'Technical University of Kenya', 'TUK', 'Nairobi', array['students.tukenya.ac.ke'], 200, 5),
   ('mmu', 'Multimedia University of Kenya', 'MMU', 'Nairobi', array['mmu.ac.ke'], 200, 6),
   ('daystar', 'Daystar University', 'Daystar', 'Nairobi', array['daystar.ac.ke'], 150, 7),
-  ('moi', 'Moi University', 'Moi', 'Eldoret', array['mu.ac.ke'], 300, 8),
-  ('egerton', 'Egerton University', 'Egerton', 'Njoro', array['egerton.ac.ke'], 300, 9),
-  ('maseno', 'Maseno University', 'Maseno', 'Maseno', array['maseno.ac.ke'], 300, 10),
+  ('moi', 'Moi University', 'Moi', 'Eldoret', array['students.mu.ac.ke'], 300, 8),
+  ('egerton', 'Egerton University', 'Egerton', 'Njoro', array['student.egerton.ac.ke'], 300, 9),
+  ('maseno', 'Maseno University', 'Maseno', 'Maseno', array['student.maseno.ac.ke'], 300, 10),
   ('dekut', 'Dedan Kimathi University of Technology', 'DeKUT', 'Nyeri', array['dkut.ac.ke'], 200, 11)
 on conflict (slug) do nothing;
 
