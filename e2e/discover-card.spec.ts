@@ -9,8 +9,8 @@ test("discover card shows a face", async ({ page }) => {
   await page.goto("/discover");
   const card = page.locator(".cursor-grab img").first();
   await expect(card).toBeVisible();
-  const box = await card.boundingBox();
-  expect(box?.height ?? 0).toBeGreaterThan(280);
+  // The server's first cards are swapped for the client's deck once it loads; re-find the card until it settles.
+  await expect.poll(async () => (await card.boundingBox())?.height ?? 0).toBeGreaterThan(280);
   await page.screenshot({ path: "test-results/discover-card.png", fullPage: true });
 });
 
@@ -34,7 +34,8 @@ test("empty deck can undo last pass", async ({ page }) => {
     );
   }, ids);
   await page.reload();
-  await expect(page.getByText("That’s everyone around you")).toBeVisible();
+  // Discover leads with your area, so the empty deck names it ("That’s everyone in Kilimani").
+  await expect(page.getByText(/^That’s everyone (around you|in .+)$/)).toBeVisible();
   await page.getByRole("button", { name: "Undo last pass" }).click();
   await expect(page.locator(".cursor-grab img").first()).toBeVisible();
 });
