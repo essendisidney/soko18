@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { Button } from "@/components/soko/button";
 import { LOCAL_ACCESS } from "@/lib/payments/catalog";
 import { formatKes } from "@/lib/payments/ledger";
@@ -28,10 +29,13 @@ export function LocalPayButton({
   const [phase, setPhase] = useState<"idle" | "pending" | "settled">("idle");
   const amount = LOCAL_ACCESS[kind].amountKes;
 
-  useEffect(() => {
-    if (hasLocalAccess(kind)) setPhase("settled");
-    else if (pendingLocalAccess(kind)) setPhase("pending");
-  }, [kind]);
+  // Seed from this device after hydration, and again if `kind` changes.
+  const mounted = useMounted();
+  const [seededFor, setSeededFor] = useState<AccessKind | null>(null);
+  if (mounted && seededFor !== kind) {
+    setSeededFor(kind);
+    setPhase(hasLocalAccess(kind) ? "settled" : pendingLocalAccess(kind) ? "pending" : "idle");
+  }
 
   function click() {
     if (phase === "settled") return;

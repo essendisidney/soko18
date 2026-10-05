@@ -1,15 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { bothSidesLine } from "@/lib/trust/both-sides";
 import { readIdentityState } from "@/lib/trust/identity-local";
 
 export function BothSidesLine({ themIdentity }: { themIdentity: boolean }) {
-  const [line, setLine] = useState(bothSidesLine(themIdentity, "none"));
-
-  useEffect(() => {
-    setLine(bothSidesLine(themIdentity, readIdentityState()));
-  }, [themIdentity]);
+  const line = bothSidesLine(themIdentity, useMounted() ? readIdentityState() : "none");
 
   return <p className="text-xs text-muted">{line}</p>;
 }

@@ -46,7 +46,7 @@ export default function WelcomePage() {
     router.replace("/discover");
   }, [mode, router]);
 
-  async function useMyArea() {
+  async function locateMyArea() {
     if (!adult) return;
     confirmAge(dob);
     setLocating(true);
@@ -127,7 +127,7 @@ export default function WelcomePage() {
             </>
           )}
         </p>
-        <Button className="w-full" variant="gold" disabled={!adult || locating} onClick={() => void useMyArea()}>
+        <Button className="w-full" variant="gold" disabled={!adult || locating} onClick={() => void locateMyArea()}>
           {locating ? t("welcome.finding") : t("welcome.useArea")}
         </Button>
         <Button className="mt-3 w-full" variant="ghost" disabled={!adult} onClick={continueInNairobi}>

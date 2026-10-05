@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { Button } from "@/components/soko/button";
 import { hashContact } from "@/lib/privacy/contacts";
 import { readContactHashes, readIncognito, writeContactHashes, writeIncognito } from "@/lib/privacy/local";
@@ -16,11 +17,15 @@ export function DiscretionTools() {
   const [count, setCount] = useState(0);
   const [note, setNote] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Seed from this device once, after hydration (never during server render).
+  const mounted = useMounted();
+  const [seeded, setSeeded] = useState(false);
+  if (mounted && !seeded) {
+    setSeeded(true);
     setPaidGhost(hasLocalAccess("incognito"));
     setIncognito(readIncognito());
     setCount(readContactHashes().length);
-  }, []);
+  }
 
   async function addNumber() {
     const hash = await hashContact(phone);

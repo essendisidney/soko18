@@ -1,24 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { SnappedCityKicker, SnappedPlaceNote } from "@/components/city/city-door";
 import { writeCity } from "@/lib/nairobi/near";
 import { ONBOARDING } from "@/lib/onboarding";
 import { Button } from "@/components/soko/button";
 import { DiscretionTools } from "@/components/privacy/discretion-tools";
-import { rememberInvite } from "@/lib/growth/referral";
+import { normalizePass, rememberInvite } from "@/lib/growth/referral";
+import { useMounted } from "@/lib/use-mounted";
 
 export default function PrivacyOnboardingPage() {
   const router = useRouter();
-  const [passNote, setPassNote] = useState<string | null>(null);
+  const params = useMounted() ? new URLSearchParams(window.location.search) : null;
+  const incoming = params?.get("invite") ?? params?.get("pass") ?? null;
+  const passNote =
+    incoming && normalizePass(incoming).length >= 4
+      ? "Invite saved. Your welcome gift unlocks when your profile goes live."
+      : null;
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const incoming = params.get("invite") ?? params.get("pass");
-    if (!incoming) return;
-    if (rememberInvite(incoming)) setPassNote("Invite saved. Your welcome gift unlocks when your profile goes live.");
-  }, []);
+    if (incoming) rememberInvite(incoming);
+  }, [incoming]);
 
   function finish() {
     localStorage.setItem(ONBOARDING.done, "1");

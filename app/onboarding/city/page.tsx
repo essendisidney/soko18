@@ -42,7 +42,7 @@ export default function CityOnboardingPage() {
     router.push("/discover");
   }
 
-  async function useMyArea() {
+  async function locateMyArea() {
     const result = await locateHere();
     if (!result.ok) writeCity("nairobi");
     router.push(done ? "/discover" : "/onboarding/intent");
@@ -63,7 +63,7 @@ export default function CityOnboardingPage() {
       <p className="mt-3 text-sm text-muted">
         “Use my area” finds people near you. We only ever show your area, never your exact location.
       </p>
-      <Button className="mt-10 w-full" variant="gold" onClick={() => void useMyArea()}>
+      <Button className="mt-10 w-full" variant="gold" onClick={() => void locateMyArea()}>
         Use my area
       </Button>
       <Button className="mt-3 w-full" variant="ghost" onClick={stayOrNairobi}>

@@ -47,6 +47,7 @@ import { useProfileMeta } from "@/lib/profile/sync";
 import { canEngage, missingToGoLive } from "@/lib/profile/ready";
 import { Button } from "@/components/soko/button";
 import { Chip } from "@/components/soko/chip";
+import { useMounted } from "@/lib/use-mounted";
 import { readCampusDeck, subscribeCampusDeck, writeCampusDeck } from "@/lib/campus/deck";
 import type { MyCampus } from "@/lib/campus/shared";
 import { GraduationCap } from "lucide-react";
@@ -65,7 +66,6 @@ export function DiscoverDeck({
   const [filtersVersion, setFiltersVersion] = useState(0);
   const [plan, setPlan] = useState<string | null | undefined>(undefined);
   const [gate, setGate] = useState<AuthIntent | null>(null);
-  const [ghost, setGhost] = useState(false);
   const [clock, setClock] = useState(0);
   const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
   const [placeOpen, setPlaceOpen] = useState(false);
@@ -90,6 +90,14 @@ export function DiscoverDeck({
   );
   const intents = useSyncExternalStore(subscribeIntents, intentSnapshot, () => null);
   const campusDeck = useSyncExternalStore(subscribeCampusDeck, readCampusDeck, () => null);
+  const ghost = useMounted() && readIncognito();
+  // Switching to a campus or another city empties the deck until its people load — never a borrowed deck.
+  const deckKey = `${campusDeck ?? ""}|${citySlug ?? ""}`;
+  const [shownDeck, setShownDeck] = useState(deckKey);
+  if (shownDeck !== deckKey) {
+    setShownDeck(deckKey);
+    if (campusDeck || (citySlug && citySlug !== "nairobi")) setFeed([]);
+  }
   const [campusFetched, setMyCampus] = useState<MyCampus | null | undefined>(undefined);
   const place = cityPlaceLine(citySlug || "nairobi", near);
   const tonight = clock >= 0 ? tonightAreaNames(readImpressions(), feed) : [];
@@ -97,7 +105,6 @@ export function DiscoverDeck({
   const subtitle = areas;
 
   useEffect(() => {
-    setGhost(readIncognito());
     writeCity(localStorage.getItem(ONBOARDING.city) || "nairobi");
   }, []);
 
@@ -131,7 +138,6 @@ export function DiscoverDeck({
 
   useEffect(() => {
     const q = discoverQuery();
-    if (q.get("campus") || (q.get("city") && q.get("city") !== "nairobi")) setFeed([]);
     void fetch(`/api/discover?${q.toString()}`)
       .then((res) => res.json())
       .then((json: { data?: { items?: SeedProfile[] } }) => {

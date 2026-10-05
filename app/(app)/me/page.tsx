@@ -17,6 +17,7 @@ import { useProfileMeta } from "@/lib/profile/sync";
 import { missingToGoLive } from "@/lib/profile/ready";
 import { cityNameBySlug } from "@/lib/geo/kenya";
 import { readIncognito } from "@/lib/privacy/local";
+import { useMounted } from "@/lib/use-mounted";
 
 const groups: { title: string; rows: { href: string; label: string }[] }[] = [
   {
@@ -43,12 +44,8 @@ export default function MePage() {
   const role = accountRole(user);
   const draft = useDraftProfile();
   const [gate, setGate] = useState(false);
-  const [ghost, setGhost] = useState(false);
+  const ghost = useMounted() && readIncognito();
   const router = useRouter();
-
-  useEffect(() => {
-    setGhost(readIncognito());
-  }, []);
 
   const meta = useProfileMeta();
   const missing = draft ? missingToGoLive(draft, meta?.photos ?? 0) : [];
