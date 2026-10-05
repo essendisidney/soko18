@@ -35,6 +35,7 @@ older in `SOKO18_MASTER_DEVELOPMENT.md`, `PHASE_STATUS.md` and the other docs wh
 | boost_1 / boost_5 | 99 / 399 | 30 min top of the local deck |
 | super_1 / super_5 | 49 / 199 | Super Likes |
 | incognito_month | 299 | Only people you like see you |
+| comrade_week / comrade_month | 49 / 199 | Comrade Gold: Gold at a student price, verified students only (Kenya) |
 
 Free: 30 likes per Nairobi day, matches, chat, safety tools.
 
@@ -107,5 +108,13 @@ Grow campus by campus with verified students (`00030_campuses.sql`, `/campus`, `
 - **Badge:** "🎓 UoN" on cards and profiles, on by default, members can hide it on `/campus`.
 - **Email:** campus codes need `RESEND_API_KEY` and `EMAIL_FROM`. Without them, only the sign-in-email
   route works and the page says so.
+- **Hide me from my campus** (`00031_hide_from_campus.sql`, free): hidden from other verified students
+  at the same campus everywhere `profile_hidden_from_me` applies, except people they've already liked.
+  While hidden, their own campus deck is off. It can't hide from classmates who never verified — the
+  Campus page says so, and contact blocking still covers known numbers.
+- **Comrade Gold** (`00032_comrade_gold.sql`): `comrade_week` KES 49 / `comrade_month` KES 199. Ordinary
+  Gold once paid (same settlement and ledger). `products.requires_campus` + the `transactions` insert
+  policy refuse it for anyone not in `campus_members`. Verified students see it on `/upgrade` in place of
+  regular Gold; others in Kenya see a "Student? Verify your campus" link.
 - Campus marketing never goes near schools or under-18s, and the paid-services rules apply on campus
   exactly as everywhere else.

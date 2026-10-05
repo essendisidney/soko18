@@ -3,13 +3,15 @@
 import { useT } from "@/lib/i18n/use-t";
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
-import { Check, Crown, EyeOff, Heart, Star, Zap } from "lucide-react";
+import Link from "next/link";
+import { Check, Crown, EyeOff, GraduationCap, Heart, Star, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/soko/button";
 import { Checkout } from "@/components/payments/checkout";
 import {
   BOOST_MINUTES,
   BOOST_SKUS,
+  COMRADE_SKUS,
   PLAN_FEATURES,
   PRODUCTS,
   SUPER_LIKE_SKUS,
@@ -18,6 +20,19 @@ import { formatMoney } from "@/lib/markets/constants";
 import { useLocale } from "@/lib/i18n/use-t";
 import { useSearchParams } from "next/navigation";
 import type { Entitlements } from "@/lib/payments/entitlements";
+import type { MyCampus } from "@/lib/campus/shared";
+
+/** The member's verified campus, if any. Comrade Gold is for them. */
+function useMyCampus() {
+  const [mine, setMine] = useState<MyCampus | null>(null);
+  useEffect(() => {
+    void fetch("/api/campus")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json: { data?: { mine: MyCampus | null } } | null) => setMine(json?.data?.mine ?? null))
+      .catch(() => {});
+  }, []);
+  return mine;
+}
 
 function useEntitlements() {
   const [data, setData] = useState<Entitlements | null>(null);
@@ -56,6 +71,7 @@ function usePrices() {
 export function Store() {
   const { data, refresh } = useEntitlements();
   const info = usePrices();
+  const campus = useMyCampus();
   const locale = useLocale();
   const resumeId = useSearchParams().get("paid");
   const priceOf = (sku: string) => {
@@ -88,8 +104,10 @@ export function Store() {
     refresh();
   }
 
+  // Verified students get Comrade Gold where it's priced (Kenya). Same Gold, student price.
+  const comrade = Boolean(campus) && Boolean(priceOf("comrade_month"));
   const tierSkus: Record<"gold" | "platinum", (keyof typeof PRODUCTS)[]> = {
-    gold: ["gold_month", "gold_week"],
+    gold: comrade ? [...COMRADE_SKUS] : ["gold_month", "gold_week"],
     platinum: ["platinum_month"],
   };
   const skus = tierSkus[tier];
@@ -148,6 +166,16 @@ export function Store() {
         <p className="mt-3 rounded-2xl border border-gold/60 p-3 text-sm">
           Kutana isn’t open in {info.market.name} yet. Prices shown are for when we launch there.
         </p>
+      ) : null}
+
+      {tier === "gold" && comrade && campus ? (
+        <p className="mt-3 inline-flex items-center gap-2 rounded-2xl border border-gold/50 px-3 py-2 text-sm">
+          <GraduationCap className="size-4 text-gold" /> Comrade Gold — student price for verified {campus.shortName} students
+        </p>
+      ) : tier === "gold" && !campus && priceOf("comrade_week") ? (
+        <Link href="/campus" className="mt-3 inline-flex items-center gap-2 text-sm text-gold">
+          <GraduationCap className="size-4" /> Student? Verify your campus for Gold from {show("comrade_week")} a week
+        </Link>
       ) : null}
 
       <ul className="mt-2 space-y-3">

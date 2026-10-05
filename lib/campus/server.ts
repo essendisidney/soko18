@@ -5,7 +5,7 @@ import { createServiceClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { isEmailConfigured, sendEmail } from "@/lib/email/send";
-import { campusReason, type CampusBoardRow, type MyCampus } from "@/lib/campus/shared";
+import { campusDeckOpen, campusReason, type CampusBoardRow, type MyCampus } from "@/lib/campus/shared";
 
 type Fail = { ok: false; status: number; error: { code: string; message: string } };
 type Done<T> = { ok: true; data: T };
@@ -92,17 +92,22 @@ export async function confirmEmailCode(input: unknown): Promise<Done<{ campus: s
   return { ok: true, data: { campus: result.campus!, name: result.name! } };
 }
 
-const badgeSchema = z.object({ showOnProfile: z.boolean() });
+const privacySchema = z
+  .object({ showOnProfile: z.boolean().optional(), hideFromCampus: z.boolean().optional() })
+  .refine((v) => v.showOnProfile !== undefined || v.hideFromCampus !== undefined);
 
-export async function setCampusBadge(input: unknown): Promise<Done<{ showOnProfile: boolean }> | Fail> {
-  const parsed = badgeSchema.safeParse(input);
+/** Badge on my card, and "Hide me from my campus". */
+export async function setCampusPrivacy(
+  input: unknown,
+): Promise<Done<{ showOnProfile?: boolean; hideFromCampus?: boolean }> | Fail> {
+  const parsed = privacySchema.safeParse(input);
   if (!parsed.success) return refused("invalid");
   const ctx = await authed();
   if (!ctx) return unauthorized;
-  const { error } = await ctx.supabase
-    .from("campus_members")
-    .update({ show_on_profile: parsed.data.showOnProfile })
-    .eq("account_id", ctx.user.id);
+  const changes: { show_on_profile?: boolean; hide_from_campus?: boolean } = {};
+  if (parsed.data.showOnProfile !== undefined) changes.show_on_profile = parsed.data.showOnProfile;
+  if (parsed.data.hideFromCampus !== undefined) changes.hide_from_campus = parsed.data.hideFromCampus;
+  const { error } = await ctx.supabase.from("campus_members").update(changes).eq("account_id", ctx.user.id);
   if (error) return unavailable;
   return { ok: true, data: parsed.data };
 }
@@ -116,8 +121,8 @@ export async function leaveCampus(): Promise<Done<{ left: true }> | Fail> {
 }
 
 /**
- * The campus deck is for verified students of that campus, once it has opened.
- * Returns null when not allowed, else the viewer's own profile id so the deck can leave it out.
+ * The campus deck is for verified students of that campus, once it has opened — and not while
+ * they hide from their campus (no browsing classmates who can't see you). Returns null when not allowed, else the viewer's own profile id so the deck can leave it out.
  */
 export async function campusDeckAccess(slug: string): Promise<{ ownProfileId: string | null } | null> {
   if (!isSupabaseConfigured()) return null;
@@ -129,6 +134,6 @@ export async function campusDeckAccess(slug: string): Promise<{ ownProfileId: st
     supabase.from("profiles").select("id").eq("account_id", user.id).maybeSingle(),
   ]);
   const mine = data as MyCampus | null;
-  if (!mine || mine.slug !== slug || mine.status !== "live") return null;
+  if (!campusDeckOpen(mine) || mine.slug !== slug) return null;
   return { ownProfileId: (own?.id as string | undefined) ?? null };
 }

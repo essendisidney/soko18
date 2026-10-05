@@ -20,6 +20,8 @@ export type Product = {
   quantity: number;
   bonusSuperLikes?: number;
   bonusBoosts?: number;
+  /** Only verified students (campus_members) can buy it. The database enforces this at checkout. */
+  requiresCampus?: boolean;
 };
 
 export const PRODUCTS = {
@@ -44,6 +46,30 @@ export const PRODUCTS = {
     days: 30,
     quantity: 1,
     bonusSuperLikes: 5,
+  },
+  comrade_week: {
+    sku: "comrade_week",
+    title: "Comrade Gold · 7 days",
+    line: "Gold at a student price. Verified students only.",
+    amountKes: 49,
+    kind: "plan",
+    plan: "gold",
+    days: 7,
+    quantity: 1,
+    bonusSuperLikes: 1,
+    requiresCampus: true,
+  },
+  comrade_month: {
+    sku: "comrade_month",
+    title: "Comrade Gold · 30 days",
+    line: "Gold at a student price, 3 Super Likes. Verified students only.",
+    amountKes: 199,
+    kind: "plan",
+    plan: "gold",
+    days: 30,
+    quantity: 1,
+    bonusSuperLikes: 3,
+    requiresCampus: true,
   },
   platinum_month: {
     sku: "platinum_month",
@@ -103,7 +129,8 @@ export const PRODUCTS = {
 export type Sku = keyof typeof PRODUCTS;
 export const SKUS = Object.keys(PRODUCTS) as [Sku, ...Sku[]];
 
-export const PLAN_SKUS = ["gold_week", "gold_month", "platinum_month"] as const satisfies readonly Sku[];
+export const PLAN_SKUS = ["gold_week", "gold_month", "comrade_week", "comrade_month", "platinum_month"] as const satisfies readonly Sku[];
+export const COMRADE_SKUS = ["comrade_month", "comrade_week"] as const satisfies readonly Sku[];
 export const BOOST_SKUS = ["boost_1", "boost_5"] as const satisfies readonly Sku[];
 export const SUPER_LIKE_SKUS = ["super_1", "super_5"] as const satisfies readonly Sku[];
 

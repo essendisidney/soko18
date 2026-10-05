@@ -49,6 +49,17 @@ export function CampusCard() {
 
   const refresh = useCallback(() => load().then(setData), []);
 
+  async function setPrivacy(change: Partial<Pick<MyCampus, "showOnProfile" | "hideFromCampus">>) {
+    setData((d) => (d?.mine ? { ...d, mine: { ...d.mine, ...change } } : d));
+    await fetch("/api/campus", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(change),
+    }).catch(() => null);
+    if (change.hideFromCampus) writeCampusDeck(null);
+    void refresh();
+  }
+
   useEffect(() => {
     if (!ready) return;
     void refresh();
@@ -94,16 +105,22 @@ export function CampusCard() {
             <>
               <p className="mt-3 font-display text-2xl">{mine.shortName} is open</p>
               <p className="mt-1 text-sm text-muted">{mine.joined} verified students. Your campus deck shows only them.</p>
-              <Button
-                className="mt-4 w-full"
-                variant="gold"
-                onClick={() => {
-                  writeCampusDeck(mine.slug);
-                  router.push("/discover");
-                }}
-              >
-                Open the {mine.shortName} deck
-              </Button>
+              {mine.hideFromCampus ? (
+                <p className="mt-4 rounded-2xl border border-line px-4 py-3 text-sm text-muted">
+                  You’re hidden from {mine.shortName}, so your campus deck is off. Turn hiding off below to use it.
+                </p>
+              ) : (
+                <Button
+                  className="mt-4 w-full"
+                  variant="gold"
+                  onClick={() => {
+                    writeCampusDeck(mine.slug);
+                    router.push("/discover");
+                  }}
+                >
+                  Open the {mine.shortName} deck
+                </Button>
+              )}
             </>
           ) : (
             <>
@@ -140,16 +157,21 @@ export function CampusCard() {
               type="checkbox"
               className="size-5 accent-[var(--color-gold,#d4b56a)]"
               checked={mine.showOnProfile}
-              onChange={async (event) => {
-                const showOnProfile = event.target.checked;
-                setData((d) => (d?.mine ? { ...d, mine: { ...d.mine, showOnProfile } } : d));
-                await fetch("/api/campus", {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ showOnProfile }),
-                }).catch(() => null);
-                void refresh();
-              }}
+              onChange={(event) => void setPrivacy({ showOnProfile: event.target.checked })}
+            />
+          </label>
+          <label className="mt-4 flex items-center justify-between gap-3 text-sm">
+            <span>
+              Hide me from {mine.shortName}
+              <span className="block text-xs text-muted">
+                Other verified {mine.shortName} students won’t see you, unless you’ve liked them. Your campus deck turns off.
+              </span>
+            </span>
+            <input
+              type="checkbox"
+              className="size-5 accent-[var(--color-gold,#d4b56a)]"
+              checked={mine.hideFromCampus}
+              onChange={(event) => void setPrivacy({ hideFromCampus: event.target.checked })}
             />
           </label>
           <button

@@ -22,9 +22,16 @@ export type MyCampus = {
   joined: number;
   target: number;
   showOnProfile: boolean;
+  /** Hidden from other verified students at the same campus. Turns the campus deck off. */
+  hideFromCampus: boolean;
   method: "login_email" | "email_code";
   verifiedAt: string;
 };
+
+/** The campus deck is open to a verified student when their campus is live and they aren't hiding from it. */
+export function campusDeckOpen(mine: MyCampus | null | undefined): mine is MyCampus {
+  return Boolean(mine && mine.status === "live" && !mine.hideFromCampus);
+}
 
 export const CAMPUS_SLUG = /^[a-z0-9-]{2,40}$/;
 

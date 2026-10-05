@@ -49,7 +49,7 @@ import { Button } from "@/components/soko/button";
 import { Chip } from "@/components/soko/chip";
 import { useMounted } from "@/lib/use-mounted";
 import { readCampusDeck, subscribeCampusDeck, writeCampusDeck } from "@/lib/campus/deck";
-import type { MyCampus } from "@/lib/campus/shared";
+import { campusDeckOpen, type MyCampus } from "@/lib/campus/shared";
 import { GraduationCap } from "lucide-react";
 
 export function DiscoverDeck({
@@ -130,7 +130,7 @@ export function DiscoverDeck({
 
   // The campus deck is only for verified students of an open campus.
   const myCampus = !ready ? undefined : signedIn ? campusFetched : null;
-  const campusOpen = myCampus?.status === "live" ? myCampus : null;
+  const campusOpen = campusDeckOpen(myCampus) ? myCampus : null;
   useEffect(() => {
     if (myCampus === undefined || !campusDeck) return;
     if (!campusOpen || campusOpen.slug !== campusDeck) writeCampusDeck(null);

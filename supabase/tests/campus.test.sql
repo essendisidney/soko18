@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(16);
+select plan(21);
 
 -- Accounts come from the auth.users trigger. A = signed in with a student email, B = verifies by code,
 -- C = under 18 with a student email, D = tries to reuse B's student email.
@@ -81,6 +81,34 @@ select throws_ok(
   $$ insert into public.campus_members (account_id, campus_id, email_hash, method)
      select 'd0000000-0000-4000-8000-00000000000d', id, 'x', 'email_code' from public.campuses where slug = 'ku' $$,
   '42501', null, 'members cannot add themselves to a campus'
+);
+reset role;
+
+-- Hide me from my campus: B hides; A (same campus) can't see B, D (no campus) still can.
+set local role authenticated;
+select set_config('request.jwt.claim.sub', 'b0000000-0000-4000-8000-00000000000b', true);
+select set_config('request.jwt.claims', '{"sub":"b0000000-0000-4000-8000-00000000000b","role":"authenticated"}', true);
+update public.campus_members set hide_from_campus = true where account_id = 'b0000000-0000-4000-8000-00000000000b';
+select is(public.my_campus()->>'hideFromCampus', 'true', 'members can hide from their campus');
+select set_config('request.jwt.claim.sub', 'a0000000-0000-4000-8000-00000000000a', true);
+select set_config('request.jwt.claims', '{"sub":"a0000000-0000-4000-8000-00000000000a","role":"authenticated"}', true);
+select ok(public.profile_hidden_from_me('b0000000-0000-4000-8000-00000000000b'), 'hidden from verified students at the same campus');
+select set_config('request.jwt.claim.sub', 'd0000000-0000-4000-8000-00000000000d', true);
+select set_config('request.jwt.claims', '{"sub":"d0000000-0000-4000-8000-00000000000d","role":"authenticated"}', true);
+select ok(not public.profile_hidden_from_me('b0000000-0000-4000-8000-00000000000b'), 'still visible outside the campus');
+
+-- Comrade Gold: D (no campus) can't start a checkout; A (verified) can.
+select throws_ok(
+  $$ insert into public.transactions (account_id, provider, provider_ref, amount_kes, amount, currency, country_code, status, purpose, sku)
+     values ('d0000000-0000-4000-8000-00000000000d', 'sandbox', 'test:comrade-d', 199, 199, 'KES', 'KE', 'pending', 'gold', 'comrade_month') $$,
+  '42501', null, 'Comrade Gold is for verified students only'
+);
+select set_config('request.jwt.claim.sub', 'a0000000-0000-4000-8000-00000000000a', true);
+select set_config('request.jwt.claims', '{"sub":"a0000000-0000-4000-8000-00000000000a","role":"authenticated"}', true);
+select lives_ok(
+  $$ insert into public.transactions (account_id, provider, provider_ref, amount_kes, amount, currency, country_code, status, purpose, sku)
+     values ('a0000000-0000-4000-8000-00000000000a', 'sandbox', 'test:comrade-a', 199, 199, 'KES', 'KE', 'pending', 'gold', 'comrade_month') $$,
+  'verified students can buy Comrade Gold'
 );
 reset role;
 
