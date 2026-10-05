@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { discoverFeedLive } from "@/lib/discovery/live";
 import { cityFromRequest } from "@/lib/geo/city-cookie";
 import { nearFromRequest } from "@/lib/nairobi/near";
+import { campusDeckAccess } from "@/lib/campus/server";
+import { CAMPUS_SLUG } from "@/lib/campus/shared";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -18,7 +20,16 @@ export async function GET(request: Request) {
     const value = Number(searchParams.get(key));
     return Number.isFinite(value) && value >= 18 && value <= 99 ? value : undefined;
   };
+  // Campus deck: verified students of an open campus only. Anyone else gets an empty deck, not the city.
+  const campus = searchParams.get("campus");
+  if (campus) {
+    const access = CAMPUS_SLUG.test(campus) ? await campusDeckAccess(campus) : null;
+    if (!access) return NextResponse.json({ data: { items: [], nextCursor: null, campusLocked: true } });
+    if (access.ownProfileId) excludeIds.push(access.ownProfileId);
+  }
+
   const feed = await discoverFeedLive({
+    campusSlug: campus,
     minAge: ageParam("minAge"),
     maxAge: ageParam("maxAge"),
     citySlug: city,

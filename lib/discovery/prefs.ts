@@ -1,6 +1,7 @@
 import { ONBOARDING, readAgeRange, readIntents, readShowMe } from "@/lib/onboarding";
 import { impressedIds } from "@/lib/discovery/impressions";
 import { DEFAULT_NEAR_AREA, readNearArea } from "@/lib/nairobi/near";
+import { readCampusDeck } from "@/lib/campus/deck";
 
 export function readDiscoverPrefs() {
   if (typeof window === "undefined") {
@@ -22,5 +23,7 @@ export function discoverQuery() {
   q.set("minAge", String(age.min));
   q.set("maxAge", String(age.max));
   if (prefs.seen.length) q.set("seen", prefs.seen.join(","));
+  const campus = readCampusDeck();
+  if (campus) q.set("campus", campus);
   return q;
 }

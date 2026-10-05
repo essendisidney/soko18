@@ -87,3 +87,25 @@ update public.markets set status = 'live' where country_code = 'NG';
 ```
 
 **Admins:** emails in `private.settings.admin_emails` become admins on sign-up.
+
+## Campus launch (Oct 2026)
+
+Grow campus by campus with verified students (`00030_campuses.sql`, `/campus`, `lib/campus/`).
+
+- **Verify:** sign in with a university email (free, instant), or get a 6-digit code emailed to one
+  (`POST /api/campus/code` → `/api/campus/confirm`). Codes: 15 min, 1 per minute, 5 per day,
+  5 wrong tries. One student email verifies one account; we store a peppered SHA-256 of it, never the
+  address. Only accounts with a server-checked 18+ date of birth can verify.
+- **Email domains** match the domain and any subdomain (`uonbi.ac.ke` covers `students.uonbi.ac.ke`).
+  Confirm each university's student domain before marketing there:
+  `update public.campuses set email_domains = array['...'] where slug = '...';`
+- **Opening:** a campus is `waitlist` until `unlock_target` students verify, then it opens by itself and
+  every verified student there is notified. The Campus race board shows real counts only.
+  Open or close by hand: `update public.campuses set status = 'live' where slug = 'uon';`
+- **Campus deck:** Discover's "<campus> only" chip (`/api/discover?campus=<slug>`) is for verified
+  students of an open campus; anyone else gets an empty deck, never the city deck.
+- **Badge:** "🎓 UoN" on cards and profiles, on by default, members can hide it on `/campus`.
+- **Email:** campus codes need `RESEND_API_KEY` and `EMAIL_FROM`. Without them, only the sign-in-email
+  route works and the page says so.
+- Campus marketing never goes near schools or under-18s, and the paid-services rules apply on campus
+  exactly as everywhere else.

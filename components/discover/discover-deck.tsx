@@ -46,6 +46,10 @@ import { useDraftProfile } from "@/lib/profile/use-draft";
 import { useProfileMeta } from "@/lib/profile/sync";
 import { canEngage, missingToGoLive } from "@/lib/profile/ready";
 import { Button } from "@/components/soko/button";
+import { Chip } from "@/components/soko/chip";
+import { readCampusDeck, subscribeCampusDeck, writeCampusDeck } from "@/lib/campus/deck";
+import type { MyCampus } from "@/lib/campus/shared";
+import { GraduationCap } from "lucide-react";
 
 export function DiscoverDeck({
   initial,
@@ -85,6 +89,8 @@ export function DiscoverDeck({
     () => "nairobi",
   );
   const intents = useSyncExternalStore(subscribeIntents, intentSnapshot, () => null);
+  const campusDeck = useSyncExternalStore(subscribeCampusDeck, readCampusDeck, () => null);
+  const [campusFetched, setMyCampus] = useState<MyCampus | null | undefined>(undefined);
   const place = cityPlaceLine(citySlug || "nairobi", near);
   const tonight = clock >= 0 ? tonightAreaNames(readImpressions(), feed) : [];
   const areas = tonight.length > 0 ? tonight.join(" · ") : place;
@@ -100,16 +106,39 @@ export function DiscoverDeck({
     return () => window.clearInterval(id);
   }, []);
 
+  // A "campus is open" notification links to /discover?campus=<slug>.
+  useEffect(() => {
+    const asked = new URLSearchParams(window.location.search).get("campus");
+    if (asked) writeCampusDeck(asked);
+  }, []);
+
+  const signedIn = ready && Boolean(user) && isSupabaseConfigured();
+  useEffect(() => {
+    if (!signedIn) return;
+    void fetch("/api/campus")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json: { data?: { mine: MyCampus | null } } | null) => setMyCampus(json?.data?.mine ?? null))
+      .catch(() => setMyCampus(null));
+  }, [signedIn]);
+
+  // The campus deck is only for verified students of an open campus.
+  const myCampus = !ready ? undefined : signedIn ? campusFetched : null;
+  const campusOpen = myCampus?.status === "live" ? myCampus : null;
+  useEffect(() => {
+    if (myCampus === undefined || !campusDeck) return;
+    if (!campusOpen || campusOpen.slug !== campusDeck) writeCampusDeck(null);
+  }, [myCampus, campusOpen, campusDeck]);
+
   useEffect(() => {
     const q = discoverQuery();
-    if (q.get("city") && q.get("city") !== "nairobi") setFeed([]);
+    if (q.get("campus") || (q.get("city") && q.get("city") !== "nairobi")) setFeed([]);
     void fetch(`/api/discover?${q.toString()}`)
       .then((res) => res.json())
       .then((json: { data?: { items?: SeedProfile[] } }) => {
         if (json.data?.items) setFeed(json.data.items);
       })
       .catch(() => {});
-  }, [near, intents, citySlug, filtersVersion]);
+  }, [near, intents, citySlug, filtersVersion, campusDeck]);
 
   useEffect(() => {
     if (!user || !isSupabaseConfigured()) return;
@@ -201,6 +230,26 @@ export function DiscoverDeck({
           </Link>
         </div>
       </header>
+      {campusOpen ? (
+        <div className="mt-2 flex gap-2 px-1" role="group" aria-label="Deck">
+          <Chip className="px-3 py-1.5 text-xs" selected={!campusDeck} onClick={() => writeCampusDeck(null)}>
+            Near you
+          </Chip>
+          <Chip
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs"
+            selected={campusDeck === campusOpen.slug}
+            onClick={() => writeCampusDeck(campusOpen.slug)}
+          >
+            <GraduationCap className="size-3.5 text-gold" />
+            {campusOpen.shortName} only
+          </Chip>
+        </div>
+      ) : myCampus && myCampus.status === "waitlist" ? (
+        <Link href="/campus" className="mt-2 inline-flex items-center gap-1.5 px-1 text-xs text-gold">
+          <GraduationCap className="size-3.5" />
+          {myCampus.shortName}: {myCampus.joined} of {myCampus.target} students in — help open it
+        </Link>
+      ) : null}
       <ProfileNudge />
       {ghost ? <p className="mt-2 px-1 text-xs text-gold">You’re invisible</p> : null}
       <AnimatePresence>
@@ -269,14 +318,18 @@ export function DiscoverDeck({
           browseHref={areaBrowseHref(citySlug || "nairobi", near)}
           browseLabel={`Browse ${near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}`}
           emptyTitle={
-            catalogForCity(citySlug || "nairobi").length === 0
+            campusDeck && campusOpen
+              ? `That’s everyone at ${campusOpen.shortName} for now`
+              : catalogForCity(citySlug || "nairobi").length === 0
               ? `No one in ${near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")} yet`
               : near
                 ? `That’s everyone in ${nearAreaName(near)}`
                 : "That’s everyone around you"
           }
           emptyHint={
-            catalogForCity(citySlug || "nairobi").length === 0
+            campusDeck && campusOpen
+              ? "New students verify every day. Invite your friends to fill the deck."
+              : catalogForCity(citySlug || "nairobi").length === 0
               ? "You’re early. Every profile here is a real, checked person — bring your friends and get it going."
               : "People you pass stay hidden for 30 days. New people join every day."
           }
