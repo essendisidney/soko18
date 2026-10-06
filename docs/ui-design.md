@@ -8,6 +8,7 @@ Swipe cards, Tinder-style, built for Kenyan phones. Each card: photo, name, age,
 - Header: city + active areas. Links: "See who likes you" and "Boost · Gold"
 - When the free like cap is hit: inline card "Get Gold · from KES 149" / "Not now". Never a dead end
 - Boosted profiles carry a BOOSTED tag and are capped per window
+- Look (Oct 2026): full-bleed card with a gold ring when Boosted; name + age + verified tick, area/presence/campus chips, first prompt as a quote card, "Looking for" line. Actions sit in a frosted dock over the card's foot (Rewind · Pass · Super Like · Like). Dragging shows tilted LIKE / PASS / SUPER LIKE stamps and a gold or rose edge glow; the next card peeks behind. Arrow keys swipe on desktop. Header: mark, "Discover in <area>" (tap to change), Filters | Browse
 
 ## Onboarding
 

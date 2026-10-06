@@ -105,11 +105,14 @@ export function SwipeDeck({
   const passOpacity = useTransform(x, [-110, -28], [1, 0]);
   const spotOpacity = useTransform(y, [-110, -28], [1, 0]);
   const goldWash = useTransform(y, [-160, -36], [0.22, 0]);
+  const likeGlow = useTransform(x, [20, 140], [0, 1]);
+  const passGlow = useTransform(x, [-140, -20], [1, 0]);
   const lift = useTransform([x, y], ([latestX, latestY]: number[]) =>
     Math.min(1, Math.max(Math.abs(latestX), Math.abs(latestY)) / 130),
   );
-  const peekScale = useTransform(lift, [0, 1], [0.965, 1]);
-  const peekOpacity = useTransform(lift, [0, 1], [0.62, 1]);
+  const peekScale = useTransform(lift, [0, 1], [0.94, 1]);
+  const peekY = useTransform(lift, [0, 1], [14, 0]);
+  const peekOpacity = useTransform(lift, [0, 1], [0.55, 1]);
 
   const seen = useRef(new Set<string>());
 
@@ -132,6 +135,22 @@ export function SwipeDeck({
     animate(x, 0, SNAP);
     animate(y, 0, SNAP);
   }
+
+  // Desktop: arrow keys swipe (left pass, right like, up Super Like).
+  const commitRef = useRef<(dir: "left" | "right" | "up") => void>(() => {});
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+      const el = event.target as HTMLElement | null;
+      if (el?.closest("input, textarea, select, [contenteditable], [role=dialog]")) return;
+      const dir = event.key === "ArrowLeft" ? "left" : event.key === "ArrowRight" ? "right" : event.key === "ArrowUp" ? "up" : null;
+      if (!dir) return;
+      event.preventDefault();
+      commitRef.current(dir);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   function commit(dir: "left" | "right" | "up", speed = 0) {
     if (!current || busy.current) return;
@@ -177,6 +196,10 @@ export function SwipeDeck({
     if (dir === "up") onLike?.(profile, "super");
     busy.current = false;
   }
+
+  useEffect(() => {
+    commitRef.current = (dir) => commit(dir);
+  });
 
   function onDragEnd(_: unknown, info: PanInfo) {
     if (busy.current) return;
@@ -264,7 +287,7 @@ export function SwipeDeck({
         {behind ? (
           <motion.div
             className="pointer-events-none absolute inset-0 origin-bottom"
-            style={{ scale: peekScale, opacity: peekOpacity }}
+            style={{ scale: peekScale, y: peekY, opacity: peekOpacity }}
             aria-hidden
           >
             <ProfileCard profile={behind} />
@@ -289,6 +312,10 @@ export function SwipeDeck({
               if (busy.current) return;
               if (Math.abs(x.get()) > 8 || Math.abs(y.get()) > 8) return;
               // Tap the left or right edge to flip photos; the middle opens the profile.
+              if ((event.target as HTMLElement | null)?.closest("[data-open]")) {
+                router.push(`/profile/${current.slug}`);
+                return;
+              }
               const target = (event.target as HTMLElement | null)?.closest("[data-card]") as HTMLElement | null;
               const rect = target?.getBoundingClientRect();
               const total = publicPhotos(current).length;
@@ -309,23 +336,31 @@ export function SwipeDeck({
             <ProfileCard profile={current} photoIndex={photoIndex} />
             <motion.div
               style={{ opacity: goldWash }}
-              className="pointer-events-none absolute inset-0 rounded-[28px] bg-gold/40"
+              className="pointer-events-none absolute inset-0 rounded-[32px] bg-linear-to-t from-sky-400/50 to-transparent"
+            />
+            <motion.div
+              style={{ opacity: likeGlow }}
+              className="pointer-events-none absolute inset-0 rounded-[32px] shadow-[inset_0_0_0_3px_var(--gold),inset_0_0_80px_rgba(212,181,106,0.35)]"
+            />
+            <motion.div
+              style={{ opacity: passGlow }}
+              className="pointer-events-none absolute inset-0 rounded-[32px] shadow-[inset_0_0_0_3px_rgb(251,113,133),inset_0_0_80px_rgba(251,113,133,0.3)]"
             />
             <motion.div
               style={{ opacity: likeOpacity }}
-              className="pointer-events-none absolute top-8 right-6 rounded-full border border-gold px-3 py-1 font-display text-sm tracking-widest text-gold"
+              className="pointer-events-none absolute top-14 left-6 -rotate-12 rounded-xl border-[3px] border-gold bg-black/30 px-3 py-1 text-3xl font-black tracking-[0.12em] text-gold backdrop-blur-sm"
             >
               LIKE
             </motion.div>
             <motion.div
               style={{ opacity: passOpacity }}
-              className="pointer-events-none absolute top-8 left-6 rounded-full border border-cream/50 px-3 py-1 font-display text-sm tracking-widest text-cream"
+              className="pointer-events-none absolute top-14 right-6 rotate-12 rounded-xl border-[3px] border-rose-400 bg-black/30 px-3 py-1 text-3xl font-black tracking-[0.12em] text-rose-400 backdrop-blur-sm"
             >
               PASS
             </motion.div>
             <motion.div
               style={{ opacity: spotOpacity }}
-              className="pointer-events-none absolute top-8 left-1/2 -translate-x-1/2 rounded-full border border-gold px-3 py-1 font-display text-sm tracking-widest text-gold"
+              className="pointer-events-none absolute bottom-40 left-1/2 -translate-x-1/2 -rotate-6 rounded-xl border-[3px] border-sky-400 bg-black/30 px-3 py-1 text-2xl font-black tracking-[0.12em] whitespace-nowrap text-sky-400 backdrop-blur-sm"
             >
               SUPER LIKE
             </motion.div>
@@ -348,32 +383,34 @@ export function SwipeDeck({
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-4 py-4">
-        <ActionButton
-          label="Rewind"
-          size="sm"
-          disabled={!canUndo}
-          onClick={() => {
-            const id = onUndo?.();
-            if (!id) return;
-            setGone((prev) => {
-              const next = new Set(prev);
-              next.delete(id);
-              return next;
-            });
-          }}
-        >
-          <RotateCcw className="size-[18px] text-amber-300" />
-        </ActionButton>
-        <ActionButton label="Pass" size="lg" onClick={() => commit("left")}>
-          <X className="size-8 text-rose-400" strokeWidth={2.6} />
-        </ActionButton>
-        <ActionButton label="Super Like" size="sm" onClick={() => commit("up")}>
-          <Star className="size-[18px] fill-sky-400 text-sky-400" />
-        </ActionButton>
-        <ActionButton label="Like" size="lg" gold onClick={() => commit("right")}>
-          <Heart className="size-8 fill-bg text-bg" />
-        </ActionButton>
+      <div className="pointer-events-none relative z-30 -mt-[4.75rem] flex justify-center pb-2">
+        <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/10 bg-bg/70 p-2 shadow-[0_12px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+          <ActionButton
+            label="Rewind"
+            size="sm"
+            disabled={!canUndo}
+            onClick={() => {
+              const id = onUndo?.();
+              if (!id) return;
+              setGone((prev) => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+              });
+            }}
+          >
+            <RotateCcw className="size-[18px] text-amber-300" />
+          </ActionButton>
+          <ActionButton label="Pass" size="lg" tone="pass" onClick={() => commit("left")}>
+            <X className="size-7 text-rose-400" strokeWidth={2.8} />
+          </ActionButton>
+          <ActionButton label="Super Like" size="sm" tone="super" onClick={() => commit("up")}>
+            <Star className="size-[18px] fill-sky-400 text-sky-400" />
+          </ActionButton>
+          <ActionButton label="Like" size="lg" tone="like" onClick={() => commit("right")}>
+            <Heart className="size-7 fill-bg text-bg" />
+          </ActionButton>
+        </div>
       </div>
     </div>
   );
@@ -382,14 +419,14 @@ export function SwipeDeck({
 function ActionButton({
   label,
   size,
-  gold,
+  tone,
   disabled,
   onClick,
   children,
 }: {
   label: string;
   size: "sm" | "lg";
-  gold?: boolean;
+  tone?: "pass" | "super" | "like";
   disabled?: boolean;
   onClick: () => void;
   children: ReactNode;
@@ -401,11 +438,15 @@ function ActionButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "grid place-items-center rounded-full transition-transform duration-100 active:scale-90 disabled:opacity-35",
-        size === "lg" ? "size-16" : "size-11",
-        gold
-          ? "bg-gold shadow-[0_10px_36px_rgba(212,181,106,0.35)]"
-          : "border border-line bg-bg-elevated shadow-[0_6px_20px_rgba(0,0,0,0.45)]",
+        "grid place-items-center rounded-full transition duration-150 active:scale-90 disabled:opacity-35",
+        size === "lg" ? "size-[3.75rem]" : "size-11",
+        tone === "like"
+          ? "bg-linear-to-br from-gold-2 to-gold shadow-[0_8px_28px_rgba(212,181,106,0.45)]"
+          : tone === "pass"
+            ? "border border-rose-400/30 bg-rose-400/10"
+            : tone === "super"
+              ? "border border-sky-400/30 bg-sky-400/10"
+              : "border border-white/10 bg-white/5",
       )}
     >
       {children}
