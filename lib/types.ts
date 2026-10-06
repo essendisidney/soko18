@@ -23,6 +23,9 @@ export type SeedProfile = {
   citySlug: string;
   area: string;
   areaSlug: string;
+  /** Verified student badge, when the member shows it (e.g. "UoN"). */
+  campus?: string;
+  campusSlug?: string;
   verified: boolean;
   presence: Presence;
   bio: string;

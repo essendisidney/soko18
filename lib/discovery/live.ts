@@ -26,6 +26,8 @@ type CardRow = {
   bio?: string | null;
   prompts?: { q: string; a: string }[] | null;
   is_test?: boolean | null;
+  campus_slug?: string | null;
+  campus_name?: string | null;
 };
 
 /** Demo profiles are only for local development and previews, never alongside real members. */
@@ -98,22 +100,31 @@ function toProfile(row: CardRow, cover: string | undefined, now: number): SeedPr
     likes: 0,
     indexPublic: false,
     isTest: Boolean(row.is_test),
+    ...(row.campus_slug && row.campus_name ? { campus: row.campus_name, campusSlug: row.campus_slug } : {}),
   };
 }
 
-/** Live members for a city from `live_profile_cards` (RLS + Incognito applied in the database). */
-export async function liveProfiles(input: { citySlug: string; gender: "man" | "woman" | "any"; limit?: number }) {
+/**
+ * Live members for a city — or, with `campusSlug`, for one campus in any city — from
+ * `live_profile_cards` (RLS + Incognito applied in the database).
+ */
+export async function liveProfiles(input: {
+  citySlug: string;
+  campusSlug?: string | null;
+  gender: "man" | "woman" | "any";
+  limit?: number;
+}) {
   if (!isSupabaseConfigured()) return [] as SeedProfile[];
   const supabase = await createClient();
   let query = supabase
     .from("live_profile_cards")
     .select(
-      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, bio, prompts, is_test",
+      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, bio, prompts, is_test, campus_slug, campus_name",
     )
-    .eq("city_slug", input.citySlug)
     .not("cover_path", "is", null)
     .order("boost_until", { ascending: false, nullsFirst: false })
     .limit(input.limit ?? 80);
+  query = input.campusSlug ? query.eq("campus_slug", input.campusSlug) : query.eq("city_slug", input.citySlug);
   if (input.gender !== "any") query = query.eq("gender", input.gender);
 
   const { data } = await query;
@@ -135,7 +146,7 @@ export async function liveProfileBySlug(slug: string) {
   const { data } = await supabase
     .from("live_profile_cards")
     .select(
-      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, is_test",
+      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, is_test, campus_slug, campus_name",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -159,9 +170,14 @@ export async function liveProfileBySlug(slug: string) {
  * Server only — uses the request's Supabase session.
  */
 export async function discoverFeedLive(
-  ctx: Parameters<typeof getDiscoverFeed>[0] & { citySlug: string; gender: "man" | "woman" | "any" },
+  ctx: Parameters<typeof getDiscoverFeed>[0] & {
+    citySlug: string;
+    gender: "man" | "woman" | "any";
+    /** Campus deck: only verified students of this campus. Callers check the viewer may see it. */
+    campusSlug?: string | null;
+  },
 ) {
-  const live = await liveProfiles({ citySlug: ctx.citySlug, gender: ctx.gender });
+  const live = await liveProfiles({ citySlug: ctx.citySlug, campusSlug: ctx.campusSlug, gender: ctx.gender });
   const ranked = rankProfiles(live, {
     citySlug: ctx.citySlug,
     nearArea: ctx.nearArea,
@@ -172,7 +188,7 @@ export async function discoverFeedLive(
     minAge: ctx.minAge,
     maxAge: ctx.maxAge,
   });
-  const seed = showSeedProfiles() ? getDiscoverFeed({ ...ctx, cursor: 0, limit: 200 }).items : [];
+  const seed = showSeedProfiles() && !ctx.campusSlug ? getDiscoverFeed({ ...ctx, cursor: 0, limit: 200 }).items : [];
   const all = [...ranked, ...seed];
   const limit = ctx.limit ?? 16;
   const cursor = ctx.cursor ?? 0;

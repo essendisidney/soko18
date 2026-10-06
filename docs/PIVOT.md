@@ -35,6 +35,7 @@ older in `SOKO18_MASTER_DEVELOPMENT.md`, `PHASE_STATUS.md` and the other docs wh
 | boost_1 / boost_5 | 99 / 399 | 30 min top of the local deck |
 | super_1 / super_5 | 49 / 199 | Super Likes |
 | incognito_month | 299 | Only people you like see you |
+| comrade_week / comrade_month | 49 / 199 | Comrade Gold: Gold at a student price, verified students only (Kenya) |
 
 Free: 30 likes per Nairobi day, matches, chat, safety tools.
 
@@ -87,3 +88,36 @@ update public.markets set status = 'live' where country_code = 'NG';
 ```
 
 **Admins:** emails in `private.settings.admin_emails` become admins on sign-up.
+
+## Campus launch (Oct 2026)
+
+Grow campus by campus with verified students (`00030_campuses.sql`, `/campus`, `lib/campus/`).
+
+- **Verify:** sign in with a university email (free, instant), or get a 6-digit code emailed to one
+  (`POST /api/campus/code` → `/api/campus/confirm`). Codes: 15 min, 1 per minute, 5 per day,
+  5 wrong tries. One student email verifies one account; we store a peppered SHA-256 of it, never the
+  address. Only accounts with a server-checked 18+ date of birth can verify.
+- **Email domains** match the domain and any subdomain. Student-only domains are confirmed for UoN
+  (`students.uonbi.ac.ke`), KU (`students.ku.ac.ke`), JKUAT (`students.jkuat.ac.ke`), Moi
+  (`students.mu.ac.ke`), Egerton (`student.egerton.ac.ke`), Maseno (`student.maseno.ac.ke`) and TUK
+  (`students.tukenya.ac.ke`). Strathmore, USIU, MMU, Daystar and DeKUT use their main domain (so staff
+  could verify) until someone confirms their student domain:
+  `update public.campuses set email_domains = array['...'] where slug = '...';`
+- **Opening:** a campus is `waitlist` until `unlock_target` students verify, then it opens by itself and
+  every verified student there is notified. The Campus race board shows real counts only.
+  Open or close by hand: `update public.campuses set status = 'live' where slug = 'uon';`
+- **Campus deck:** Discover's "<campus> only" chip (`/api/discover?campus=<slug>`) is for verified
+  students of an open campus; anyone else gets an empty deck, never the city deck.
+- **Badge:** "🎓 UoN" on cards and profiles, on by default, members can hide it on `/campus`.
+- **Email:** campus codes need `RESEND_API_KEY` and `EMAIL_FROM`. Without them, only the sign-in-email
+  route works and the page says so.
+- **Hide me from my campus** (`00031_hide_from_campus.sql`, free): hidden from other verified students
+  at the same campus everywhere `profile_hidden_from_me` applies, except people they've already liked.
+  While hidden, their own campus deck is off. It can't hide from classmates who never verified — the
+  Campus page says so, and contact blocking still covers known numbers.
+- **Comrade Gold** (`00032_comrade_gold.sql`): `comrade_week` KES 49 / `comrade_month` KES 199. Ordinary
+  Gold once paid (same settlement and ledger). `products.requires_campus` + the `transactions` insert
+  policy refuse it for anyone not in `campus_members`. Verified students see it on `/upgrade` in place of
+  regular Gold; others in Kenya see a "Student? Verify your campus" link.
+- Campus marketing never goes near schools or under-18s, and the paid-services rules apply on campus
+  exactly as everywhere else.

@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Heart, MessageCircle, Star, X } from "lucide-react";
+import { GraduationCap, Heart, MessageCircle, Star, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { publicPhotos } from "@/lib/media/public";
 import { similarProfiles } from "@/lib/data/seed";
@@ -141,6 +141,12 @@ export function PublicProfile({
         <p className="mt-1 text-cream/80">
           {profile.age} · {profile.city} · {profile.area}
         </p>
+        {profile.campus ? (
+          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-2.5 py-1 text-xs text-cream/90">
+            <GraduationCap className="size-3.5 text-gold" aria-hidden />
+            Verified student · {profile.campus}
+          </p>
+        ) : null}
         <PresenceDot presence={profile.presence} className="mt-2" />
         {profile.isTest ? (
           <p className="mt-3 rounded-2xl border border-sky-400/40 bg-sky-400/10 px-3 py-2 text-xs text-sky-200">

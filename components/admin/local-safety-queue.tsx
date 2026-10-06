@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { staffQueue, type ReportFlag } from "@/lib/reports/tally";
 import { readReportFlags } from "@/lib/reports/local";
 import { seedProfile } from "@/lib/data/seed";
 
 export function LocalSafetyQueue() {
-  const [flags, setFlags] = useState<ReportFlag[]>([]);
-
-  useEffect(() => {
-    setFlags(readReportFlags());
-  }, []);
+  const flags: ReportFlag[] = useMounted() ? readReportFlags() : [];
 
   const queue = staffQueue(flags);
   if (queue.length === 0) {

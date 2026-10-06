@@ -9,6 +9,7 @@ import { PresenceDot } from "@/components/soko/presence-dot";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 import { sokoVerified } from "@/lib/trust/verified";
 import { INTENTS } from "@/lib/data/nairobi";
+import { GraduationCap } from "lucide-react";
 
 export function ProfileCard({
   profile,
@@ -75,6 +76,12 @@ export function ProfileCard({
         </p>
         <div className="mt-0.5 flex items-center gap-2 text-[13px] text-cream/80">
           <span>{profile.area}</span>
+          {profile.campus ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 text-[11px] text-cream/90">
+              <GraduationCap className="size-3 text-gold" aria-hidden />
+              {profile.campus}
+            </span>
+          ) : null}
           <PresenceDot presence={profile.presence} />
         </div>
         {!compact && (profile.prompts?.[0]?.a || profile.bio) ? (

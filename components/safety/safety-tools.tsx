@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { Button } from "@/components/soko/button";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { useAuth } from "@/lib/auth/use-auth";
@@ -26,7 +27,11 @@ export function SafetyTools() {
   const [busy, setBusy] = useState(false);
   const [sharing, setSharing] = useState(false);
 
-  useEffect(() => {
+  // Seed from this device once, after hydration (never during server render).
+  const mounted = useMounted();
+  const [seeded, setSeeded] = useState(false);
+  if (mounted && !seeded) {
+    setSeeded(true);
     const stored = readEmergencyContact();
     if (stored) {
       setName(stored.name);
@@ -37,7 +42,7 @@ export function SafetyTools() {
       setExtraName(extra.name);
       setExtraPhone(extra.phone);
     }
-  }, []);
+  }
 
   function saveContact() {
     if (!name.trim() || phone.replace(/\D/g, "").length < 7) {
@@ -102,9 +107,9 @@ export function SafetyTools() {
     return true;
   }
 
+  // The first ping goes out from the button; this keeps sharing every 45 seconds.
   useEffect(() => {
     if (!sharing) return;
-    void ping("share");
     const id = window.setInterval(() => {
       void ping("share");
     }, 45_000);
@@ -183,6 +188,7 @@ export function SafetyTools() {
             return;
           }
           setSharing(true);
+          void ping("share");
         }}
       >
         {sharing ? "Stop sharing" : "Share live location"}

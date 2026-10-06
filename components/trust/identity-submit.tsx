@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { Button } from "@/components/soko/button";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { useAuth } from "@/lib/auth/use-auth";
@@ -22,9 +23,13 @@ export function IdentitySubmit() {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Seed from this device once, after hydration (never during server render).
+  const mounted = useMounted();
+  const [seeded, setSeeded] = useState(false);
+  if (mounted && !seeded) {
+    setSeeded(true);
     setStatus(readIdentityState());
-  }, []);
+  }
 
   async function submit() {
     if (configured && ready && !user) {

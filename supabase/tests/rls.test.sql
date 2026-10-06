@@ -80,7 +80,9 @@ insert into public.accounts (id, role, display_name, age_confirmed_at)
 values
   ('11111111-1111-4111-8111-111111111111', 'owner', 'Owner', now()),
   ('22222222-2222-4222-8222-222222222222', 'seeker', 'Seeker', now()),
-  ('33333333-3333-4333-8333-333333333333', 'moderator', 'Staff', now());
+  ('33333333-3333-4333-8333-333333333333', 'moderator', 'Staff', now())
+on conflict (id) do update
+  set role = excluded.role, display_name = excluded.display_name, age_confirmed_at = excluded.age_confirmed_at;
 
 insert into public.profiles (id, account_id, slug, display_name, city_id, status)
 select

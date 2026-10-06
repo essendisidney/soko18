@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { currentUser } from "@/lib/auth/user";
-import { ledgerPurpose, PRODUCTS, SKUS } from "@/lib/payments/catalog";
+import { ledgerPurpose, PRODUCTS, SKUS, type Product } from "@/lib/payments/catalog";
 import { mpesaConfigured, normalizeKenyanPhone, stkPush } from "@/lib/payments/daraja";
 import { initializePaystack, paystackConfigured } from "@/lib/payments/paystack";
 import { intasendCheckout, intasendConfigured, intasendStkPush } from "@/lib/payments/intasend";
@@ -32,7 +32,12 @@ export async function createPaymentIntent(input: unknown) {
   const parsed = bodySchema.safeParse(input ?? {});
   if (!parsed.success) return fail(400, "invalid", "Choose something to buy.");
 
-  const product = PRODUCTS[parsed.data.sku];
+  const product: Product = PRODUCTS[parsed.data.sku];
+  // Friendly check only — the database refuses student products for anyone not verified.
+  if (product.requiresCampus) {
+    const { data: campus } = await (await createClient()).rpc("my_campus");
+    if (!campus) return fail(403, "campus_required", "Comrade Gold is for verified students. Verify your campus first.");
+  }
   const country = await resolveCountry();
   const market = await getMarket(country);
   if (market && market.status !== "live") {

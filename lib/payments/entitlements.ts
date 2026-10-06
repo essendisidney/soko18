@@ -38,7 +38,7 @@ export async function getEntitlements() {
   return { ok: true as const, data: data as Entitlements };
 }
 
-export async function useBoost() {
+export async function spendBoost() {
   const user = await currentUser();
   if (!user || !isSupabaseConfigured()) {
     return { ok: false as const, status: 401, error: { code: "unauthorized", message: "Sign in to Boost." } };

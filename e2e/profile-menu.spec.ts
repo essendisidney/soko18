@@ -30,7 +30,8 @@ test("blocked people leave similar", async ({ page }) => {
 test("pass from a profile leaves Discover", async ({ page }) => {
   await page.goto("/profile/amani-nairobi");
   await page.getByRole("button", { name: "More" }).click();
-  await page.getByRole("button", { name: "Pass" }).click();
+  // The ⋯ menu's Pass (the action bar has its own Pass button).
+  await page.getByRole("button", { name: "Pass", exact: true }).first().click();
   await expect(page).toHaveURL(/\/discover/);
   await expect(page.getByRole("img", { name: /Amani/ })).toHaveCount(0);
 });

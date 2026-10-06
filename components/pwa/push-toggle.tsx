@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { Button } from "@/components/soko/button";
 import { useAuth } from "@/lib/auth/use-auth";
 
@@ -13,20 +14,19 @@ function urlBase64ToUint8Array(base64: string) {
 /** Matches, messages and likes as phone notifications. Lock-screen text never shows names. */
 export function PushToggle() {
   const { user, configured } = useAuth();
-  const [supported, setSupported] = useState(false);
+  const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const mounted = useMounted();
+  const supported = mounted && "serviceWorker" in navigator && "PushManager" in window && Boolean(key);
   const [enabled, setEnabled] = useState(false);
   const [note, setNote] = useState<string | null>(null);
-  const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
 
   useEffect(() => {
-    const ok = "serviceWorker" in navigator && "PushManager" in window && Boolean(key);
-    setSupported(ok);
-    if (!ok) return;
+    if (!supported) return;
     void navigator.serviceWorker.ready
       .then((reg) => reg.pushManager.getSubscription())
       .then((sub) => setEnabled(Boolean(sub)))
       .catch(() => {});
-  }, [key]);
+  }, [supported]);
 
   if (!configured || !user || !supported || !key) return null;
 

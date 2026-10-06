@@ -147,7 +147,7 @@ export function emptyBlockedLine(cityName: string) {
   return `No one blocked in ${cityName}.`;
 }
 
-export function emptyMatchesLine(_cityName?: string) {
+export function emptyMatchesLine() {
   return `No matches yet. When someone you liked likes you back, they’ll show up here.`;
 }
 

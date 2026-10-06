@@ -22,24 +22,22 @@ test("onboarding → discover swipe → profile → like auth wall", async ({ pa
   await page.waitForURL("**/onboarding/intent", { timeout: 90_000 });
 
   await expect(page.getByRole("heading", { name: "What are you looking for?" })).toBeVisible();
-  await page.getByRole("button", { name: "Connect" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.waitForURL("**/onboarding/privacy", { timeout: 90_000 });
-  await expect(page.getByRole("heading", { name: "Stay unseen" })).toBeVisible();
-  await page.getByRole("button", { name: "Skip" }).click();
+  await page.getByRole("button", { name: "A relationship" }).click();
+  await page.getByRole("button", { name: "Everyone" }).click();
+  await page.getByRole("button", { name: "Show me people" }).click();
   await page.waitForURL("**/discover", { timeout: 90_000 });
   await expect(page.getByRole("heading", { name: "Nairobi" })).toBeVisible();
 
   const name = page.locator(".cursor-grab p.font-display").first();
   const before = await name.textContent();
-  await page.getByRole("button", { name: "Pass" }).click();
+  await page.getByRole("button", { name: "Pass", exact: true }).click();
   await expect(name).not.toHaveText(before ?? "");
   const alt = await page.locator(".cursor-grab img").first().getAttribute("alt");
   const slug = `${alt?.split(",")[0]?.trim().toLowerCase()}-nairobi`;
   await page.goto(`/profile/${slug}`);
 
   await expect(page).toHaveURL(/\/profile\//);
-  await page.getByRole("button", { name: "Like" }).click();
+  await page.getByRole("button", { name: "Like", exact: true }).click();
 
   await expect(page.getByRole("heading", { name: "Sign in to like" })).toBeVisible();
   await page.getByRole("button", { name: "Continue" }).click();

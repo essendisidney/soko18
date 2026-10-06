@@ -15,8 +15,7 @@ import {
   writeMatchWaiting,
 } from "@/lib/matches/waiting";
 import { matchPreview } from "@/lib/messages/preview";
-import { cityNameBySlug, emptyMatchesLine } from "@/lib/geo/kenya";
-import { useSnappedCity } from "@/lib/nairobi/use-near-area";
+import { emptyMatchesLine } from "@/lib/geo/kenya";
 import { useLocalIds } from "@/lib/safety/use-id-list";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth/use-auth";
@@ -42,7 +41,6 @@ function Avatar({ item, size }: { item: MatchListItem; size: number }) {
 
 export function MatchList({ items }: { items: MatchListItem[] }) {
   const { user, ready, configured } = useAuth();
-  const citySlug = useSnappedCity();
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
   const seen = useLocalIds(subscribeMatchSeen, matchSeenSnapshot);
   const hidden = new Set(blocked);
@@ -148,7 +146,7 @@ export function MatchList({ items }: { items: MatchListItem[] }) {
               <MessageCircle className="size-9 text-gold" />
             </div>
             <p className="mt-5 font-display text-2xl">No chats yet</p>
-            <p className="mt-2 max-w-xs text-sm text-muted">{emptyMatchesLine(cityNameBySlug(citySlug))}</p>
+            <p className="mt-2 max-w-xs text-sm text-muted">{emptyMatchesLine()}</p>
             <ul className="mt-5 w-full max-w-xs space-y-2 text-left text-sm text-muted">
               <li>✦ Add 3 or more clear photos</li>
               <li>✦ Answer a prompt — it gives people something to say</li>

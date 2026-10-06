@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { Button } from "@/components/soko/button";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { useAuth } from "@/lib/auth/use-auth";
@@ -66,9 +67,13 @@ export function Checkout({
   const shown = price ?? { amount: product.amountKes, currency: "KES" };
   const money = formatMoney(shown.amount, shown.currency, locale);
 
-  useEffect(() => {
+  // Seed from this device once, after hydration (never during server render).
+  const mounted = useMounted();
+  const [seeded, setSeeded] = useState(false);
+  if (mounted && !seeded) {
+    setSeeded(true);
     setPhone(readPhone());
-  }, []);
+  }
 
   useEffect(() => {
     if (phase.kind !== "waiting") return;

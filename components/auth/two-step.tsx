@@ -23,8 +23,17 @@ export function TwoStep() {
   }, [configured, user]);
 
   useEffect(() => {
-    void load();
-  }, [load]);
+    if (!configured || !user) return;
+    let alive = true;
+    void createClient()
+      .auth.mfa.listFactors()
+      .then(({ data }) => {
+        if (alive) setEnabled(data?.totp?.find((f) => f.status === "verified")?.id ?? null);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [configured, user]);
 
   if (!configured || !user) return null;
 

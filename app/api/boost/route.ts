@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { useBoost } from "@/lib/payments/entitlements";
+import { spendBoost } from "@/lib/payments/entitlements";
 
 export async function POST() {
-  const result = await useBoost();
+  const result = await spendBoost();
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }

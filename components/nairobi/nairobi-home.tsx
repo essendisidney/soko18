@@ -28,6 +28,7 @@ import { nairobiUrl, shareProfile } from "@/lib/profile/share";
 import { nearAreaName, writeCity } from "@/lib/nairobi/near";
 import { useNearArea } from "@/lib/nairobi/use-near-area";
 import { tonightAreaNames } from "@/lib/nairobi/tonight";
+import { useMounted } from "@/lib/use-mounted";
 import { readImpressions } from "@/lib/discovery/impressions";
 import { nairobiProfiles } from "@/lib/data/seed";
 import { cn } from "@/lib/utils";
@@ -44,7 +45,8 @@ export function NairobiHome({
   const [facet, setFacet] = useState<NairobiFilter>("trending");
   const [now, setNow] = useState<NairobiNowId>("trending");
   const [shareNotice, setShareNotice] = useState<string | null>(null);
-  const [tonight, setTonight] = useState<string[]>([]);
+  const mounted = useMounted();
+  const tonight = mounted ? tonightAreaNames(readImpressions(), nairobiProfiles()) : [];
   const near = useNearArea(nearArea);
   const nearName = nearAreaName(near);
   const blocked = useLocalIds(subscribeBlocks, blocksSnapshot);
@@ -60,7 +62,6 @@ export function NairobiHome({
 
   useEffect(() => {
     writeCity("nairobi");
-    setTonight(tonightAreaNames(readImpressions(), nairobiProfiles()));
   }, []);
 
   return (

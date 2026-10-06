@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { SearchNotifyButton } from "@/components/nairobi/search-notify";
@@ -123,16 +124,14 @@ export function SnappedCityKicker({
   className?: string;
 }) {
   const citySlug = useSnappedCity();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useMounted();
   return <p className={className}>{mounted ? cityNameBySlug(citySlug) : "Kenya"}</p>;
 }
 
 export function SnappedPlaceNote() {
   const citySlug = useSnappedCity();
   const near = useSyncExternalStore(subscribeNearArea, nearAreaSnapshot, () => null);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useMounted();
   return (
     <p className="mt-1 text-sm text-muted">
       {mounted ? cityPlaceLine(citySlug, near) : "Kenya. Area-level only."}

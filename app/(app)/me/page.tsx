@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ChevronRight, Crown, Gift, Heart, Pencil, Settings, ShieldCheck, Star, Zap } from "lucide-react";
+import { ChevronRight, Crown, Gift, GraduationCap, Heart, Pencil, Settings, ShieldCheck, Star, Zap } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
@@ -17,6 +17,7 @@ import { useProfileMeta } from "@/lib/profile/sync";
 import { missingToGoLive } from "@/lib/profile/ready";
 import { cityNameBySlug } from "@/lib/geo/kenya";
 import { readIncognito } from "@/lib/privacy/local";
+import { useMounted } from "@/lib/use-mounted";
 
 const groups: { title: string; rows: { href: string; label: string }[] }[] = [
   {
@@ -43,12 +44,8 @@ export default function MePage() {
   const role = accountRole(user);
   const draft = useDraftProfile();
   const [gate, setGate] = useState(false);
-  const [ghost, setGhost] = useState(false);
+  const ghost = useMounted() && readIncognito();
   const router = useRouter();
-
-  useEffect(() => {
-    setGhost(readIncognito());
-  }, []);
 
   const meta = useProfileMeta();
   const missing = draft ? missingToGoLive(draft, meta?.photos ?? 0) : [];
@@ -163,6 +160,17 @@ export default function MePage() {
         <div className="min-w-0 flex-1">
           <p className="font-medium">Invite friends, get Gold</p>
           <p className="mt-0.5 text-sm text-muted">7 days of Gold for every friend who goes live.</p>
+        </div>
+        <ChevronRight className="size-5 shrink-0 text-muted" />
+      </Link>
+
+      <Link href="/campus" className="mt-3 flex items-center gap-4 rounded-3xl border border-line p-4">
+        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gold/15">
+          <GraduationCap className="size-5 text-gold" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">Campus</p>
+          <p className="mt-0.5 text-sm text-muted">Verify with your university email and help open your campus.</p>
         </div>
         <ChevronRight className="size-5 shrink-0 text-muted" />
       </Link>

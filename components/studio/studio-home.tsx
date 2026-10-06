@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { Button } from "@/components/soko/button";
 import { StatCard } from "@/components/soko/stat-card";
 import { HealthBar } from "@/components/soko/health-bar";
@@ -38,11 +38,7 @@ export function StudioHome({
   const rawStatus = overview?.profile?.status ?? draft?.status ?? null;
   const status = rawStatus ? statusWords[rawStatus] ?? rawStatus : null;
   const live = profileCanPromote(overview?.profile?.status);
-  const [priority, setPriority] = useState<string | null>(null);
-
-  useEffect(() => {
-    setPriority(reviewPriority() ? reviewPriorityLine() : null);
-  }, []);
+  const priority = useMounted() && reviewPriority() ? reviewPriorityLine() : null;
 
   return (
     <div>
