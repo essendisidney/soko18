@@ -34,8 +34,8 @@ import { cityNameBySlug, areaBrowseHref } from "@/lib/geo/kenya";
 import { catalogForCity } from "@/lib/discovery/feed";
 import { ONBOARDING } from "@/lib/onboarding";
 import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
-import { Wordmark } from "@/components/brand/wordmark";
-import { ChevronDown, Crown, LayoutGrid, MapPin, SlidersHorizontal, Sparkles } from "lucide-react";
+import { KutanaMark } from "@/lib/brand/kutana-mark";
+import { ChevronDown, Crown, LayoutGrid, SlidersHorizontal, Sparkles } from "lucide-react";
 import { PlaceSheet } from "@/components/discover/place-sheet";
 import { ProfileNudge } from "@/components/discover/profile-nudge";
 import { readIncognito } from "@/lib/privacy/local";
@@ -204,35 +204,46 @@ export function DiscoverDeck({
 
   return (
     <div className="flex h-[calc(100dvh-6.75rem-env(safe-area-inset-bottom,0px))] flex-col overflow-hidden">
-      <header className="flex items-center justify-between gap-2 px-1 pt-1">
+      <header className="flex items-center justify-between gap-3 px-1 pt-1">
         <h1 className="sr-only">{cityNameBySlug(citySlug || "nairobi")}</h1>
-        <Wordmark size="sm" />
-        <div className="flex items-center gap-1.5">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Link href="/" aria-label="Kutana" className="shrink-0">
+            <KutanaMark size={30} />
+          </Link>
           <button
             type="button"
             onClick={() => setPlaceOpen(true)}
-            className="inline-flex max-w-[9.5rem] items-center gap-1 truncate rounded-full border border-line px-3 py-1.5 text-xs text-cream/90"
+            className="min-w-0 text-left"
             title={subtitle}
             aria-label="Change area"
           >
-            <MapPin className="size-3.5 shrink-0 text-gold" />
-            <span className="truncate">{near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}</span>
-            <ChevronDown className="size-3 shrink-0 text-muted" />
+            <span className="block text-[10px] font-semibold tracking-[0.16em] text-muted uppercase">
+              {campusDeck && campusOpen ? "Campus" : "Discover in"}
+            </span>
+            <span className="flex items-center gap-1 font-display text-lg leading-tight font-bold text-cream">
+              <span className="truncate">
+                {campusDeck && campusOpen ? campusOpen.shortName : near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}
+              </span>
+              <ChevronDown className="size-4 shrink-0 text-gold" />
+            </span>
           </button>
+        </div>
+        <div className="flex shrink-0 items-center rounded-full border border-white/10 bg-white/[0.04] p-1">
           <button
             type="button"
             aria-label={t("discover.filters")}
             onClick={() => setFilters((open) => !open)}
-            className="grid size-9 place-items-center rounded-full border border-line text-muted"
+            className="grid size-9 place-items-center rounded-full text-cream/80 transition-colors active:bg-white/10"
           >
-            <SlidersHorizontal className="size-4" />
+            <SlidersHorizontal className="size-[18px]" />
           </button>
+          <span className="h-5 w-px bg-white/10" aria-hidden />
           <Link
             href={cityHomeHref(citySlug || "nairobi")}
             aria-label={t("tab.browse")}
-            className="grid size-9 place-items-center rounded-full border border-line text-muted"
+            className="grid size-9 place-items-center rounded-full text-cream/80 transition-colors active:bg-white/10"
           >
-            <LayoutGrid className="size-4" />
+            <LayoutGrid className="size-[18px]" />
           </Link>
         </div>
       </header>
