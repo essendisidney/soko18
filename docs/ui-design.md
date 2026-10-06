@@ -34,3 +34,10 @@ Date of birth (18+) → area → "What are you looking for?" + "Show me" (Women 
 ## Privacy
 
 - First name or nickname, Incognito (paid or Platinum), block contacts by hashed number
+
+## Prompts
+
+- Kenyan prompt library in `lib/profile/prompts.ts`, grouped as Mtaani, Chakula, Mapenzi, Vibes and Games. Each prompt has an example answer, shown as the placeholder.
+- Editor: Add a prompt (picker with category tabs), Surprise me (random unused prompt), swap, remove, 150-character counter. Up to 3.
+- The first answered prompt is the quote card on Discover; all of them show on the profile. The chat icebreaker quotes it.
+- Stored answers keep the question text, so never reword a live question. Add a new one instead.
