@@ -259,7 +259,8 @@ begin
     return jsonb_build_object('ok', false, 'reason', 'wrong');
   end if;
   v_result := private.join_campus(v_uid, v_row.campus_id, v_row.email_hash, 'email_code');
-  delete from private.campus_codes where account_id = v_uid;
+  -- A used code can never work again.
+  update private.campus_codes set code_hash = '', expires_at = now() - interval '1 second' where account_id = v_uid;
   return v_result;
 end;
 $$;
