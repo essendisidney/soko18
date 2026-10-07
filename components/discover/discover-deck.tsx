@@ -38,6 +38,7 @@ import { KutanaMark } from "@/lib/brand/kutana-mark";
 import { ChevronDown, Crown, LayoutGrid, SlidersHorizontal, Sparkles } from "lucide-react";
 import { PlaceSheet } from "@/components/discover/place-sheet";
 import { ProfileNudge } from "@/components/discover/profile-nudge";
+import { LiveNightBanner } from "@/components/discover/live-night-banner";
 import { readIncognito } from "@/lib/privacy/local";
 import type { SeedProfile } from "@/lib/types";
 import { cityHomeHref } from "@/lib/geo/kenya";
@@ -247,6 +248,7 @@ export function DiscoverDeck({
           </Link>
         </div>
       </header>
+      <LiveNightBanner />
       {campusOpen ? (
         <div className="mt-2 flex gap-2 px-1" role="group" aria-label="Deck">
           <Chip className="px-3 py-1.5 text-xs" selected={!campusDeck} onClick={() => writeCampusDeck(null)}>
