@@ -8,6 +8,7 @@ import { Button } from "@/components/soko/button";
 import { useAuth } from "@/lib/auth/use-auth";
 import { writeCampusDeck } from "@/lib/campus/deck";
 import { campusProgress, type CampusBoardRow, type MyCampus } from "@/lib/campus/shared";
+import { rankRace, raceShareText, whatsappHref } from "@/lib/campus/race";
 
 type Overview = { mine: MyCampus | null; board: CampusBoardRow[] };
 
@@ -135,7 +136,7 @@ export function CampusCard() {
             </>
           )}
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(shareText(origin, mine.shortName))}`}
+            href={whatsappHref(data ? raceShareText(rankRace(data.board), mine.slug, origin) : shareText(origin, mine.shortName))}
             target="_blank"
             rel="noopener noreferrer"
             className="mt-3 block"
@@ -283,7 +284,12 @@ export function CampusCard() {
       )}
 
       <section className="mt-10">
-        <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Campus race</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-[11px] tracking-[0.18em] text-muted uppercase">Campus race</h2>
+          <Link href="/campus/race" className="text-xs text-gold">
+            Standings &amp; share →
+          </Link>
+        </div>
         {data && data.board.length > 0 ? (
           <ul className="mt-3 space-y-3">
             {data.board.map((row) => (
