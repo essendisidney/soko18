@@ -106,7 +106,8 @@ Grow campus by campus with verified students (`00030_campuses.sql`, `/campus`, `
 - **Campus race** (`/campus/race`, `/campus/race/<slug>`): public standings from `campus_board()` with
   WhatsApp share text that names a real rival (`lib/campus/race.ts`) and link-preview images with real
   counts. A campus with 0 students gets "Be the first", never a medal or a place.
-- **Opening:** a campus is `waitlist` until `unlock_target` students verify, then it opens by itself and
+- **Opening:** a campus is `waitlist` until `unlock_target` students verify (launch targets, `00034`: 50 for
+  UoN, KU, JKUAT, Moi, Egerton, Maseno; 30 for Strathmore, USIU, Daystar, MMU, TUK, DeKUT), then it opens by itself and
   every verified student there is notified. The Campus race board shows real counts only.
   Open or close by hand: `update public.campuses set status = 'live' where slug = 'uon';`
 - **Campus deck:** Discover's "<campus> only" chip (`/api/discover?campus=<slug>`) is for verified
