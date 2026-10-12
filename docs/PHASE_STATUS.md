@@ -142,7 +142,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 
 ## Phase 16 notes
 
-- Live origin: `https://soko18.vercel.app`. Set `NEXT_PUBLIC_APP_URL` on Vercel. Sitemap/robots use that origin, not a guessed custom domain.
+- Live origin: `https://kutana-app.vercel.app`. Set `NEXT_PUBLIC_APP_URL` on Vercel. Sitemap/robots use that origin, not a guessed custom domain.
 - Legal (calm, specific): `/terms` (18+), `/privacy` (ODPC minimum, area-level presence, export/delete), `/safety` (report + block). Linked from the age gate, login, Me, and Settings.
 - Monitoring: `GET /api/health` → `{ ok, city: nairobi, open: kenya, supabase }`. Live catalog is Nairobi; Kenya is open. No secrets. Security headers: nosniff, DENY frames, no geolocation/camera/mic.
 - Backups: schema is `supabase/migrations/` in git. Point-in-time recovery waits for a paid Supabase project. Do not create that project in this phase.

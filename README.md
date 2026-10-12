@@ -24,7 +24,7 @@ PWA: install from the browser once the manifest is served (`/manifest.webmanifes
 
 ## Deploy
 
-Production: [https://soko18.vercel.app](https://soko18.vercel.app)
+Production: [https://kutana-app.vercel.app](https://kutana-app.vercel.app)
 
 Git → Vercel. Set `NEXT_PUBLIC_APP_URL` to the public origin. Leave Supabase env blank until a paid project exists — never put `service_role` in `NEXT_PUBLIC_` vars.
 
