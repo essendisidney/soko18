@@ -1,3 +1,4 @@
+import { siteUrl } from "@/lib/site";
 /**
  * Safaricom Daraja STK Push. Sandbox until MPESA_* env is set.
  * Never treat a pending STK as a ledger row.
@@ -24,7 +25,7 @@ export function normalizeKenyanPhone(raw: string) {
 
 /** Daraja posts back here. The secret keeps strangers from faking a callback. */
 export function mpesaCallbackUrl() {
-  const base = process.env.NEXT_PUBLIC_APP_URL || "https://soko18.vercel.app";
+  const base = siteUrl();
   const secret = process.env.MPESA_CALLBACK_SECRET ?? "";
   return `${base}/api/payments/mpesa/callback?t=${encodeURIComponent(secret)}`;
 }

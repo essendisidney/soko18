@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { siteUrl } from "@/lib/site";
 import { currentUser } from "@/lib/auth/user";
 import { ledgerPurpose, PRODUCTS, SKUS, type Product } from "@/lib/payments/catalog";
 import { mpesaConfigured, normalizeKenyanPhone, stkPush } from "@/lib/payments/daraja";
@@ -103,7 +104,7 @@ export async function createPaymentIntent(input: unknown) {
       await admin.rpc("attach_intasend_invoice", { p_tx: tx.id, p_invoice: push.invoiceId, p_phone: phone });
     } else {
       if (!user.email) return fail(400, "no_email", "Add an email to your account to pay by card.");
-      const base = process.env.NEXT_PUBLIC_APP_URL || "https://soko18.vercel.app";
+      const base = siteUrl();
       const page = await intasendCheckout({
         amount: price.amount,
         currency: price.currency,
@@ -121,7 +122,7 @@ export async function createPaymentIntent(input: unknown) {
 
   if (provider === "paystack") {
     if (!user.email) return fail(400, "no_email", "Add an email to your account to pay by card.");
-    const base = process.env.NEXT_PUBLIC_APP_URL || "https://soko18.vercel.app";
+    const base = siteUrl();
     const init = await initializePaystack({
       email: user.email,
       amount: price.amount,
