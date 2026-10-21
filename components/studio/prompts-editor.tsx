@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Dices, Plus, Repeat2, X } from "lucide-react";
 import { Chip } from "@/components/soko/chip";
+import { PromptShareButton } from "@/components/growth/prompt-share";
 import {
   MAX_PROMPT_ANSWER,
   MAX_PROMPTS,
@@ -43,6 +44,7 @@ export function PromptsEditor({
           <div className="flex items-start justify-between gap-2">
             <p className="text-[11px] font-semibold tracking-[0.12em] text-gold uppercase">{prompt.q}</p>
             <div className="-mt-1 -mr-1 flex shrink-0">
+              <PromptShareButton prompt={prompt} />
               <button
                 type="button"
                 aria-label="Swap prompt"
