@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CalendarPlus, Moon } from "lucide-react";
+import { CalendarPlus, Moon, Zap } from "lucide-react";
 import { countdown, liveNight } from "@/lib/live-night";
 import { useMounted } from "@/lib/use-mounted";
 
@@ -35,6 +36,15 @@ export function LiveNightBanner() {
           <span className="text-cream"> · Swipe night is on</span>
         </p>
         <span className="shrink-0 text-[11px] text-cream/70">ends in {countdown(night.end.getTime() - now)}</span>
+        {/* Live night is the busy hour by design, so this is when a Boost does the most. */}
+        <Link
+          href="/upgrade#boost"
+          className="inline-flex shrink-0 items-center gap-1 rounded-full bg-violet-400/15 px-2.5 py-1 text-[11px] text-violet-200 active:bg-violet-400/25"
+          aria-label="Boost now during live night"
+        >
+          <Zap className="size-3 fill-violet-300 text-violet-300" aria-hidden />
+          Boost
+        </Link>
       </div>
     );
   }
