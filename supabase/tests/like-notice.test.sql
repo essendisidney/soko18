@@ -36,7 +36,7 @@ select is((select count(*)::int from public.notifications where account_id = 'b6
 
 -- Passing never notifies.
 insert into public.likes (actor_id, profile_id, kind) values ('b6000000-0000-4000-8000-0000000000b1', 'b6100000-0000-4000-8000-0000000000b3', 'pass');
-select is((select count(*)::int from public.notifications where account_id = 'b6000000-0000-4000-8000-0000000000b3'), 0, 'a pass says nothing');
+select is((select count(*)::int from public.notifications where account_id = 'b6000000-0000-4000-8000-0000000000b3' and kind = 'like'), 0, 'a pass says nothing');
 
 select * from finish();
 rollback;

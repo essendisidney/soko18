@@ -13,7 +13,12 @@ select set_config('request.jwt.claims', '{"sub":"c7000000-0000-4000-8000-0000000
 select throws_ok('select public.staff_daily(14)', 'forbidden', 'members cannot read the launch dashboard');
 reset role;
 
+-- As the database owner, not as the member (members can't change their own role).
+select set_config('request.jwt.claims', '', true);
+select set_config('request.jwt.claim.sub', '', true);
 update public.accounts set role = 'admin' where id = 'c7000000-0000-4000-8000-0000000000c7';
+select set_config('request.jwt.claim.sub', 'c7000000-0000-4000-8000-0000000000c7', true);
+select set_config('request.jwt.claims', '{"sub":"c7000000-0000-4000-8000-0000000000c7","role":"authenticated"}', true);
 set local role authenticated;
 select is(jsonb_array_length(public.staff_daily(14)), 14, 'staff get one row per day');
 reset role;
