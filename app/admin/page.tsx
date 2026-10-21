@@ -5,6 +5,7 @@ import { getAdminOverview } from "@/lib/admin/overview";
 export const dynamic = "force-dynamic";
 
 const links = [
+  { href: "/admin/launch", label: "Launch dashboard" },
   { href: "/admin/queue", label: "Review queue" },
   { href: "/admin/funnel", label: "Growth funnel" },
   { href: "/admin/moderation", label: "Moderation (local)" },

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "Kutana",
     short_name: "Kutana",
-    description: "Verified dating for adults. Kenya first, then Africa.",
+    description: "Private dating for adults 18+. Kenya first, then Africa.",
     start_url: "/",
     scope: "/",
     display: "standalone",

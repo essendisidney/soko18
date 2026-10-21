@@ -40,6 +40,7 @@ import { PlaceSheet } from "@/components/discover/place-sheet";
 import { ProfileNudge } from "@/components/discover/profile-nudge";
 import { LiveNightBanner } from "@/components/discover/live-night-banner";
 import { ActiveNow } from "@/components/discover/active-now";
+import { EmptyDeckNext } from "@/components/discover/empty-deck-next";
 import { readIncognito } from "@/lib/privacy/local";
 import type { SeedProfile } from "@/lib/types";
 import { cityHomeHref } from "@/lib/geo/kenya";
@@ -349,17 +350,20 @@ export function DiscoverDeck({
           }
           emptyHint={
             campusDeck && campusOpen
-              ? "New students verify every day. Invite your friends to fill the deck."
+              ? "Every student who verifies shows up here. Invite your friends to fill the deck."
               : catalogForCity(citySlug || "nairobi").length === 0
-              ? "You’re early. Every profile here is a real, checked person — bring your friends and get it going."
-              : "People you pass stay hidden for 30 days. New people join every day."
+              ? "You’re early. Bring your friends and get it going."
+              : "People you pass stay hidden for 30 days. New people show up here as they join."
           }
           emptyExtra={
-            <LaunchMeter
-              city={citySlug || "nairobi"}
-              area={near}
-              place={near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}
-            />
+            <>
+              <LaunchMeter
+                city={citySlug || "nairobi"}
+                area={near}
+                place={near ? nearAreaName(near) : cityNameBySlug(citySlug || "nairobi")}
+              />
+              <EmptyDeckNext />
+            </>
           }
           notifyCity={catalogForCity(citySlug || "nairobi").length === 0 ? citySlug || null : null}
           onUndo={() => {

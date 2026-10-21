@@ -50,7 +50,7 @@ export function SwipeDeck({
   browseHref = "/browse",
   browseLabel = "Browse",
   emptyTitle = "That’s everyone around you",
-  emptyHint = "People you pass stay hidden for 30 days. New people join every day.",
+  emptyHint = "People you pass stay hidden for 30 days. New people show up here as they join.",
   notifyCity,
   emptyExtra,
   onEngage,
