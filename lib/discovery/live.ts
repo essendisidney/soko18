@@ -166,6 +166,37 @@ export async function liveProfileBySlug(slug: string) {
 }
 
 /**
+ * Live profiles (among those the viewer can already see) whose owner Super Liked the viewer.
+ * The service client only reads who; visibility still comes from live_profile_cards.
+ */
+async function superLikedMe(): Promise<Set<string>> {
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  const admin = createServiceClient();
+  if (!auth.user || !admin) return new Set();
+  const { data: mine } = await admin.from("profiles").select("id").eq("account_id", auth.user.id);
+  const myIds = (mine ?? []).map((row) => row.id as string);
+  if (myIds.length === 0) return new Set();
+  const { data: likes } = await admin
+    .from("likes")
+    .select("actor_id")
+    .in("profile_id", myIds)
+    .eq("kind", "super")
+    .limit(50);
+  const actors = [...new Set((likes ?? []).map((row) => row.actor_id as string))];
+  if (actors.length === 0) return new Set();
+  const { data: theirs } = await admin.from("profiles").select("id").in("account_id", actors).eq("status", "live");
+  return new Set((theirs ?? []).map((row) => row.id as string));
+}
+
+/** People who Super Liked you go first; the rest keep their order. */
+export function superLikesFirst(profiles: SeedProfile[], superIds: Set<string>) {
+  if (superIds.size === 0) return profiles;
+  const marked = profiles.map((p) => (superIds.has(p.id) ? { ...p, superLikedYou: true } : p));
+  return [...marked.filter((p) => p.superLikedYou), ...marked.filter((p) => !p.superLikedYou)];
+}
+
+/**
  * Discover deck: real members first (ranked the same way), demo profiles only when allowed.
  * Server only — uses the request's Supabase session.
  */
@@ -177,8 +208,11 @@ export async function discoverFeedLive(
     campusSlug?: string | null;
   },
 ) {
-  const live = await liveProfiles({ citySlug: ctx.citySlug, campusSlug: ctx.campusSlug, gender: ctx.gender });
-  const ranked = rankProfiles(live, {
+  const [live, superIds] = await Promise.all([
+    liveProfiles({ citySlug: ctx.citySlug, campusSlug: ctx.campusSlug, gender: ctx.gender }),
+    superLikedMe().catch(() => new Set<string>()),
+  ]);
+  const ranked = superLikesFirst(rankProfiles(live, {
     citySlug: ctx.citySlug,
     nearArea: ctx.nearArea,
     gender: ctx.gender,
@@ -187,7 +221,7 @@ export async function discoverFeedLive(
     excludeIds: ctx.excludeIds ?? [],
     minAge: ctx.minAge,
     maxAge: ctx.maxAge,
-  });
+  }), superIds);
   const seed = showSeedProfiles() && !ctx.campusSlug ? getDiscoverFeed({ ...ctx, cursor: 0, limit: 200 }).items : [];
   const all = [...ranked, ...seed];
   const limit = ctx.limit ?? 16;

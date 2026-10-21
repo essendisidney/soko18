@@ -3,11 +3,30 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/use-auth";
 import { CHECK_IN_KEY, nairobiDay, streakLine, type CheckIn } from "@/lib/growth/streak";
+import { clearPendingInvite, pendingInvite } from "@/lib/growth/referral";
 
 /** Counts today's visit for the streak and shows a short note when there's something to say. */
 export function DailyCheckIn() {
   const { user, ready, configured } = useAuth();
   const [line, setLine] = useState<string | null>(null);
+
+  // An invite code saved from a link before sign-up. Sign-in by typed code skips the server
+  // callback that normally claims it, so claim it here as soon as they're signed in.
+  useEffect(() => {
+    if (!configured || !ready || !user) return;
+    const code = pendingInvite();
+    if (!code) return;
+    void fetch("/api/invites", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    })
+      .then((res) => {
+        // Done, or a reason it can never work (own code, already used one, too late): stop trying.
+        if (res.ok || res.status === 400) clearPendingInvite();
+      })
+      .catch(() => {});
+  }, [configured, ready, user]);
 
   useEffect(() => {
     if (!configured || !ready || !user) return;

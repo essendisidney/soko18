@@ -97,8 +97,9 @@ export default function WelcomePage() {
         <Wordmark size="lg" />
         <p className="mt-8 max-w-xs font-display text-[28px] leading-tight tracking-tight text-cream">{t("welcome.tagline")}</p>
         <ul className="mt-5 flex flex-wrap justify-center gap-2 text-xs text-cream/80">
-          <li className="rounded-full border border-line px-3 py-1.5">✓ Selfie-verified</li>
-          <li className="rounded-full border border-line px-3 py-1.5">✓ Private by default</li>
+          <li className="rounded-full border border-line px-3 py-1.5">✓ No sponsors, no selling</li>
+          <li className="rounded-full border border-line px-3 py-1.5">✓ Hide from people you know</li>
+          <li className="rounded-full border border-line px-3 py-1.5">✓ Report or block in one tap</li>
           <li className="rounded-full border border-line px-3 py-1.5">✓ Pay with M-Pesa</li>
         </ul>
         <LanguagePicker compact />

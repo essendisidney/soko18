@@ -48,7 +48,21 @@ export function PromptShareButton({ prompt }: { prompt: ProfilePrompt }) {
   );
 }
 
-function PromptShareSheet({ prompt, onClose }: { prompt: ProfilePrompt; onClose: () => void }) {
+export function PromptShareSheet({
+  prompt,
+  onClose,
+  link: fixedLink,
+  title = "Share my prompt",
+  kicker,
+}: {
+  prompt: ProfilePrompt;
+  onClose: () => void;
+  /** Where the image points; defaults to your campus race, or the app. */
+  link?: string;
+  title?: string;
+  /** Heading on a question-only image. */
+  kicker?: string;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -69,10 +83,10 @@ function PromptShareSheet({ prompt, onClose }: { prompt: ProfilePrompt; onClose:
         document.fonts.load(`600 40px ${body}`),
         document.fonts.load(`900 76px ${brand}`),
       ]).catch(() => null);
-      const target = await shareLink();
+      const target = fixedLink ?? (await shareLink());
       const canvas = canvasRef.current;
       if (cancelled || !canvas) return;
-      drawPromptCard(canvas, { question: prompt.q, answer: prompt.a, link: target, displayFont: display, bodyFont: body, brandFont: brand });
+      drawPromptCard(canvas, { question: prompt.q, answer: prompt.a, link: target, kicker, displayFont: display, bodyFont: body, brandFont: brand });
       const made = await canvasToFile(canvas);
       if (cancelled || !made) return;
       url = URL.createObjectURL(made);
@@ -84,7 +98,7 @@ function PromptShareSheet({ prompt, onClose }: { prompt: ProfilePrompt; onClose:
       cancelled = true;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [blocked, prompt.q, prompt.a]);
+  }, [blocked, prompt.q, prompt.a, fixedLink, kicker]);
 
   const canShareFile = Boolean(file && typeof navigator !== "undefined" && navigator.canShare?.({ files: [file] }));
 
@@ -93,12 +107,12 @@ function PromptShareSheet({ prompt, onClose }: { prompt: ProfilePrompt; onClose:
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Share my prompt"
+        aria-label={title}
         className="w-full max-w-md rounded-t-[28px] border border-line bg-bg-elevated p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <p className="font-display text-xl">Share my prompt</p>
+          <p className="font-display text-xl">{title}</p>
           <button type="button" aria-label="Close" onClick={onClose} className="grid size-9 place-items-center rounded-full text-muted">
             <X className="size-5" />
           </button>
@@ -110,7 +124,9 @@ function PromptShareSheet({ prompt, onClose }: { prompt: ProfilePrompt; onClose:
           </p>
         ) : (
           <>
-            <p className="mt-1 text-xs text-muted">Only the question and your answer. No name, no photo.</p>
+            <p className="mt-1 text-xs text-muted">
+              {prompt.a.trim() ? "Only the question and your answer. No name, no photo." : "Just the question. Post it and let people answer."}
+            </p>
             <canvas ref={canvasRef} className="hidden" />
             <div className="mx-auto mt-4 aspect-[9/16] w-44 overflow-hidden rounded-2xl border border-line bg-bg">
               {preview ? (
@@ -128,7 +144,7 @@ function PromptShareSheet({ prompt, onClose }: { prompt: ProfilePrompt; onClose:
                   onClick={async () => {
                     if (!file) return;
                     try {
-                      await navigator.share({ files: [file], text: `What’s yours? ${link}` });
+                      await navigator.share({ files: [file], text: `${prompt.a.trim() ? "What’s yours?" : prompt.q} ${link}` });
                     } catch {
                       // Closing the share sheet is not an error.
                     }
