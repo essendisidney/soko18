@@ -1,5 +1,6 @@
 "use client";
 
+import { PushAsk } from "@/components/pwa/push-ask";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "motion/react";
@@ -121,6 +122,7 @@ export function MatchOverlay({
       <button type="button" onClick={onClose} className="mt-5 text-sm text-muted">
         Keep swiping
       </button>
+      <PushAsk reason="match" className="mt-6 w-full max-w-xs" />
     </motion.div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { PushAsk } from "@/components/pwa/push-ask";
 import Link from "next/link";
 import { useState, useSyncExternalStore } from "react";
 import { areasForCity, cityNameBySlug, placeShareName } from "@/lib/geo/kenya";
@@ -208,6 +209,7 @@ export function ProfileEditor() {
               Start discovering
             </Button>
           </Link>
+          <PushAsk reason="live" className="mt-4" />
         </div>
       ) : (
         <StatusLine status={status} ready={ready} missing={missing} city={cityNameBySlug(citySlug)} />

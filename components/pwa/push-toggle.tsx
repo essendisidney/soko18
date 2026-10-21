@@ -4,64 +4,39 @@ import { useEffect, useState } from "react";
 import { useMounted } from "@/lib/use-mounted";
 import { Button } from "@/components/soko/button";
 import { useAuth } from "@/lib/auth/use-auth";
-
-function urlBase64ToUint8Array(base64: string) {
-  const padding = "=".repeat((4 - (base64.length % 4)) % 4);
-  const raw = atob((base64 + padding).replace(/-/g, "+").replace(/_/g, "/"));
-  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
-}
+import { disablePush, enablePush, pushEnabled, pushKey, pushSupported } from "@/lib/push/client";
 
 /** Matches, messages and likes as phone notifications. Lock-screen text never shows names. */
 export function PushToggle() {
   const { user, configured } = useAuth();
-  const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const key = pushKey();
   const mounted = useMounted();
-  const supported = mounted && "serviceWorker" in navigator && "PushManager" in window && Boolean(key);
+  const supported = mounted && pushSupported();
   const [enabled, setEnabled] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
   useEffect(() => {
     if (!supported) return;
-    void navigator.serviceWorker.ready
-      .then((reg) => reg.pushManager.getSubscription())
-      .then((sub) => setEnabled(Boolean(sub)))
-      .catch(() => {});
+    void pushEnabled().then(setEnabled).catch(() => {});
   }, [supported]);
 
   if (!configured || !user || !supported || !key) return null;
 
   async function enable() {
     setNote(null);
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      setNote("Notifications are blocked in your browser settings.");
-      return;
-    }
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(key!),
-    });
-    const res = await fetch("/api/push/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(sub.toJSON()),
-    });
-    setEnabled(res.ok);
-    setNote(res.ok ? "You’ll get a notification for new matches and messages." : "Could not turn on notifications.");
+    const result = await enablePush();
+    setEnabled(result === "on");
+    setNote(
+      result === "on"
+        ? "You’ll get a notification for new matches and messages."
+        : result === "blocked"
+          ? "Notifications are blocked in your browser settings."
+          : "Could not turn on notifications.",
+    );
   }
 
   async function disable() {
-    const reg = await navigator.serviceWorker.ready;
-    const sub = await reg.pushManager.getSubscription();
-    if (sub) {
-      await fetch("/api/push/subscribe", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint: sub.endpoint }),
-      });
-      await sub.unsubscribe();
-    }
+    await disablePush();
     setEnabled(false);
   }
 

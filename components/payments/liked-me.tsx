@@ -1,5 +1,6 @@
 "use client";
 
+import { PushAsk } from "@/components/pwa/push-ask";
 import { useT } from "@/lib/i18n/use-t";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 
@@ -130,6 +131,8 @@ export function LikedMeList() {
           </div>
         </section>
       ) : null}
+
+      {state.kind === "ready" ? <PushAsk reason="likes" className="mt-6" /> : null}
 
       {state.kind === "ready" && count > 0 && state.data.locked ? (
         <Locked
