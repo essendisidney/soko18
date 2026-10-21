@@ -34,6 +34,8 @@ export type SeedProfile = {
   photos: string[];
   verification: Verification;
   featured?: boolean;
+  /** This person Super Liked the viewer: shown first in Discover, marked on the card. */
+  superLikedYou?: boolean;
   incognito?: boolean;
   newToday?: boolean;
   rising?: boolean;

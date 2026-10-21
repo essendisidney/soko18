@@ -11,6 +11,7 @@ export function sitemapPaths() {
     "/terms",
     "/privacy",
     "/safety",
+    "/q",
     ...NAIROBI_AREAS.map((area) => `/nairobi/${area.slug}`),
     ...BROWSE_CATEGORIES.map((cat) => `/category/${cat.slug}`),
     ...nairobiProfiles()

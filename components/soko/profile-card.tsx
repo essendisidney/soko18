@@ -9,7 +9,7 @@ import { PresenceDot } from "@/components/soko/presence-dot";
 import { VerificationBadge } from "@/components/soko/verification-badge";
 import { sokoVerified } from "@/lib/trust/verified";
 import { INTENTS } from "@/lib/data/nairobi";
-import { BadgeCheck, ChevronUp, GraduationCap, Heart, MapPin, Zap } from "lucide-react";
+import { BadgeCheck, ChevronUp, GraduationCap, Heart, MapPin, Star, Zap } from "lucide-react";
 
 export function ProfileCard({
   profile,
@@ -107,7 +107,7 @@ function FullCard({
       data-card
       className={cn(
         "relative h-full overflow-hidden rounded-[32px] bg-bg-elevated shadow-[0_24px_60px_-20px_rgba(0,0,0,0.9)]",
-        profile.featured ? "ring-2 ring-gold/70" : "ring-1 ring-white/10",
+        profile.superLikedYou ? "ring-2 ring-sky-400" : profile.featured ? "ring-2 ring-gold/70" : "ring-1 ring-white/10",
         className,
       )}
     >
@@ -140,7 +140,12 @@ function FullCard({
       ) : null}
 
       <div className="absolute inset-x-3 top-6 flex items-start justify-between gap-2">
-        {profile.featured ? (
+        {profile.superLikedYou ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-sky-400 px-2.5 py-1 text-[10px] font-bold tracking-[0.14em] text-bg">
+            <Star className="size-3 fill-bg" aria-hidden />
+            SUPER LIKED YOU
+          </span>
+        ) : profile.featured ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold tracking-[0.14em] text-bg">
             <Zap className="size-3 fill-bg" aria-hidden />
             BOOSTED

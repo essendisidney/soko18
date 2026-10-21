@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     default: "Kutana",
     template: "%s · Kutana",
   },
-  description: "Real, verified people near you. Private dating in Kenya — pay with M-Pesa.",
+  description: "Meet real people near you, safely. Private dating in Kenya — no sponsors, pay with M-Pesa.",
   applicationName: "Kutana",
   manifest: "/manifest.webmanifest",
   appleWebApp: {

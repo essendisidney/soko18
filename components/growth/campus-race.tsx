@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { GraduationCap, Trophy } from "lucide-react";
+import { CalendarPlus, GraduationCap, PartyPopper, Trophy } from "lucide-react";
+import { launchDay, launchNight } from "@/lib/campus/launch";
 import { Button } from "@/components/soko/button";
 import { RaceShare } from "@/components/growth/race-share";
 import { raceShareText, raceUrl, type RaceRow } from "@/lib/campus/race";
@@ -50,6 +51,7 @@ export function CampusRace({ race, origin, focus }: { race: RaceRow[]; origin: s
               </div>
             </>
           )}
+          <LaunchNightNote row={focused} />
           <div className="mt-5">
             <RaceShare text={raceShareText(race, focused.slug, origin)} url={raceUrl(origin, focused.slug)} />
           </div>
@@ -111,7 +113,42 @@ export function CampusRace({ race, origin, focus }: { race: RaceRow[]; origin: s
         <p className="mt-4 text-xs text-muted">
           Counts are real verified students, 18 and over. Nobody sees who verified. Don’t see your school? Tell us and we’ll add it.
         </p>
+        <Link href="/q" className="mt-3 block text-xs text-gold">
+          Doing a street interview or a Status post? Use the question of the week →
+        </Link>
       </section>
+    </div>
+  );
+}
+
+/** The launch party: the first Sunday live night after a campus opens. */
+function LaunchNightNote({ row }: { row: RaceRow }) {
+  const night = launchNight(row);
+  if (!night) return null;
+  if (night.kind === "promise") {
+    return (
+      <p className="mt-4 flex gap-2 text-sm text-cream/85">
+        <PartyPopper className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden />
+        <span>
+          The Sunday after {row.shortName} hits {row.target}, it’s {row.shortName} launch night: everyone swipes at 8pm.
+        </span>
+      </p>
+    );
+  }
+  return (
+    <div className="mt-4 rounded-2xl border border-gold/40 p-3 text-sm">
+      <p className="flex items-center gap-2 font-medium text-gold">
+        <PartyPopper className="size-4" aria-hidden />
+        {night.live ? `${row.shortName} launch night is on now` : `${row.shortName} launch night`}
+      </p>
+      <p className="mt-1 text-cream/85">
+        {night.live ? "Everyone’s swiping until 10pm." : `${launchDay(night.start)}, 8–10pm. Bring your friends.`}
+      </p>
+      {!night.live ? (
+        <a href="/api/live-night/ics" download className="mt-2 inline-flex items-center gap-1.5 text-xs text-cream/80">
+          <CalendarPlus className="size-3.5" aria-hidden /> Add to my calendar
+        </a>
+      ) : null}
     </div>
   );
 }

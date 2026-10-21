@@ -62,6 +62,8 @@ export type PromptCardInput = {
   /** Font family strings from the page, e.g. getComputedStyle(...).fontFamily. */
   displayFont: string;
   bodyFont: string;
+  /** Small heading on a question-only card. */
+  kicker?: string;
   /** The slanted KUTANA wordmark font; falls back to the display font. */
   brandFont?: string;
 };
@@ -128,16 +130,20 @@ export function drawPromptCard(canvas: HTMLCanvasElement, input: PromptCardInput
   const cardX = pad;
   const cardW = W - pad * 2;
   const inner = cardW - 120;
+  // No answer: a question card for Status/TikTok. The question becomes the big text, with a blank under it.
+  const questionOnly = !input.answer.trim();
   ctx.font = `600 40px ${input.bodyFont}`;
-  const qLines = wrapLines(input.question.toUpperCase(), inner, (t) => ctx.measureText(t).width);
-  const answer = `“${input.answer.trim()}”`;
+  const kicker = questionOnly ? (input.kicker ?? "Question of the week").toUpperCase() : input.question.toUpperCase();
+  const qLines = wrapLines(kicker, inner, (t) => ctx.measureText(t).width);
+  const answer = questionOnly ? input.question.trim() : `“${input.answer.trim()}”`;
   const fit = fitFontSize(answer, inner, 7, (size) => {
     ctx.font = `700 ${size}px ${input.displayFont}`;
     return (t) => ctx.measureText(t).width;
   });
   const qLineH = 56;
   const aLineH = Math.round(fit.size * 1.22);
-  const cardH = 60 + qLines.length * qLineH + 48 + fit.lines.length * aLineH + 60;
+  const blankH = questionOnly ? 110 : 0;
+  const cardH = 60 + qLines.length * qLineH + 48 + fit.lines.length * aLineH + blankH + 60;
   const cardY = Math.max(420, (H - cardH) / 2 - 60);
 
   roundRect(ctx, cardX, cardY, cardW, cardH, 56);
@@ -161,6 +167,17 @@ export function drawPromptCard(canvas: HTMLCanvasElement, input: PromptCardInput
   for (const line of fit.lines) {
     ctx.fillText(line, cardX + 60, y);
     y += aLineH;
+  }
+  if (questionOnly) {
+    // A line to write on, like a form.
+    ctx.strokeStyle = "rgba(246,241,232,0.45)";
+    ctx.lineWidth = 4;
+    ctx.setLineDash([22, 16]);
+    ctx.beginPath();
+    ctx.moveTo(cardX + 60, y + 80);
+    ctx.lineTo(cardX + cardW - 60, y + 80);
+    ctx.stroke();
+    ctx.setLineDash([]);
   }
 
   // Call to action.
