@@ -98,12 +98,10 @@ begin
   if v_uid is null then return null; end if;
   update public.accounts set last_seen_at = now() where id = v_uid;
 
+  -- Two tabs opening at once must not both start a streak.
+  insert into public.member_streaks (account_id) values (v_uid) on conflict (account_id) do nothing;
   select * into v_row from public.member_streaks where account_id = v_uid for update;
-  if not found then
-    insert into public.member_streaks (account_id, current_days, best_days, last_day)
-    values (v_uid, 1, 1, v_today)
-    returning * into v_row;
-  elsif v_row.last_day is distinct from v_today then
+  if v_row.last_day is distinct from v_today then
     v_days := case when v_row.last_day = v_today - 1 then v_row.current_days + 1 else 1 end;
     update public.member_streaks
     set current_days = v_days, best_days = greatest(best_days, v_days), last_day = v_today
