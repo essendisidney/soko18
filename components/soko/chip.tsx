@@ -10,6 +10,7 @@ export function Chip({
   return (
     <button
       type="button"
+      aria-pressed={props.role ? undefined : Boolean(selected)}
       className={cn(
         "rounded-full border px-4 py-2.5 text-sm transition-colors active:scale-[0.98]",
         selected

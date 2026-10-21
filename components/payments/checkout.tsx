@@ -7,12 +7,16 @@ import { Button } from "@/components/soko/button";
 import { AuthGate } from "@/components/auth/auth-gate";
 import { useAuth } from "@/lib/auth/use-auth";
 import { PRODUCTS, type Sku } from "@/lib/payments/catalog";
+import { sendLikeAfterPay } from "@/lib/likes/after-pay";
 import { formatMoney } from "@/lib/markets/constants";
 import { useLocale, useT } from "@/lib/i18n/use-t";
 
 const PHONE_KEY = "soko18_mpesa_phone";
 const POLL_MS = 3000;
-const POLL_LIMIT = 40;
+/** Fast checks for the first 2 minutes, then a quiet check every 15 seconds for up to 15 minutes. */
+const FAST_POLLS = 40;
+const SLOW_POLL_MS = 15000;
+const POLL_LIMIT = FAST_POLLS + 52;
 
 type Method = "mpesa" | "card";
 
@@ -21,7 +25,7 @@ type Phase =
   | { kind: "choose" }
   | { kind: "starting" }
   | { kind: "sandbox"; transactionId: string }
-  | { kind: "waiting"; transactionId: string }
+  | { kind: "waiting"; transactionId: string; reused?: boolean }
   | { kind: "done" }
   | { kind: "error"; message: string };
 
@@ -42,6 +46,7 @@ export function Checkout({
   price,
   providers = ["mpesa"],
   resumeId,
+  open = false,
   onPaid,
 }: {
   sku: Sku;
@@ -51,17 +56,23 @@ export function Checkout({
   providers?: string[];
   /** Set after returning from a card payment page: poll this transaction. */
   resumeId?: string | null;
+  /** Show the M-Pesa number box straight away instead of after a first tap. */
+  open?: boolean;
   onPaid?: () => void;
 }) {
   const product = PRODUCTS[sku];
   const { user, ready, configured } = useAuth();
-  const [phase, setPhase] = useState<Phase>(resumeId ? { kind: "waiting", transactionId: resumeId } : { kind: "idle" });
+  const [phase, setPhase] = useState<Phase>(
+    resumeId ? { kind: "waiting", transactionId: resumeId } : open ? { kind: "choose" } : { kind: "idle" },
+  );
   const [phone, setPhone] = useState("");
   const hasMpesa = providers.includes("mpesa") && (price?.currency ?? "KES") === "KES";
   const [method, setMethod] = useState<Method>(hasMpesa ? "mpesa" : "card");
   const [gate, setGate] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const polls = useRef(0);
+  const [slowFor, setSlowFor] = useState<string | null>(null);
+  const [sentNote, setSentNote] = useState<string | null>(null);
   const t = useT();
   const locale = useLocale();
   const shown = price ?? { amount: product.amountKes, currency: "KES" };
@@ -78,27 +89,39 @@ export function Checkout({
   useEffect(() => {
     if (phase.kind !== "waiting") return;
     polls.current = 0;
-    const id = window.setInterval(async () => {
+    let timer = 0;
+    let stopped = false;
+    const check = async () => {
       polls.current += 1;
       const res = await fetch(`/api/payments/status?id=${phase.transactionId}`).catch(() => null);
       const json = (await res?.json().catch(() => null)) as { data?: { status: string } } | null;
+      if (stopped) return;
       const status = json?.data?.status;
       if (status === "completed") {
-        window.clearInterval(id);
         setPhase({ kind: "done" });
         onPaid?.();
-      } else if (status === "failed") {
-        window.clearInterval(id);
-        setError("The payment was cancelled or didn’t go through. You can try again.");
-        setPhase({ kind: "choose" });
-      } else if (polls.current >= POLL_LIMIT) {
-        window.clearInterval(id);
-        setError("Still waiting on M-Pesa. If you paid, your plan turns on by itself in a minute.");
-        setPhase({ kind: "choose" });
+        void sendLikeAfterPay(sku).then((note) => setSentNote(note));
+        return;
       }
-    }, POLL_MS);
-    return () => window.clearInterval(id);
-  }, [phase, onPaid]);
+      if (status === "failed") {
+        setError("The payment was cancelled or didn’t go through. Nothing was charged. You can try again.");
+        setPhase({ kind: "choose" });
+        return;
+      }
+      if (polls.current >= POLL_LIMIT) {
+        setError("We still haven’t heard from M-Pesa. If money left your account, your plan turns on by itself, so don’t pay again.");
+        setPhase({ kind: "choose" });
+        return;
+      }
+      if (polls.current >= FAST_POLLS) setSlowFor(phase.transactionId);
+      timer = window.setTimeout(check, polls.current >= FAST_POLLS ? SLOW_POLL_MS : POLL_MS);
+    };
+    timer = window.setTimeout(check, POLL_MS);
+    return () => {
+      stopped = true;
+      window.clearTimeout(timer);
+    };
+  }, [phase, onPaid, sku]);
 
   async function start() {
     if (configured && ready && !user) {
@@ -122,7 +145,7 @@ export function Checkout({
       body: JSON.stringify({ sku, phone: method === "mpesa" ? phone : null, method }),
     });
     const json = (await res.json().catch(() => null)) as
-      | { data?: { transactionId: string; provider: string; authorizationUrl: string | null } }
+      | { data?: { transactionId: string; provider: string; authorizationUrl: string | null; reused?: boolean } }
       | { error?: { code: string; message: string } }
       | null;
     if (!res.ok || !json || !("data" in json) || !json.data) {
@@ -139,7 +162,7 @@ export function Checkout({
     setPhase(
       json.data.provider === "sandbox"
         ? { kind: "sandbox", transactionId: json.data.transactionId }
-        : { kind: "waiting", transactionId: json.data.transactionId },
+        : { kind: "waiting", transactionId: json.data.transactionId, reused: json.data.reused },
     );
   }
 
@@ -156,6 +179,7 @@ export function Checkout({
     }
     setPhase({ kind: "done" });
     onPaid?.();
+    void sendLikeAfterPay(sku).then((note) => setSentNote(note));
   }
 
   const choosing = phase.kind === "choose" || phase.kind === "starting";
@@ -199,9 +223,17 @@ export function Checkout({
       ) : phase.kind === "waiting" ? (
         <div className="rounded-2xl border border-gold/50 bg-gold/10 p-4 text-sm">
           <p className="text-cream/90">
-            {method === "mpesa" && !resumeId ? `${t("pay.checkPhone")} ${money}.` : "Confirming your payment…"}
+            {method === "mpesa" && !resumeId
+              ? phase.reused
+                ? `Your last M-Pesa prompt for ${money} is still open. Check your phone and enter your PIN.`
+                : `${t("pay.checkPhone")} ${money}.`
+              : "Confirming your payment…"}
           </p>
-          <p className="mt-1 text-xs text-muted">This page updates by itself once it’s paid.</p>
+          <p className="mt-1 text-xs text-muted">
+            {slowFor === phase.transactionId
+              ? "Still waiting on M-Pesa. You can leave this page; if you paid, your plan turns on by itself."
+              : "This page updates by itself once it’s paid."}
+          </p>
           <button type="button" className="mt-3 text-xs text-muted underline" onClick={() => setPhase({ kind: "choose" })}>
             Didn’t get the prompt? Try again
           </button>
@@ -209,6 +241,7 @@ export function Checkout({
       ) : phase.kind === "done" ? (
         <div className="rounded-2xl border border-gold/60 bg-gold/10 p-4 text-sm">
           <p className="font-medium text-gold">{t("pay.done")} 🎉</p>
+          {sentNote ? <p className="mt-1 text-cream/90">{sentNote}</p> : null}
           <div className="mt-3 flex gap-4">
             <Link href="/likes" className="text-cream underline-offset-4 hover:underline">
               See who likes you →

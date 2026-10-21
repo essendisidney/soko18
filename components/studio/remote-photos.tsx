@@ -54,7 +54,7 @@ export function RemotePhotos({
     // The gallery opens straight from the tap; the profile draft is made after a photo is picked.
     if (ensureProfile && !(await ensureProfile())) {
       setBusy(false);
-      setNote("Pick your area below first, then add the photo again.");
+      setNote("We couldn’t save your profile yet. Check the note below, then tap Add photo again.");
       return;
     }
     setNote("Uploading…");

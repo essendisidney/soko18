@@ -143,7 +143,7 @@ export default function MePage() {
       {ready && user ? <PerkTiles /> : null}
 
       <Link
-        href="/upgrade"
+        href="/upgrade?plan=gold_week"
         className="relative mt-6 block overflow-hidden rounded-3xl bg-linear-to-br from-[#ecd79c] via-gold to-[#8f7331] p-5 text-bg"
       >
         <Crown className="absolute -top-3 -right-3 size-28 rotate-12 opacity-15" />

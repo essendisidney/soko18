@@ -7,6 +7,7 @@ import { initializePaystack, paystackConfigured } from "@/lib/payments/paystack"
 import { intasendCheckout, intasendConfigured, intasendStkPush } from "@/lib/payments/intasend";
 import { reconcileIntasend } from "@/lib/payments/intasend-settle";
 import { getMarket, pricesFor, resolveCountry } from "@/lib/markets/server";
+import { reusablePrompt, PROMPT_OPEN_MS, type PendingPrompt } from "@/lib/payments/reuse";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -61,6 +62,36 @@ export async function createPaymentIntent(input: unknown) {
   }
 
   const supabase = await createClient();
+  const usesPrompt = provider === "mpesa" || (provider === "intasend" && !wantsCard);
+  if (usesPrompt) {
+    // A prompt for this is still open on their phone: wait on that one, don't send a second.
+    const { data: recent } = await supabase
+      .from("transactions")
+      .select("id, sku, phone, status, provider, created_at, amount, currency")
+      .eq("account_id", user.id)
+      .eq("status", "pending")
+      .gte("created_at", new Date(Date.now() - PROMPT_OPEN_MS).toISOString())
+      .order("created_at", { ascending: false })
+      .limit(5);
+    const open = reusablePrompt((recent ?? []) as PendingPrompt[], product.sku, phone);
+    if (open) {
+      return {
+        ok: true as const,
+        data: {
+          transactionId: open.id,
+          amount: Number(open.amount),
+          currency: open.currency,
+          status: open.status,
+          provider: open.provider,
+          sku: product.sku,
+          title: product.title,
+          authorizationUrl: null,
+          reused: true,
+        },
+      };
+    }
+  }
+
   const { data: tx, error } = await supabase
     .from("transactions")
     .insert({
@@ -146,6 +177,7 @@ export async function createPaymentIntent(input: unknown) {
       sku: product.sku,
       title: product.title,
       authorizationUrl,
+      reused: false,
     },
   };
 }
