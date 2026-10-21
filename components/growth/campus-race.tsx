@@ -116,6 +116,9 @@ export function CampusRace({ race, origin, focus }: { race: RaceRow[]; origin: s
         <Link href="/q" className="mt-3 block text-xs text-gold">
           Doing a street interview or a Status post? Use the question of the week →
         </Link>
+        <Link href="/kit" className="mt-2 block text-xs text-gold">
+          Ambassador? Get the kit: links, ready messages and a printable poster →
+        </Link>
       </section>
     </div>
   );
