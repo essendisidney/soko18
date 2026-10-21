@@ -93,7 +93,7 @@ export function PhotoUploader({
     };
     await putMediaBlob(item.id, file);
     upsertMedia(item);
-    setNote("In review. Not public.");
+    setNote(items.length === 0 ? "Nice — that’s your main photo." : "Added.");
   }
 
   if (configured && user) return <RemotePhotos userId={user.id} ensureProfile={ensureProfile} />;
@@ -101,7 +101,7 @@ export function PhotoUploader({
   return (
     <div>
       <p className="text-[11px] tracking-[0.18em] text-muted uppercase">Photos</p>
-      <p className="mt-2 text-xs text-muted">Add at least 2. Clear photos of your face get the most matches.</p>
+      <p className="mt-2 text-xs text-muted">One photo gets you live. Three or more clear face photos get the most matches.</p>
       <div className="mt-3 grid grid-cols-3 gap-2">
         {items.map((item) => (
           <div key={item.id}>

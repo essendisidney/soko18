@@ -72,7 +72,11 @@ export function PublicProfile({
       },
       (upsell) => {
         stay = true;
-        setNote({ text: upsell.message, href: "/upgrade", cta: "Get Gold" });
+        setNote({
+          text: upsell.message,
+          href: upsell.code === "no_super_likes" ? "/upgrade#super" : "/upgrade?plan=gold_week",
+          cta: upsell.code === "no_super_likes" ? "Get Super Likes" : "Get Gold",
+        });
       },
       (_p, message) => {
         stay = true;

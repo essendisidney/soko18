@@ -15,6 +15,7 @@ import { ONBOARDING, bumpVisit, confirmAge, markWelcomeSeen, welcomeSeenToday } 
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
 import { WelcomeBack } from "@/components/nairobi/welcome-back";
+import { rememberInvite } from "@/lib/growth/referral";
 
 function subscribe() {
   return () => {};
@@ -35,6 +36,13 @@ export default function WelcomePage() {
   const adult = isAdultBirthDate(dob);
   const homeCity = useSyncExternalStore(subscribe, guessedCity, () => "nairobi");
   const underage = Boolean(dob) && !adult;
+
+  // Invite links are /?invite=CODE. Keep the code until they sign up, so the gift is credited.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const incoming = params.get("invite") ?? params.get("pass");
+    if (incoming) rememberInvite(incoming);
+  }, []);
 
   useEffect(() => {
     if (mode === "age") return;

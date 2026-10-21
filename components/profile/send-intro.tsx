@@ -59,7 +59,7 @@ export function SendIntro({ profileId, name }: { profileId: string; name: string
       {state.kind === "upsell" ? (
         <p className="mt-2 text-xs text-muted">
           {state.message}{" "}
-          <Link href="/upgrade" className="text-gold">
+          <Link href="/upgrade?plan=platinum_month" className="text-gold">
             Get Platinum
           </Link>
         </p>

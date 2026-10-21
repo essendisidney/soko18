@@ -8,6 +8,8 @@ import { Check, Crown, EyeOff, GraduationCap, Heart, Star, Zap } from "lucide-re
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/soko/button";
 import { Checkout } from "@/components/payments/checkout";
+import { sendLikeAfterPay } from "@/lib/likes/after-pay";
+import { storeStart } from "@/lib/payments/store-start";
 import {
   BOOST_MINUTES,
   BOOST_SKUS,
@@ -15,6 +17,7 @@ import {
   PLAN_FEATURES,
   PRODUCTS,
   SUPER_LIKE_SKUS,
+  type Sku,
 } from "@/lib/payments/catalog";
 import { formatMoney } from "@/lib/markets/constants";
 import { useLocale } from "@/lib/i18n/use-t";
@@ -73,7 +76,9 @@ export function Store() {
   const info = usePrices();
   const campus = useMyCampus();
   const locale = useLocale();
-  const resumeId = useSearchParams().get("paid");
+  const search = useSearchParams();
+  const resumeId = search.get("paid");
+  const start = storeStart(search.get("plan"));
   const priceOf = (sku: string) => {
     const hit = info?.prices.find((p) => p.sku === sku);
     return hit ? { amount: hit.amount, currency: hit.currency } : undefined;
@@ -84,8 +89,9 @@ export function Store() {
     return p ? formatMoney(p.amount, p.currency, locale) : formatMoney(PRODUCTS[sku].amountKes, "KES", locale);
   };
   const [boostNote, setBoostNote] = useState<string | null>(null);
-  const [tier, setTier] = useState<"gold" | "platinum">("gold");
-  const [selected, setSelected] = useState<keyof typeof PRODUCTS>("gold_month");
+  // Open on whatever the button that brought them here promised (e.g. "Gold · from KES 149").
+  const [tier, setTier] = useState<"gold" | "platinum">(start.tier);
+  const [selected, setSelected] = useState<keyof typeof PRODUCTS>(start.sku);
   const t = useT();
 
   async function boostNow() {
@@ -111,7 +117,11 @@ export function Store() {
     platinum: ["platinum_month"],
   };
   const skus = tierSkus[tier];
-  const chosen = skus.includes(selected) ? selected : skus[0];
+  // Students see the same length at the student price; everyone else, the same length at Gold price.
+  const twin = (comrade ? { gold_week: "comrade_week", gold_month: "comrade_month" } : { comrade_week: "gold_week", comrade_month: "gold_month" }) as Partial<
+    Record<keyof typeof PRODUCTS, keyof typeof PRODUCTS>
+  >;
+  const chosen = skus.includes(selected) ? selected : (twin[selected] && skus.includes(twin[selected]!) ? twin[selected]! : skus[0]);
   const perWeek = (sku: keyof typeof PRODUCTS) => {
     const p = priceOf(sku);
     const amount = p?.amount ?? PRODUCTS[sku].amountKes;
@@ -232,6 +242,7 @@ export function Store() {
           variant={tier === "platinum" ? "primary" : "gold"}
           price={priceOf(chosen)}
           providers={providers}
+          open
           onPaid={refresh}
         />
         <p className="mt-2 text-center text-[11px] text-muted">One-off payment. Doesn’t auto-renew. Pay with M-Pesa or card.</p>
@@ -272,6 +283,7 @@ export function Store() {
             ))}
           </TopUp>
           <TopUp
+            id="super"
             icon={<Star className="size-5 fill-sky-400 text-sky-400" />}
             tint="bg-sky-400/10"
             title="Super Likes"
@@ -308,12 +320,14 @@ function Meter({ icon, value, label }: { icon: ReactNode; value: string; label: 
 }
 
 function TopUp({
+  id,
   icon,
   tint,
   title,
   line,
   children,
 }: {
+  id?: string;
   icon: ReactNode;
   tint: string;
   title: string;
@@ -321,7 +335,7 @@ function TopUp({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-3xl border border-line p-4">
+    <div id={id} className="scroll-mt-6 rounded-3xl border border-line p-4">
       <div className="flex items-center gap-3">
         <span className={cn("grid size-11 shrink-0 place-items-center rounded-2xl", tint)}>{icon}</span>
         <div>
@@ -337,16 +351,18 @@ function TopUp({
 /** Back from a card payment page: confirm with the ledger before celebrating. */
 function PaymentReturn({ id, onPaid }: { id: string; onPaid: () => void }) {
   const [state, setState] = useState<"waiting" | "done" | "failed">("waiting");
+  const [sentNote, setSentNote] = useState<string | null>(null);
   useEffect(() => {
     let tries = 0;
     const timer = window.setInterval(async () => {
       tries += 1;
       const res = await fetch(`/api/payments/status?id=${id}`).catch(() => null);
-      const json = (await res?.json().catch(() => null)) as { data?: { status: string } } | null;
+      const json = (await res?.json().catch(() => null)) as { data?: { status: string; sku: string } } | null;
       if (json?.data?.status === "completed") {
         window.clearInterval(timer);
         setState("done");
         onPaid();
+        if (json.data.sku in PRODUCTS) void sendLikeAfterPay(json.data.sku as Sku).then(setSentNote);
       } else if (json?.data?.status === "failed" || tries > 30) {
         window.clearInterval(timer);
         setState("failed");
@@ -359,7 +375,7 @@ function PaymentReturn({ id, onPaid }: { id: string; onPaid: () => void }) {
       {state === "waiting"
         ? "Confirming your payment…"
         : state === "done"
-          ? "Paid. Your purchase is active."
+          ? `Paid. Your purchase is active.${sentNote ? ` ${sentNote}` : ""}`
           : "We couldn’t confirm that payment. If you were charged, it will show up shortly."}
     </p>
   );

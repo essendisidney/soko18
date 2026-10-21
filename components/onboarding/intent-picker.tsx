@@ -34,7 +34,8 @@ export function IntentPicker({
   const storedShow = useSyncExternalStore(subscribeIntents, showMeSnapshot, () => null);
   const [draft, setDraft] = useState<string[] | null>(null);
   const selected = draft ?? parseIntents(stored);
-  const showMe = parseShowMe(storedShow);
+  // "Everyone" until they pick: one less thing to answer before Discover.
+  const showMe = parseShowMe(storedShow) ?? "any";
 
   function toggle(id: string) {
     const next = selected.includes(id)
@@ -68,8 +69,11 @@ export function IntentPicker({
           type="button"
           className="w-full"
           variant="gold"
-          disabled={selected.length === 0 || !showMe}
-          onClick={onDone}
+          disabled={selected.length === 0}
+          onClick={() => {
+            if (!parseShowMe(storedShow)) writeShowMe(showMe);
+            onDone();
+          }}
         >
           {doneLabel}
         </Button>

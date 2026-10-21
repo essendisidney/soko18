@@ -1,4 +1,5 @@
 import { forgetDiscoverAction, writeDiscoverAction } from "@/lib/discovery/actions";
+import { rememberLikeAfterPay } from "@/lib/likes/after-pay";
 import { postLike } from "@/lib/likes/client";
 import { writeMatchWaiting } from "@/lib/matches/waiting";
 import type { SeedProfile } from "@/lib/types";
@@ -25,6 +26,7 @@ export function engageProfile(
     }
     forgetDiscoverAction(profile.id);
     if (result.code === "like_limit" || result.code === "no_super_likes") {
+      rememberLikeAfterPay({ profileId: profile.id, name: profile.name, kind, code: result.code });
       onUpsell?.({ code: result.code, message: result.message ?? "Upgrade to keep going." });
       onFailed?.(profile, null);
       return;

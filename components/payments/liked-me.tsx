@@ -136,7 +136,7 @@ export function LikedMeList() {
           tiles={Math.min(Math.max(count, 2), 6)}
           title={t("likes.seeWho")}
           body={t("likes.goldShows")}
-          cta={{ href: "/upgrade", label: "See who likes you · Gold" }}
+          cta={{ href: "/upgrade?plan=gold_week", label: "See who likes you · Gold" }}
         />
       ) : null}
 
