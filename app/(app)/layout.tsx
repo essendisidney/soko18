@@ -3,6 +3,7 @@ import { TabBar } from "@/components/nav/tab-bar";
 import { ConsentGate } from "@/components/auth/consent-gate";
 import { MfaGate } from "@/components/auth/mfa-gate";
 import { ProfileSync } from "@/components/profile/profile-sync";
+import { DailyCheckIn } from "@/components/growth/daily-check-in";
 
 export default function AppShellLayout({
   children,
@@ -17,6 +18,7 @@ export default function AppShellLayout({
       <TabBar />
       <ConsentGate />
       <MfaGate />
+      <DailyCheckIn />
     </div>
   );
 }
