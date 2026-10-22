@@ -294,6 +294,7 @@ export function Store() {
             ))}
           </TopUp>
           <TopUp
+            id="incognito"
             icon={<EyeOff className="size-5 text-cream" />}
             tint="bg-white/10"
             title="Incognito"
