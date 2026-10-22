@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { siteUrl } from "@/lib/site";
 /**
  * Safaricom Daraja STK Push. Sandbox until MPESA_* env is set.
@@ -98,4 +99,44 @@ export async function stkPush(input: {
     return { ok: false as const, error: "M-Pesa did not start. Check the number and try again." };
   }
   return { ok: true as const, provider: "mpesa" as const, checkoutRequestId: stkJson.CheckoutRequestID };
+}
+
+/** Constant-time compare for the callback secret. */
+export function callbackTokenOk(token: string | null) {
+  const secret = process.env.MPESA_CALLBACK_SECRET ?? "";
+  if (!secret || !token) return false;
+  const a = Buffer.from(token);
+  const b = Buffer.from(secret);
+  return a.length === b.length && timingSafeEqual(a, b);
+}
+
+async function darajaToken(base: string) {
+  const res = await fetch(`${base}/oauth/v1/generate?grant_type=client_credentials`, {
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${process.env.MPESA_CONSUMER_KEY}:${process.env.MPESA_CONSUMER_SECRET}`).toString("base64")}`,
+    },
+  });
+  if (!res.ok) return null;
+  return ((await res.json().catch(() => null)) as { access_token?: string } | null)?.access_token ?? null;
+}
+
+/**
+ * Ask Safaricom directly whether an STK push was paid. A callback is only trusted when this agrees,
+ * so a leaked callback secret alone can't fake a payment.
+ */
+export async function stkQueryPaid(checkoutRequestId: string): Promise<boolean> {
+  if (!mpesaConfigured()) return false;
+  const base = process.env.MPESA_BASE_URL || "https://sandbox.safaricom.co.ke";
+  const token = await darajaToken(base);
+  if (!token) return false;
+  const shortcode = process.env.MPESA_SHORTCODE!;
+  const timestamp = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
+  const password = Buffer.from(`${shortcode}${process.env.MPESA_PASSKEY}${timestamp}`).toString("base64");
+  const res = await fetch(`${base}/mpesa/stkpushquery/v1/query`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ BusinessShortCode: shortcode, Password: password, Timestamp: timestamp, CheckoutRequestID: checkoutRequestId }),
+  }).catch(() => null);
+  const json = (await res?.json().catch(() => null)) as { ResultCode?: string | number } | null;
+  return Boolean(res?.ok) && String(json?.ResultCode) === "0";
 }
