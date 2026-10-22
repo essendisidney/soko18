@@ -5,6 +5,7 @@ import { readThreadState, writeThreadState } from "@/lib/messages/state";
 import { takeRateLimit } from "@/lib/security/limit";
 import { looksLikePaidService, PAID_SERVICE_MESSAGE } from "@/lib/safety/paid-services";
 import { createClient } from "@/lib/supabase/server";
+import { dbLimitError } from "@/lib/security/db-errors";
 
 const bodySchema = z.object({
   body: z.string().trim().min(1).max(2000),
@@ -48,6 +49,8 @@ export async function sendMessage(conversationKey: string, input: unknown) {
       .select("id, conversation_id, sender_id, body, created_at, read_at")
       .maybeSingle();
     if (error || !data) {
+      const limited = dbLimitError(error?.message);
+      if (limited) return { ok: false as const, ...limited };
       return {
         ok: false as const,
         status: 403,

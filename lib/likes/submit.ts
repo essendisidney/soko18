@@ -7,6 +7,7 @@ import { readLikeState, writeLikeState } from "@/lib/likes/state";
 import { takeRateLimit } from "@/lib/security/limit";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { dbLimitError } from "@/lib/security/db-errors";
 
 const bodySchema = z.object({
   profileId: z.string().min(1),
@@ -117,6 +118,8 @@ export async function submitLike(input: unknown): Promise<LikeResult> {
         error: { code: "no_super_likes", message: "You’re out of Super Likes." },
       };
     }
+    const limited = dbLimitError(msg);
+    if (limited) return { ok: false, ...limited };
     return { ok: false, status: 403, error: { code: "forbidden", message: "Could not save this like." } };
   }
 

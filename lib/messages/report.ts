@@ -4,6 +4,7 @@ import { readThreadState, writeThreadState } from "@/lib/messages/state";
 import { createClient } from "@/lib/supabase/server";
 import { takeRateLimit } from "@/lib/security/limit";
 import { UUID } from "@/lib/likes/ids";
+import { dbLimitError } from "@/lib/security/db-errors";
 
 const bodySchema = z.object({
   conversationId: z.string().min(1),
@@ -34,6 +35,8 @@ export async function submitReport(input: unknown) {
       reason: parsed.data.reason,
     });
     if (error) {
+      const limited = dbLimitError(error.message);
+      if (limited) return { ok: false as const, ...limited };
       return { ok: false as const, status: 403, error: { code: "forbidden", message: "Could not report." } };
     }
   }
