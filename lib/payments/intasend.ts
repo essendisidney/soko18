@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 /**
  * IntaSend (Kenya): M-Pesa STK push and a hosted checkout page (M-Pesa + cards).
  * Endpoints follow IntaSend's official SDK:
@@ -118,5 +119,8 @@ export async function intasendInvoiceStatus(invoiceId: string) {
 /** Webhook challenge set in the IntaSend dashboard; empty means not configured (reject). */
 export function intasendChallengeOk(challenge: unknown) {
   const expected = process.env.INTASEND_WEBHOOK_CHALLENGE ?? "";
-  return Boolean(expected) && typeof challenge === "string" && challenge === expected;
+  if (!expected || typeof challenge !== "string") return false;
+  const a = Buffer.from(challenge);
+  const b = Buffer.from(expected);
+  return a.length === b.length && timingSafeEqual(a, b);
 }

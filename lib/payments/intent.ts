@@ -2,7 +2,7 @@ import { z } from "zod";
 import { siteUrl } from "@/lib/site";
 import { currentUser } from "@/lib/auth/user";
 import { ledgerPurpose, PRODUCTS, SKUS, type Product } from "@/lib/payments/catalog";
-import { mpesaConfigured, normalizeKenyanPhone, stkPush } from "@/lib/payments/daraja";
+import { mpesaConfigured, normalizeKenyanPhone, stkPush, stkQueryPaid } from "@/lib/payments/daraja";
 import { initializePaystack, paystackConfigured } from "@/lib/payments/paystack";
 import { intasendCheckout, intasendConfigured, intasendStkPush } from "@/lib/payments/intasend";
 import { reconcileIntasend } from "@/lib/payments/intasend-settle";
@@ -114,13 +114,16 @@ export async function createPaymentIntent(input: unknown) {
   let authorizationUrl: string | null = null;
 
   if (provider === "mpesa" && phone) {
-    const push = await stkPush({ phone, amountKes: Math.round(price.amount), accountRef: "KUTANA", description: product.title });
-    if (!push.ok || !push.checkoutRequestId) {
-      return fail(502, "mpesa_failed", push.ok ? "M-Pesa did not start." : push.error);
-    }
+    // Get the service client first: never send a prompt we can't record.
     const admin = createServiceClient();
     if (!admin) return fail(500, "misconfigured", "Payments are not fully configured.");
-    await admin.rpc("attach_mpesa_checkout", { p_tx: tx.id, p_checkout: push.checkoutRequestId, p_phone: phone });
+    const push = await stkPush({ phone, amountKes: Math.round(price.amount), accountRef: "KUTANA", description: product.title });
+    if (!push.ok || !push.checkoutRequestId) {
+      await admin.rpc("fail_mpesa_checkout_tx", { p_tx: tx.id, p_desc: push.ok ? "no_checkout_id" : push.error });
+      return fail(502, "mpesa_failed", push.ok ? "M-Pesa did not start." : push.error);
+    }
+    const { error: attachError } = await admin.rpc("attach_mpesa_checkout", { p_tx: tx.id, p_checkout: push.checkoutRequestId, p_phone: phone });
+    if (attachError) console.error("attach_mpesa_checkout failed", tx.id, attachError.message);
   }
 
   if (provider === "intasend") {
@@ -132,7 +135,9 @@ export async function createPaymentIntent(input: unknown) {
         await admin.rpc("fail_intasend", { p_tx: tx.id, p_desc: push.error });
         return fail(502, "mpesa_failed", push.error);
       }
-      await admin.rpc("attach_intasend_invoice", { p_tx: tx.id, p_invoice: push.invoiceId, p_phone: phone });
+      const { error: attachError } = await admin.rpc("attach_intasend_invoice", { p_tx: tx.id, p_invoice: push.invoiceId, p_phone: phone });
+      // The webhook still settles by api_ref (the tx id); this only affects polling. Log it so it's seen.
+      if (attachError) console.error("attach_intasend_invoice failed", tx.id, attachError.message);
     } else {
       if (!user.email) return fail(400, "no_email", "Add an email to your account to pay by card.");
       const base = siteUrl();
@@ -195,6 +200,18 @@ export async function paymentStatus(transactionId: string) {
     .eq("account_id", user.id)
     .maybeSingle();
   if (!data) return fail(404, "not_found", "Payment not found.");
+  // Daraja: if the callback couldn't be confirmed, ask Safaricom again while the member waits.
+  if (data.provider === "mpesa" && data.status === "pending" && data.checkout_request_id) {
+    const admin = createServiceClient();
+    if (admin && (await stkQueryPaid(data.checkout_request_id as string))) {
+      const { error: settleError } = await admin.rpc("settle_mpesa_checkout", {
+        p_checkout: data.checkout_request_id,
+        p_receipt: `query:${data.checkout_request_id}`,
+        p_amount: Math.round(Number(data.amount)),
+      });
+      if (!settleError) data.status = "completed";
+    }
+  }
   // IntaSend: don't wait for the webhook — ask IntaSend directly while the member waits.
   if (data.provider === "intasend" && data.status === "pending" && data.checkout_request_id) {
     const checked = await reconcileIntasend(data.checkout_request_id as string, data.id as string);
