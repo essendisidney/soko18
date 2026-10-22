@@ -103,6 +103,9 @@ values (
   'uploaded'
 );
 
+-- Adding a photo re-checks the profile (it isn't complete, so it drops to draft). Put it back.
+update public.profiles set status = 'live' where id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+
 insert into public.moderation_cases (id, target_type, target_id, status)
 values (
   'cccccccc-cccc-4ccc-8ccc-cccccccccccc',

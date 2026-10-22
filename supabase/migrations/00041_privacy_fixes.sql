@@ -140,3 +140,22 @@ alter policy likes_insert_own on public.likes
         and not public.profile_hidden_from_me(p.account_id)
     )
   );
+
+-- 4. Account updates ---------------------------------------------------------------------------
+-- The update policies compared role to a subquery on accounts itself, which Postgres rejects as
+-- infinite recursion: staff bans from Admin (lib/admin/decide.ts) failed, and so did any direct
+-- member update. Read the stored role through a definer function instead. Same rule.
+create or replace function public.account_role(p_account uuid)
+returns public.account_role language sql stable security definer set search_path = public as $$
+  select role from public.accounts where id = p_account;
+$$;
+revoke all on function public.account_role(uuid) from public, anon;
+grant execute on function public.account_role(uuid) to authenticated;
+
+alter policy accounts_update_own on public.accounts
+  using (id = (select auth.uid()))
+  with check (id = (select auth.uid()) and role = public.account_role(id));
+
+alter policy accounts_staff_moderation on public.accounts
+  using (public.is_staff())
+  with check (public.is_staff() and role = public.account_role(id));

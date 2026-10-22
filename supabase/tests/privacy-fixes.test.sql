@@ -1,7 +1,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(8);
+select plan(10);
 
 insert into auth.users (id, aud, role, email, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 values
@@ -20,6 +20,13 @@ from (values
 ) as v(id, account_id, slug, name)
 cross join public.locations loc
 where loc.slug = 'nairobi' and loc.kind = 'city';
+
+-- Control: before any block, X can see Y (so the block checks below aren't vacuous).
+set local role authenticated;
+select set_config('request.jwt.claim.sub', 'f1000000-0000-4000-8000-0000000000f1', true);
+select set_config('request.jwt.claims', '{"sub":"f1000000-0000-4000-8000-0000000000f1","role":"authenticated"}', true);
+select is((select count(*)::int from public.profiles where slug = 'pf-y'), 1, 'without a block, Y is visible');
+reset role;
 
 -- Y blocks X.
 insert into public.blocks (blocker_id, blocked_id) values ('f2000000-0000-4000-8000-0000000000f2', 'f1000000-0000-4000-8000-0000000000f1');
@@ -45,6 +52,16 @@ select lives_ok(
 -- Skipping the age gate by writing the columns directly does nothing.
 update public.accounts set date_of_birth = '1990-01-01', age_confirmed_at = now() where id = 'f1000000-0000-4000-8000-0000000000f1';
 select is((select age_confirmed_at from public.accounts where id = 'f1000000-0000-4000-8000-0000000000f1'), null, 'members cannot confirm their own age directly');
+
+-- Staff can still ban (the update policy used to recurse).
+reset role;
+select set_config('request.jwt.claims', '', true);
+select set_config('request.jwt.claim.sub', '', true);
+update public.accounts set role = 'moderator' where id = 'f2000000-0000-4000-8000-0000000000f2';
+set local role authenticated;
+select set_config('request.jwt.claim.sub', 'f2000000-0000-4000-8000-0000000000f2', true);
+select set_config('request.jwt.claims', '{"sub":"f2000000-0000-4000-8000-0000000000f2","role":"authenticated"}', true);
+select lives_ok($$ update public.accounts set is_banned = true where id = 'f1000000-0000-4000-8000-0000000000f1' $$, 'staff can ban an account');
 
 -- An under-18 date of birth bans the account, and the ban sticks.
 select set_config('request.jwt.claim.sub', 'f3000000-0000-4000-8000-0000000000f3', true);
