@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { contactSchema } from "@/lib/safety/contact";
 import { currentUser } from "@/lib/auth/user";
 import { deliverEmergency, type EmergencyKind } from "@/lib/safety/deliver";
 
-const bodySchema = z.object({
-  lat: z.number(),
-  lng: z.number(),
-  name: z.string().trim().min(1).max(80),
-  phone: z.string().trim().min(7).max(20),
-});
+const bodySchema = contactSchema;
 
 async function handle(kind: EmergencyKind, request: Request) {
   const user = await currentUser();
@@ -26,7 +21,7 @@ async function handle(kind: EmergencyKind, request: Request) {
 
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: { code: "invalid", message: "Contact and location required." } }, { status: 400 });
+    return NextResponse.json({ error: { code: "invalid", message: parsed.error.issues[0]?.message ?? "Contact and location required." } }, { status: 400 });
   }
 
   const result = await deliverEmergency({
