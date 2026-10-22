@@ -39,6 +39,10 @@ export async function recordConsents(input: unknown) {
     p_sensitive: parsed.data.sensitive,
     p_marketing: parsed.data.marketing,
   });
+  if (!error && (data as { error?: string } | null)?.error === "underage") {
+    await supabase.auth.signOut({ scope: "global" });
+    return { ok: false as const, status: 403, error: { code: "underage", message: "Kutana is for adults 18 and over." } };
+  }
   if (error) {
     if (error.message.includes("underage")) {
       await supabase.auth.signOut({ scope: "global" });

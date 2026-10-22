@@ -1,123 +1,56 @@
 "use client";
 
-import { useState } from "react";
-import { useMounted } from "@/lib/use-mounted";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/soko/button";
-import { hashContact } from "@/lib/privacy/contacts";
-import { readContactHashes, readIncognito, writeContactHashes, writeIncognito } from "@/lib/privacy/local";
+import { useAuth } from "@/lib/auth/use-auth";
 import { formatKes } from "@/lib/payments/ledger";
 import { PRODUCTS } from "@/lib/payments/catalog";
-import { LocalPayButton } from "@/components/payments/local-pay-button";
-import { hasLocalAccess } from "@/lib/payments/access-local";
 
+/**
+ * Privacy that the server actually enforces: Incognito (a paid plan, checked in the database)
+ * and blocking (both people disappear for each other). Nothing here is device-only.
+ */
 export function DiscretionTools() {
-  const [incognito, setIncognito] = useState(false);
-  const [paidGhost, setPaidGhost] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [count, setCount] = useState(0);
-  const [note, setNote] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [incognito, setIncognito] = useState<boolean | null>(null);
 
-  // Seed from this device once, after hydration (never during server render).
-  const mounted = useMounted();
-  const [seeded, setSeeded] = useState(false);
-  if (mounted && !seeded) {
-    setSeeded(true);
-    setPaidGhost(hasLocalAccess("incognito"));
-    setIncognito(readIncognito());
-    setCount(readContactHashes().length);
-  }
-
-  async function addNumber() {
-    const hash = await hashContact(phone);
-    if (!hash) {
-      setNote("Use a Kenyan mobile number.");
-      return;
-    }
-    const next = [...readContactHashes(), hash];
-    writeContactHashes(next);
-    setCount(next.length);
-    setPhone("");
-    setNote("Blocked.");
-  }
-
-  async function uploadContacts() {
-    const nav = navigator as Navigator & {
-      contacts?: { select: (props: string[], opts: { multiple: boolean }) => Promise<Array<{ tel?: string[] }>> };
-    };
-    if (!nav.contacts) {
-      setNote("This browser cannot read contacts. Add numbers one by one.");
-      return;
-    }
-    try {
-      const picked = await nav.contacts.select(["tel"], { multiple: true });
-      const hashes: string[] = [...readContactHashes()];
-      for (const row of picked) {
-        for (const tel of row.tel ?? []) {
-          const hash = await hashContact(tel);
-          if (hash) hashes.push(hash);
-        }
-      }
-      writeContactHashes(hashes);
-      setCount(readContactHashes().length);
-      setNote("Contacts blocked.");
-    } catch {
-      setNote("Contacts were not shared.");
-    }
-  }
+  useEffect(() => {
+    if (!user) return;
+    void fetch("/api/me/entitlements")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json: { data?: { incognito?: boolean } } | null) => setIncognito(Boolean(json?.data?.incognito)))
+      .catch(() => {});
+  }, [user]);
 
   return (
     <section className="mt-8 space-y-6">
       <div>
         <h2 className="text-sm text-muted">Incognito</h2>
         <p className="mt-2 text-sm text-muted">
-          Only people you like can see you. {formatKes(PRODUCTS.incognito_month.amountKes)} / month, or included with Platinum.
+          Only people you like can see you. {formatKes(PRODUCTS.incognito_month.amountKes)} for 30 days, or included with Platinum.
         </p>
-        {paidGhost ? (
-          <Button
-            className="mt-4 w-full"
-            variant={incognito ? "gold" : "ghost"}
-            onClick={() => {
-              const next = !incognito;
-              writeIncognito(next);
-              setIncognito(next);
-            }}
-          >
-            {incognito ? "You’re invisible" : "Go incognito"}
-          </Button>
+        {incognito ? (
+          <p className="mt-3 text-sm text-gold">You’re incognito.</p>
         ) : (
-          <LocalPayButton
-            kind="incognito"
-            idleLabel="Go incognito"
-            settledLabel="You’re invisible"
-            onSettled={() => {
-              writeIncognito(true);
-              setPaidGhost(true);
-              setIncognito(true);
-            }}
-          />
+          <Link href="/upgrade#incognito" className="mt-4 block">
+            <Button className="w-full" variant="ghost">
+              Go incognito
+            </Button>
+          </Link>
         )}
       </div>
 
       <div>
-        <h2 className="text-sm text-muted">Block contacts</h2>
+        <h2 className="text-sm text-muted">Blocking</h2>
         <p className="mt-2 text-sm text-muted">
-          People you block won’t see you and you won’t see them. We keep a scrambled code, never the number. {count} blocked.
+          Open someone’s profile or chat and tap ⋯ → Block. You disappear for each other: they can’t see you, like you or
+          message you, and you won’t see them. Manage blocks in{" "}
+          <Link href="/blocked" className="text-cream/80 underline-offset-4 hover:underline">
+            Blocked
+          </Link>
+          .
         </p>
-        <label className="mt-4 block">
-          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Phone number</span>
-          <input
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            inputMode="tel"
-            className="mt-2 h-12 w-full rounded-full border border-line bg-glass px-4 text-sm outline-none"
-          />
-        </label>
-        <Button className="mt-3 w-full" variant="ghost" onClick={() => void addNumber()}>
-          Block number
-        </Button>
-        <Button className="mt-3 w-full" variant="ghost" onClick={() => void uploadContacts()}>
-          Choose from my contacts
-        </Button>
       </div>
 
       <div>
@@ -129,7 +62,6 @@ export function DiscretionTools() {
           <li>Never send money to someone you met here.</li>
         </ul>
       </div>
-      {note ? <p className="text-xs text-muted">{note}</p> : null}
     </section>
   );
 }
