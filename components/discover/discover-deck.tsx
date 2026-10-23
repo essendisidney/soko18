@@ -242,6 +242,14 @@ export function DiscoverDeck({
           </button>
           <span className="h-5 w-px bg-white/10" aria-hidden />
           <Link
+            href="/drop"
+            aria-label="Today’s picks"
+            className="grid size-9 place-items-center rounded-full text-gold transition-colors active:bg-white/10"
+          >
+            <Sparkles className="size-[18px]" />
+          </Link>
+          <span className="h-5 w-px bg-white/10" aria-hidden />
+          <Link
             href={cityHomeHref(citySlug || "nairobi")}
             aria-label={t("tab.browse")}
             className="grid size-9 place-items-center rounded-full text-cream/80 transition-colors active:bg-white/10"

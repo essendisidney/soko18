@@ -41,7 +41,7 @@ export function FiltersSheet({ onClose }: { onClose: () => void }) {
       await fetch("/api/me/age-window", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ min: lo, max: hi }),
+        body: JSON.stringify({ min: lo, max: hi, showMe: show }),
       }).catch(() => null);
     }
     onClose();

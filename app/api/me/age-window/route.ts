@@ -7,7 +7,14 @@ export async function GET() {
   return NextResponse.json({ data: await myAgeWindow() });
 }
 
-const body = z.object({ min: z.number().int().min(18).max(99), max: z.number().int().min(18).max(99) }).refine((v) => v.min <= v.max);
+const body = z
+  .object({
+    min: z.number().int().min(18).max(99),
+    max: z.number().int().min(18).max(99),
+    // Discover's "Show me", saved so the daily drop can respect it too.
+    showMe: z.enum(["woman", "man", "any"]).optional(),
+  })
+  .refine((v) => v.min <= v.max);
 
 export async function PUT(request: Request) {
   const parsed = body.safeParse(await request.json().catch(() => null));
@@ -17,5 +24,6 @@ export async function PUT(request: Request) {
   if (!auth.user) return NextResponse.json({ error: { code: "unauthorized", message: "Sign in first." } }, { status: 401 });
   const { data, error } = await supabase.rpc("set_age_window", { p_min: parsed.data.min, p_max: parsed.data.max });
   if (error) return NextResponse.json({ error: { code: "invalid", message: "Could not save your age range." } }, { status: 400 });
+  if (parsed.data.showMe) await supabase.rpc("set_show_me", { p_show: parsed.data.showMe });
   return NextResponse.json({ data });
 }
