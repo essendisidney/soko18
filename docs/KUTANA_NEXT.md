@@ -203,17 +203,17 @@ Add `/admin/economics` (admin only):
 ## Launch checklist (go-live gate — owner decides each item)
 
 Code (Claude Code can do):
-- [ ] K0–K5 and K7 built, all tests green, `npm run build` clean.
-- [ ] Every "SOKO18" string the member can see says Kutana (migration 00027 started this).
-- [ ] Seed/test profiles (00024/00025) hidden from production decks and counts.
-- [ ] Error monitoring on API routes; `/api/health` checked by an uptime monitor (free tier).
-- [ ] Load test discover, likes and messages at 1,000 concurrent members on the paid project.
+- [x] K0–K5 and K7 built, all tests green, `npm run build` clean (23 Oct 2026; K6 waits for traction by design).
+- [x] Every "SOKO18" string the member can see says Kutana. `tests/unit/brand.test.ts` fails if one comes back; internal keys (`soko18_*`) stay.
+- [x] Seed/test profiles (00024/00025) hidden from production decks and counts (`00055`): staff still see them; `show_test_profiles = 'on'` shows them for a demo. Demo seed data only runs without Supabase or with `NEXT_PUBLIC_DEMO_SEED=1`.
+- [ ] Error monitoring on API routes; `/api/health` checked by an uptime monitor (free tier). Code done: `instrumentation.ts` logs every server error as JSON (Vercel runtime logs) and posts to `ERROR_WEBHOOK_URL` if set; `/api/health` checks the database and returns 503 when it's down. **Owner:** create the free uptime check (UptimeRobot / Better Stack, every 5 min on `/api/health`) and, optionally, a Slack/Discord webhook for `ERROR_WEBHOOK_URL`.
+- [ ] Load test discover, likes and messages at 1,000 concurrent members on the paid project. Script ready: `loadtest/k6-core.js` (test accounts only, p95 and error-rate thresholds). **Needs the paid Supabase project first**; never run it against the free one.
 
 Owner only (Claude Code must stop and ask):
 - [ ] Paid Supabase project live, migrations applied, PITR backups on.
 - [ ] Vercel plan that allows commercial use; custom domain on.
 - [ ] IntaSend live account + KYC done; one real KES 39 payment settles end to end.
-- [ ] `payments_sandbox` turned off.
+- [ ] `payments_sandbox` turned off. (It is already `off` on the current project since 00039; set it again on the paid project.)
 - [ ] ODPC registration as data controller/processor.
 - [ ] Moderator hired and trained on `/admin/queue`; response target under 2 hours.
 - [ ] SMS provider chosen (least cost).
