@@ -145,7 +145,7 @@ export function PublicProfile({
         {sokoVerified(profile) ? <VerificationBadge label="Kutana Verified" /> : null}
         <h1 className="mt-3 font-display text-4xl tracking-tight">{profile.name}</h1>
         <p className="mt-1 text-cream/80">
-          {profile.age} · {profile.city} · {profile.area}
+          {profile.age} · {profile.awayLabel ?? `${profile.city} · ${profile.area}`}
         </p>
         {profile.campus ? (
           <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-gold/40 px-2.5 py-1 text-xs text-cream/90">

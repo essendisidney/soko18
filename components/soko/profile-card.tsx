@@ -78,7 +78,7 @@ export function ProfileCard({
           {profile.name}, {profile.age}
         </p>
         <div className="mt-0.5 flex items-center gap-2 text-[13px] text-cream/80">
-          <span>{profile.area}</span>
+          <span className="truncate">{profile.awayLabel ?? profile.area}</span>
           {profile.campus ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 text-[11px] text-cream/90">
               <GraduationCap className="size-3 text-gold" aria-hidden />
@@ -193,7 +193,7 @@ function FullCard({
             <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
               <Tag>
                 <MapPin className="size-3 text-gold" aria-hidden />
-                {profile.area}
+                {profile.awayLabel ?? profile.area}
               </Tag>
               <Tag>
                 <PresenceDot presence={profile.presence} className="text-[12px] text-cream" />

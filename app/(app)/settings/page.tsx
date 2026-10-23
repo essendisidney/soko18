@@ -100,6 +100,9 @@ export default function SettingsPage() {
       <DataSaverSettings />
       <LanguagePicker />
       <CountryPicker />
+      <p className="mt-3 text-sm text-muted">
+        Living abroad? <Link href="/home-away" className="text-gold">Home &amp; Away</Link> lets you show up at home, or before a trip.
+      </p>
       <PushToggle />
       <TwoStep />
       <ConsentSettings />

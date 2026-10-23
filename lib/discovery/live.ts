@@ -2,6 +2,7 @@ import { DEMO_SEED_ENABLED } from "@/lib/data/seed";
 import { getDiscoverFeed } from "@/lib/discovery/feed";
 import { browseFeed } from "@/lib/browse/feed";
 import { rankProfiles } from "@/lib/discovery/rank";
+import { awayLabel } from "@/lib/diaspora/label";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -17,6 +18,9 @@ type CardRow = {
   gender: ProfileGender | null;
   looking_for: LookingFor | null;
   intent_tags?: IntentTag[] | null;
+  away_country?: string | null;
+  home_city_name?: string | null;
+  visit_arrives?: string | null;
   is_verified: boolean;
   boost_until: string | null;
   city_slug: string;
@@ -95,6 +99,7 @@ function toProfile(row: CardRow, cover: string | undefined, now: number): SeedPr
     prompts: row.prompts ?? [],
     lookingFor: row.looking_for ?? undefined,
     intentTags: row.intent_tags ?? [],
+    ...(awayLabel(row) ? { awayLabel: awayLabel(row) } : {}),
     photos: cover ? [cover] : [],
     verification: { phone: true, identity: row.is_verified, profile: true, established: row.is_verified },
     featured: Boolean(row.boost_until && Date.parse(row.boost_until) > now),
@@ -121,7 +126,7 @@ export async function liveProfiles(input: {
   let query = supabase
     .from("live_profile_cards")
     .select(
-      "id, slug, display_name, birth_year, gender, looking_for, intent_tags, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, bio, prompts, is_test, campus_slug, campus_name",
+      "id, slug, display_name, birth_year, gender, looking_for, intent_tags, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, bio, prompts, is_test, campus_slug, campus_name, away_country, home_city_name, visit_arrives",
     )
     .not("cover_path", "is", null)
     .order("boost_until", { ascending: false, nullsFirst: false })
@@ -148,7 +153,7 @@ export async function liveProfileBySlug(slug: string) {
   const { data } = await supabase
     .from("live_profile_cards")
     .select(
-      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, is_test, campus_slug, campus_name",
+      "id, slug, display_name, birth_year, gender, looking_for, is_verified, boost_until, city_slug, city_name, area_slug, area_name, cover_path, is_test, campus_slug, campus_name, away_country, home_city_name, visit_arrives",
     )
     .eq("slug", slug)
     .maybeSingle();

@@ -32,6 +32,8 @@ export type SeedProfile = {
   bio: string;
   lookingFor?: LookingFor;
   intentTags?: IntentTag[];
+  /** Members abroad: "Lives in the UK · from Nairobi" or "Visiting from the US, 15 Dec". */
+  awayLabel?: string;
   prompts?: { q: string; a: string }[];
   photos: string[];
   verification: Verification;

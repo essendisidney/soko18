@@ -1,9 +1,10 @@
 import { createServiceClient } from "@/lib/supabase/admin";
 import { outboxText, type OutboxRow } from "@/lib/safety/outbox-text";
+import { sendSms, smsReady } from "@/lib/sms/send";
 
-/** Whether alerts can actually leave Kutana yet (emergency webhook, or SMS once chosen in K4). */
+/** Whether alerts can actually leave Kutana yet: SMS once a provider is set, or the emergency webhook. */
 export function alertsReady() {
-  return Boolean(process.env.EMERGENCY_WEBHOOK_URL);
+  return smsReady() || Boolean(process.env.EMERGENCY_WEBHOOK_URL);
 }
 
 /**
@@ -21,7 +22,12 @@ export async function deliverOutbox() {
   for (const row of rows) {
     let ok = false;
     let error = "no delivery channel";
-    if (webhook) {
+    if (smsReady() && row.contact_phone) {
+      const sms = await sendSms(row.contact_phone, outboxText(row));
+      ok = sms.ok;
+      error = sms.error ?? "";
+    }
+    if (!ok && webhook) {
       try {
         const res = await fetch(webhook, {
           method: "POST",
