@@ -2,6 +2,7 @@
 
 import { INTENT_TAGS, INTENTS } from "@/lib/data/nairobi";
 import { SendIntro } from "@/components/profile/send-intro";
+import { SendGift } from "@/components/gifts/send-gift";
 import { VoicePlay } from "@/components/voice/voice-play";
 
 import Image from "next/image";
@@ -171,6 +172,7 @@ export function PublicProfile({
         ) : null}
         <VoicePlay profileId={profile.id} name={profile.name} />
         {!matched && user ? <SendIntro profileId={profile.id} name={profile.name} /> : null}
+        {matched && user && /^[0-9a-f-]{36}$/i.test(profile.id) ? <SendGift profileId={profile.id} name={profile.name} /> : null}
 
         {profile.bio ? (
           <section className="mt-8 rounded-3xl border border-line p-5">

@@ -16,6 +16,8 @@ const bodySchema = z.object({
   sku: z.enum(SKUS).default("boost_1"),
   phone: z.string().trim().max(20).optional().nullable(),
   method: z.enum(["mpesa", "card"]).optional().nullable(),
+  /** For a gift SKU: the giver's unpaid gift (from /api/gifts). The database checks it. */
+  giftId: z.string().uuid().optional().nullable(),
 });
 
 type Fail = { ok: false; status: number; error: { code: string; message: string } };
@@ -35,6 +37,8 @@ export async function createPaymentIntent(input: unknown) {
   if (!parsed.success) return fail(400, "invalid", "Choose something to buy.");
 
   const product: Product = PRODUCTS[parsed.data.sku];
+  const giftId = product.kind === "gift" ? parsed.data.giftId ?? null : null;
+  if (product.kind === "gift" && !giftId) return fail(400, "invalid", "Pick who the gift is for first.");
   // Friendly check only — the database refuses student products for anyone not verified.
   if (product.requiresCampus) {
     const { data: campus } = await (await createClient()).rpc("my_campus");
@@ -63,7 +67,8 @@ export async function createPaymentIntent(input: unknown) {
 
   const supabase = await createClient();
   const usesPrompt = provider === "mpesa" || (provider === "intasend" && !wantsCard);
-  if (usesPrompt) {
+  // A gift is for one person: never reuse another gift's open prompt.
+  if (usesPrompt && !giftId) {
     // A prompt for this is still open on their phone: wait on that one, don't send a second.
     const { data: recent } = await supabase
       .from("transactions")
@@ -105,6 +110,7 @@ export async function createPaymentIntent(input: unknown) {
       status: "pending",
       purpose: ledgerPurpose(product),
       sku: product.sku,
+      gift_id: giftId,
     })
     .select("id, amount, currency, status, provider, sku")
     .maybeSingle();

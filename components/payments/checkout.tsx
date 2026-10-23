@@ -48,6 +48,7 @@ export function Checkout({
   resumeId,
   open = false,
   onPaid,
+  giftId,
 }: {
   sku: Sku;
   label?: string;
@@ -59,6 +60,8 @@ export function Checkout({
   /** Show the M-Pesa number box straight away instead of after a first tap. */
   open?: boolean;
   onPaid?: () => void;
+  /** Gift SKUs: the unpaid gift this payment is for. */
+  giftId?: string;
 }) {
   const product = PRODUCTS[sku];
   const { user, ready, configured } = useAuth();
@@ -142,7 +145,7 @@ export function Checkout({
     const res = await fetch("/api/payments/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sku, phone: method === "mpesa" ? phone : null, method }),
+      body: JSON.stringify({ sku, phone: method === "mpesa" ? phone : null, method, giftId }),
     });
     const json = (await res.json().catch(() => null)) as
       | { data?: { transactionId: string; provider: string; authorizationUrl: string | null; reused?: boolean } }
