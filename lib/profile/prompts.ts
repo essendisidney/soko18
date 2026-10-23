@@ -72,13 +72,71 @@ export const PROMPT_CATEGORIES: PromptCategory[] = [
       { q: "Convince me to swipe right on you in one line", hint: "I’ll always save you the last samosa." },
     ],
   },
+  {
+    id: "afrika",
+    label: "Afrika",
+    emoji: "🌍",
+    prompts: [
+      { q: "Jollof or pilau — defend it", hint: "Pilau. Jollof is great, but pilau is a whole ceremony." },
+      { q: "My go-to nyama choma order", hint: "Mbuzi, half kilo, with ugali and kachumbari." },
+      { q: "Best matatu route, and why", hint: "Route 46. The art, the music, the speed." },
+      { q: "The African city I’d move to tomorrow", hint: "Kigali. Clean, calm and the coffee is unreal." },
+      { q: "My African playlist must-have", hint: "Burna Boy for the drive, Sauti Sol for the feelings." },
+      { q: "What my grandmother taught me", hint: "Never leave a visitor without tea." },
+    ],
+  },
 ];
 
+/**
+ * Prompts in other languages, shown first for members using that language. Same rules: the
+ * question text is stored, never reword a live one, and each passes the paid-services filter.
+ */
+export const LOCALE_PROMPT_CATEGORIES: Partial<Record<"en" | "sw" | "fr", PromptCategory[]>> = {
+  sw: [
+    {
+      id: "kiswahili",
+      label: "Kiswahili",
+      emoji: "🗣️",
+      prompts: [
+        { q: "Chakula changu cha Jumapili", hint: "Pilau ya mama na kachumbari ya kutosha." },
+        { q: "Nitakushinda kwa", hint: "Kukupikia chapati laini na kucheka na wewe." },
+        { q: "Mtaa wangu bora ni", hint: "Mombasa, Old Town. Bahari, chai na amani." },
+        { q: "Wimbo ninaourudia sana", hint: "Kitu cha Sauti Sol. Kila mara." },
+        { q: "Siku nzuri ya kwanza ni", hint: "Kahawa, matembezi Karura, kisha mshikaki." },
+        { q: "Kitu kinachonichekesha sana", hint: "Watu wanaosema ‘niko karibu’ bado wako nyumbani." },
+      ],
+    },
+  ],
+  fr: [
+    {
+      id: "francophone",
+      label: "Francophone",
+      emoji: "🗣️",
+      prompts: [
+        { q: "Alloco ou attiéké ? Défends ton choix", hint: "Alloco, avec du poisson braisé. Pas de débat." },
+        { q: "Mon maquis préféré", hint: "Un petit coin à Yopougon. Je t’y emmène." },
+        { q: "Mon premier rendez-vous idéal", hint: "Un café, une balade au bord de la lagune, puis des brochettes." },
+        { q: "Le son qui me fait danser", hint: "Du coupé-décalé, dès la première note." },
+        { q: "Ce que ma grand-mère m’a appris", hint: "On ne laisse jamais un invité repartir le ventre vide." },
+        { q: "Je craque pour quelqu’un qui", hint: "Rit de ses propres blagues avant de les finir." },
+      ],
+    },
+  ],
+};
+
+/** Categories for a member's language: their own language's prompts first, then the shared ones. */
+export function promptCategoriesFor(locale: string): PromptCategory[] {
+  const own = LOCALE_PROMPT_CATEGORIES[locale as "en" | "sw" | "fr"] ?? [];
+  return [...own, ...PROMPT_CATEGORIES];
+}
+
+const ALL_CATEGORIES: PromptCategory[] = [...Object.values(LOCALE_PROMPT_CATEGORIES).flat(), ...PROMPT_CATEGORIES];
+
 /** Every prompt question, in display order. Older questions stay valid because answers store the text. */
-export const PROMPT_QUESTIONS = PROMPT_CATEGORIES.flatMap((category) => category.prompts.map((p) => p.q));
+export const PROMPT_QUESTIONS = ALL_CATEGORIES.flatMap((category) => category.prompts.map((p) => p.q));
 
 export function promptHint(q: string): string {
-  for (const category of PROMPT_CATEGORIES) {
+  for (const category of ALL_CATEGORIES) {
     const hit = category.prompts.find((p) => p.q === q);
     if (hit) return hit.hint;
   }
@@ -86,8 +144,12 @@ export function promptHint(q: string): string {
 }
 
 /** A random prompt you haven't used yet. `rand` is injectable for tests. */
-export function surprisePrompt(taken: string[], rand: () => number = Math.random): string | null {
-  const left = PROMPT_QUESTIONS.filter((q) => !taken.includes(q));
+export function surprisePrompt(
+  taken: string[],
+  rand: () => number = Math.random,
+  pool: readonly string[] = PROMPT_QUESTIONS,
+): string | null {
+  const left = pool.filter((q) => !taken.includes(q));
   if (left.length === 0) return null;
   return left[Math.floor(rand() * left.length) % left.length];
 }

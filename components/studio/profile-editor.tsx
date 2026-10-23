@@ -20,6 +20,7 @@ import { refreshMyProfile, useProfileMeta } from "@/lib/profile/sync";
 import { missingToGoLive } from "@/lib/profile/ready";
 import { PhotoUploader } from "@/components/studio/photo-uploader";
 import { PromptsEditor } from "@/components/studio/prompts-editor";
+import { VoiceRecorder } from "@/components/voice/voice-recorder";
 
 type Fields = {
   displayName: string;
@@ -290,6 +291,8 @@ export function ProfileEditor() {
         </label>
 
         <PromptsEditor prompts={prompts} onChange={(next) => patch({ prompts: next })} />
+
+        <VoiceRecorder />
 
         <div>
           <span className="text-[11px] tracking-[0.18em] text-muted uppercase">I am</span>

@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   let purged = 0;
   for (const row of (due ?? []) as { account_id: string }[]) {
     const id = row.account_id;
-    for (const bucket of ["profile-media", "verification"]) {
+    for (const bucket of ["profile-media", "verification", "voice"]) {
       const { data: files } = await admin.storage.from(bucket).list(id, { limit: 100 });
       const paths = (files ?? []).map((file) => `${id}/${file.name}`);
       if (paths.length) await admin.storage.from(bucket).remove(paths);

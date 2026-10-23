@@ -16,7 +16,9 @@ export type QueueItem =
       live: boolean;
     }
   | { kind: "selfie"; id: string; name: string; challenge: string; selfieUrl: string | null; photoUrl: string | null; at: string }
-  | { kind: "case"; id: string; targetType: string; targetId: string; reason: string; text: string; at: string };
+  | { kind: "case"; id: string; targetType: string; targetId: string; reason: string; text: string; at: string }
+  /** A voice intro: nobody hears it until a person has. `id` is the profile id. */
+  | { kind: "voice"; id: string; name: string; url: string | null; seconds: number; at: string };
 
 async function sign(bucket: string, paths: string[]) {
   if (paths.length === 0) return new Map<string, string>();
@@ -31,7 +33,7 @@ export async function loadQueue() {
   if (!staff.ok) return staff;
   const supabase = await createClient();
 
-  const [media, profiles, selfies, cases] = await Promise.all([
+  const [media, profiles, selfies, cases, voices] = await Promise.all([
     supabase
       .from("profile_media")
       .select("id, storage_path, status, created_at, profile_id, profiles(display_name)")
@@ -59,6 +61,12 @@ export async function loadQueue() {
       .in("target_type", ["profile", "message", "account"])
       .order("created_at")
       .limit(50),
+    supabase
+      .from("profile_voice")
+      .select("profile_id, storage_path, duration_ms, created_at, profiles(display_name)")
+      .eq("status", "pending")
+      .order("created_at")
+      .limit(50),
   ]);
 
   type MediaRow = { storage_path: string; status: string; is_cover: boolean };
@@ -75,9 +83,10 @@ export async function loadQueue() {
       .map((s) => coverOf(one(s.profiles as unknown as { profile_media: MediaRow[] } | null)?.profile_media))
       .filter((x): x is string => Boolean(x)),
   ];
-  const [mediaUrls, selfieUrls] = await Promise.all([
+  const [mediaUrls, selfieUrls, voiceUrls] = await Promise.all([
     sign("profile-media", mediaPaths),
     sign("verification", (selfies.data ?? []).map((s) => s.evidence_path as string)),
+    sign("voice", (voices.data ?? []).map((v) => v.storage_path as string)),
   ]);
 
   // Case details: the flagged text staff need to judge.
@@ -113,6 +122,14 @@ export async function loadQueue() {
             ? messageText.get(c.target_id as string) ?? ""
             : "",
       at: c.created_at as string,
+    })),
+    ...(voices.data ?? []).map((v) => ({
+      kind: "voice" as const,
+      id: v.profile_id as string,
+      name: one(v.profiles as unknown as { display_name: string } | null)?.display_name ?? "Member",
+      url: voiceUrls.get(v.storage_path as string) ?? null,
+      seconds: Math.round((v.duration_ms as number) / 1000),
+      at: v.created_at as string,
     })),
     ...(selfies.data ?? []).map((s) => {
       const p = one(s.profiles as unknown as { display_name: string; profile_media: MediaRow[] } | null);
@@ -155,7 +172,7 @@ export async function loadQueue() {
 }
 
 const decideSchema = z.object({
-  kind: z.enum(["media", "profile", "selfie", "case"]),
+  kind: z.enum(["media", "profile", "selfie", "case", "voice"]),
   id: z.string().uuid(),
   action: z.enum(["approve", "reject", "release", "remove", "ban"]),
   note: z.string().max(200).optional(),
@@ -178,7 +195,9 @@ export async function decideQueueItem(input: unknown) {
         ? supabase.rpc("staff_review_profile", { p_profile: id, p_approve: approve, p_note: note ?? null })
         : kind === "selfie"
           ? supabase.rpc("staff_review_verification", { p_record: id, p_approve: approve, p_note: note ?? null })
-          : supabase.rpc("staff_resolve_case", { p_case: id, p_action: action, p_note: note ?? null });
+          : kind === "voice"
+            ? supabase.rpc("review_voice", { p_profile: id, p_approve: approve })
+            : supabase.rpc("staff_resolve_case", { p_case: id, p_action: action, p_note: note ?? null });
   const { data, error } = await call;
   if (error) {
     const message = error.message.includes("needs_approved_photo")

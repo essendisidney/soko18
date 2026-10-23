@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   MAX_PROMPT_ANSWER,
   PROMPT_CATEGORIES,
+  promptCategoriesFor,
   PROMPT_QUESTIONS,
   promptHint,
   surprisePrompt,
@@ -40,6 +41,29 @@ describe("Kenyan prompt library", () => {
         expect(looksLikePaidService(`${p.q} ${p.hint}`), p.q).toBe(false);
       }
     }
+  });
+
+  it("has African prompts in each language, all passing the paid-services filter", () => {
+    for (const locale of ["en", "sw", "fr"]) {
+      const categories = promptCategoriesFor(locale);
+      expect(categories.some((c) => c.id === "afrika"), locale).toBe(true);
+      for (const category of categories) {
+        for (const p of category.prompts) {
+          expect(PROMPT_QUESTIONS, p.q).toContain(p.q);
+          expect(p.q.length, p.q).toBeLessThanOrEqual(80);
+          expect(p.hint.length, p.q).toBeLessThanOrEqual(MAX_PROMPT_ANSWER);
+          expect(looksLikePaidService(`${p.q} ${p.hint}`), p.q).toBe(false);
+        }
+      }
+    }
+    expect(promptCategoriesFor("sw")[0].id).toBe("kiswahili");
+    expect(promptCategoriesFor("fr")[0].id).toBe("francophone");
+    expect(promptHint("Jollof or pilau — defend it")).toMatch(/Pilau/);
+  });
+
+  it("surprises you only from your own language's pool when given one", () => {
+    const pool = promptCategoriesFor("en").flatMap((c) => c.prompts.map((p) => p.q));
+    for (let i = 0; i < 20; i++) expect(pool).toContain(surprisePrompt([], Math.random, pool));
   });
 
   it("falls back to a generic hint for a question it doesn't know", () => {
