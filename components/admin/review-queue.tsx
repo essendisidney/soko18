@@ -9,6 +9,7 @@ const title: Record<QueueItem["kind"], string> = {
   selfie: "Selfie check",
   media: "Photo",
   profile: "Profile",
+  voice: "Voice intro",
 };
 
 function Img({ src, label }: { src: string | null; label: string }) {
@@ -93,6 +94,15 @@ export function ReviewQueue() {
                   <p className="font-medium">{item.name}</p>
                   <p className="mt-1 text-muted">Pose asked: {item.challenge}</p>
                   <p className="mt-1 text-xs text-muted">Same person? Doing the pose? Not a photo of a screen?</p>
+                </>
+              ) : null}
+              {item.kind === "voice" ? (
+                <>
+                  <p className="font-medium">
+                    {item.name} · {item.seconds}s
+                  </p>
+                  {item.url ? <audio src={item.url} controls preload="none" className="mt-2 w-full" /> : <p className="mt-1 text-muted">Audio missing</p>}
+                  <p className="mt-1 text-xs text-muted">About them? No offers, prices, numbers or meet-up arrangements?</p>
                 </>
               ) : null}
               {item.kind === "case" ? (

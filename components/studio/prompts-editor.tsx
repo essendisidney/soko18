@@ -4,10 +4,11 @@ import { useState } from "react";
 import { Dices, Plus, Repeat2, X } from "lucide-react";
 import { Chip } from "@/components/soko/chip";
 import { PromptShareButton } from "@/components/growth/prompt-share";
+import { useLocale } from "@/lib/i18n/use-t";
 import {
   MAX_PROMPT_ANSWER,
   MAX_PROMPTS,
-  PROMPT_CATEGORIES,
+  promptCategoriesFor,
   promptHint,
   surprisePrompt,
   type ProfilePrompt,
@@ -24,6 +25,7 @@ export function PromptsEditor({
   // null = closed; a number = the slot being picked for (prompts.length means a new one).
   const [picking, setPicking] = useState<number | null>(null);
   const taken = prompts.map((p) => p.q);
+  const pool = promptCategoriesFor(useLocale()).flatMap((c) => c.prompts.map((p) => p.q));
 
   function choose(slot: number, q: string) {
     const list = [...prompts];
@@ -95,7 +97,7 @@ export function PromptsEditor({
           <button
             type="button"
             onClick={() => {
-              const q = surprisePrompt(taken);
+              const q = surprisePrompt(taken, Math.random, pool);
               if (q) choose(prompts.length, q);
             }}
             className="flex items-center justify-center gap-2 rounded-3xl border border-line px-4 text-sm text-cream/80"
@@ -129,8 +131,9 @@ function PromptPicker({
   onPick: (q: string) => void;
   onClose: () => void;
 }) {
-  const [tab, setTab] = useState(PROMPT_CATEGORIES[0].id);
-  const category = PROMPT_CATEGORIES.find((c) => c.id === tab) ?? PROMPT_CATEGORIES[0];
+  const categories = promptCategoriesFor(useLocale());
+  const [tab, setTab] = useState(categories[0].id);
+  const category = categories.find((c) => c.id === tab) ?? categories[0];
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60" onClick={onClose}>
@@ -148,7 +151,7 @@ function PromptPicker({
           </button>
         </div>
         <div className="mt-3 flex [scrollbar-width:none] gap-2 overflow-x-auto px-5 pb-1" role="tablist">
-          {PROMPT_CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <Chip
               key={c.id}
               role="tab"

@@ -2,6 +2,7 @@
 
 import { INTENT_TAGS, INTENTS } from "@/lib/data/nairobi";
 import { SendIntro } from "@/components/profile/send-intro";
+import { VoicePlay } from "@/components/voice/voice-play";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -168,6 +169,7 @@ export function PublicProfile({
             </Button>
           </Link>
         ) : null}
+        <VoicePlay profileId={profile.id} name={profile.name} />
         {!matched && user ? <SendIntro profileId={profile.id} name={profile.name} /> : null}
 
         {profile.bio ? (
