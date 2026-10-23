@@ -622,6 +622,14 @@ test.describe("390px surfaces", () => {
     expect(width).toBeLessThanOrEqual(390);
   });
 
+  test("today's picks explains the 8pm drop without inventing anyone", async ({ page }) => {
+    await page.goto("/drop");
+    await expect(page.getByRole("heading", { name: "Today’s picks" })).toBeVisible();
+    await expect(page.getByText("Your picks arrive at 8pm")).toBeVisible();
+    const width = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(width).toBeLessThanOrEqual(390);
+  });
+
   test("sign in can send you back to Discover", async ({ page }) => {
     await page.goto("/login");
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
