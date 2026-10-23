@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
+import { useDataSaver } from "@/lib/data-saver/use-data-saver";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { SeedProfile } from "@/lib/types";
@@ -27,20 +29,38 @@ export function ProfileCard({
 }) {
   const all = publicPhotos(profile);
   const cover = all[Math.min(photoIndex, all.length - 1)] ?? coverPhoto(profile);
+  const saver = useDataSaver();
+  const [revealed, setRevealed] = useState(false);
   if (!cover) return null;
+  // Data saver: member photos in grids wait for a tap (local demo photos are tiny and bundled).
+  const waitForTap = compact && saver && !revealed && cover.startsWith("http");
 
   const inner = compact ? (
     <div data-card className={cn("relative aspect-[3/4] overflow-hidden rounded-[22px] bg-bg-elevated", className)}>
-      <Image
-        src={cover}
-        alt={`${profile.name}, ${profile.age}`}
-        fill
-        className="object-cover"
-        sizes="50vw"
-        key={cover}
-        // Member photos are already resized on upload; skip paid image optimisation.
-        unoptimized={cover.startsWith("http")}
-      />
+      {waitForTap ? (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setRevealed(true);
+          }}
+          className="absolute inset-0 grid place-items-center bg-linear-to-br from-gold/15 via-white/5 to-transparent text-xs text-cream/80"
+        >
+          Tap to load photo
+        </button>
+      ) : (
+        <Image
+          src={cover}
+          alt={`${profile.name}, ${profile.age}`}
+          fill
+          className="object-cover"
+          sizes="50vw"
+          key={cover}
+          // Member photos are already resized on upload; skip paid image optimisation.
+          unoptimized={cover.startsWith("http")}
+        />
+      )}
       <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/15 to-transparent" />
       {profile.isTest ? (
         <p className="absolute top-3 right-3 rounded-full bg-sky-500/90 px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em] text-white">

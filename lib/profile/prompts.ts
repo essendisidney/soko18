@@ -126,7 +126,9 @@ export const LOCALE_PROMPT_CATEGORIES: Partial<Record<"en" | "sw" | "fr", Prompt
 
 /** Categories for a member's language: their own language's prompts first, then the shared ones. */
 export function promptCategoriesFor(locale: string): PromptCategory[] {
-  const own = LOCALE_PROMPT_CATEGORIES[locale as "en" | "sw" | "fr"] ?? [];
+  // Sheng speakers get the Kiswahili prompts.
+  const key = locale === "sheng" ? "sw" : locale;
+  const own = LOCALE_PROMPT_CATEGORIES[key as "en" | "sw" | "fr"] ?? [];
   return [...own, ...PROMPT_CATEGORIES];
 }
 

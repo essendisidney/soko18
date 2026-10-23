@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/soko/button";
 import { DiscretionTools } from "@/components/privacy/discretion-tools";
 import { DiscreetSettings } from "@/components/discreet/discreet-settings";
+import { DataSaverSettings } from "@/components/data-saver/data-saver-settings";
 import { TwoStep } from "@/components/auth/two-step";
 import { PushToggle } from "@/components/pwa/push-toggle";
 import { LanguagePicker } from "@/components/i18n/language-picker";
@@ -96,6 +97,7 @@ export default function SettingsPage() {
       {note ? <p className="mt-4 text-xs text-muted">{note}</p> : null}
       <DiscretionTools />
       <DiscreetSettings />
+      <DataSaverSettings />
       <LanguagePicker />
       <CountryPicker />
       <PushToggle />
