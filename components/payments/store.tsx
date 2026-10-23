@@ -21,7 +21,6 @@ import {
 } from "@/lib/payments/catalog";
 import { formatMoney } from "@/lib/markets/constants";
 import { useLocale } from "@/lib/i18n/use-t";
-import { useSearchParams } from "next/navigation";
 import type { Entitlements } from "@/lib/payments/entitlements";
 import type { MyCampus } from "@/lib/campus/shared";
 
@@ -71,14 +70,14 @@ function usePrices() {
   return info;
 }
 
-export function Store() {
+export function Store({ plan = null, paid = null }: { plan?: string | null; paid?: string | null }) {
   const { data, refresh } = useEntitlements();
   const info = usePrices();
   const campus = useMyCampus();
   const locale = useLocale();
-  const search = useSearchParams();
-  const resumeId = search.get("paid");
-  const start = storeStart(search.get("plan"));
+  // Read on the server (app/(app)/upgrade/page.tsx) so the store renders before JavaScript loads.
+  const resumeId = paid;
+  const start = storeStart(plan);
   const priceOf = (sku: string) => {
     const hit = info?.prices.find((p) => p.sku === sku);
     return hit ? { amount: hit.amount, currency: hit.currency } : undefined;
@@ -234,7 +233,7 @@ export function Store() {
         })}
       </div>
 
-      <div className="sticky bottom-24 z-10 -mx-1 mt-4 rounded-3xl bg-bg/90 px-1 pb-1 backdrop-blur-xl">
+      <div className="mt-4">
         <Checkout
           key={chosen}
           sku={chosen}

@@ -1,5 +1,7 @@
 // Kutana service worker: offline shell, discreet push notifications.
-const CACHE = "soko18-v2";
+const CACHE = "kutana-v3";
+// Old builds' files are never needed again; keep the cache small on phones with little storage.
+const MAX_ASSETS = 200;
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
@@ -32,14 +34,24 @@ self.addEventListener("fetch", (event) => {
         (hit) =>
           hit ||
           fetch(request).then((res) => {
-            const copy = res.clone();
-            caches.open(CACHE).then((cache) => cache.put(request, copy));
+            // Only keep good responses; never cache an error.
+            if (res.ok) {
+              const copy = res.clone();
+              caches.open(CACHE).then((cache) => cache.put(request, copy).then(() => trim(cache)));
+            }
             return res;
           }),
       ),
     );
   }
 });
+
+// Drop the oldest built files once there are too many (the offline page always stays).
+async function trim(cache) {
+  const keys = (await cache.keys()).filter((req) => new URL(req.url).pathname.startsWith("/_next/static/"));
+  const extra = keys.length - MAX_ASSETS;
+  for (let i = 0; i < extra; i += 1) await cache.delete(keys[i]);
+}
 
 self.addEventListener("push", (event) => {
   let data = { title: "Kutana", body: "Open Kutana to see it.", href: "/" };

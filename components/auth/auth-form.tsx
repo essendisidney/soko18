@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { Button } from "@/components/soko/button";
@@ -17,11 +17,19 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 /** Turn on once the Google provider is set up in Supabase. */
 const GOOGLE_ENABLED = process.env.NEXT_PUBLIC_GOOGLE_AUTH === "1";
 
-export function AuthForm({ mode }: { mode: "login" | "signup" }) {
+export function AuthForm({
+  mode,
+  nextParam = null,
+  errorParam = null,
+}: {
+  mode: "login" | "signup";
+  /** ?next= and ?error= read on the server, so the form renders before JavaScript loads. */
+  nextParam?: string | null;
+  errorParam?: string | null;
+}) {
   const router = useRouter();
-  const search = useSearchParams();
-  const next = safeNextPath(search.get("next"));
-  const failed = search.get("error") === "auth";
+  const next = safeNextPath(nextParam);
+  const failed = errorParam === "auth";
   const { user, ready } = useAuth();
   const configured = isSupabaseConfigured();
   const citySlug = useSnappedCity();
