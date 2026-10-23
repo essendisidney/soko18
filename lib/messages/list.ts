@@ -14,7 +14,7 @@ export async function listThreadMessages(conversationKey: string, cursor?: strin
     const supabase = await createClient();
     let query = supabase
       .from("messages")
-      .select("id, conversation_id, sender_id, body, created_at, read_at")
+      .select("id, conversation_id, sender_id, body, created_at, read_at, scam_flag")
       .eq("conversation_id", access.item.conversationId)
       .order("created_at", { ascending: true });
     if (cursor) query = query.lt("created_at", cursor);
@@ -27,6 +27,7 @@ export async function listThreadMessages(conversationKey: string, cursor?: strin
         body: row.body ?? "",
         createdAt: row.created_at,
         readAt: row.read_at,
+        scamFlag: (row.scam_flag as "money" | "off_platform" | null) ?? null,
       })),
       access.item.conversationId,
       cursor,

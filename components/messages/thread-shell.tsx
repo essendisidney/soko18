@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { ArrowLeft, Flag, MoreHorizontal, Send } from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { coverPhoto } from "@/lib/media/public";
@@ -15,6 +15,7 @@ import { writeReportFlag } from "@/lib/reports/local";
 import { writeDiscoverAction } from "@/lib/discovery/actions";
 import { goBackOr } from "@/components/profile/profile-back";
 import { useAuth } from "@/lib/auth/use-auth";
+import { scamNotice } from "@/lib/safety/scam";
 import { writeBlock } from "@/lib/blocks/local";
 import { writeFavorite } from "@/lib/favorites/local";
 import { markMatchSeen, writeMatchWaiting } from "@/lib/matches/waiting";
@@ -105,6 +106,7 @@ export function ThreadShell({
             body: string | null;
             created_at: string;
             read_at: string | null;
+            scam_flag?: "money" | "off_platform" | null;
           };
           setMessages((list) => {
             if (list.some((item) => item.id === row.id)) return list;
@@ -117,6 +119,7 @@ export function ThreadShell({
                 body: row.body ?? "",
                 createdAt: row.created_at,
                 readAt: row.read_at,
+                scamFlag: row.scam_flag ?? null,
               },
             ];
           });
@@ -321,9 +324,10 @@ export function ThreadShell({
           );
           const lastOwn = lastOwnReceipt(messages, conversationId, actorId ?? "");
           const isLastOwn = i === lastOwnIndex && m.senderId === actorId;
+          const warning = m.senderId !== actorId ? scamNotice(m.scamFlag) : null;
           return (
+          <Fragment key={m.id}>
           <div
-            key={m.id}
             className={cn(
               "max-w-[78%] px-4 py-2.5 text-[15px] leading-snug shadow-[0_2px_10px_rgba(0,0,0,0.25)]",
               m.senderId === actorId
@@ -336,6 +340,12 @@ export function ThreadShell({
               <p className="mt-1 text-right text-[10px] tracking-wide text-bg/60">{lastOwn === "read" ? "Read" : "Sent"}</p>
             ) : null}
           </div>
+          {warning ? (
+            <p role="note" className="mr-auto max-w-[85%] rounded-2xl border border-gold/40 bg-gold/5 px-3 py-2 text-xs text-cream/90">
+              {warning}
+            </p>
+          ) : null}
+          </Fragment>
           );
         })}
       </div>

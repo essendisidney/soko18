@@ -10,6 +10,8 @@ export type ThreadMessage = {
   body: string;
   createdAt: string;
   readAt?: string | null;
+  /** Set by the database's scam guard; shown to the recipient as a calm warning. */
+  scamFlag?: "money" | "off_platform" | null;
 };
 
 export function otherAccount(actorId: string, accountA: string, accountB: string) {

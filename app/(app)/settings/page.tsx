@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/soko/button";
 import { DiscretionTools } from "@/components/privacy/discretion-tools";
+import { DiscreetSettings } from "@/components/discreet/discreet-settings";
 import { TwoStep } from "@/components/auth/two-step";
 import { PushToggle } from "@/components/pwa/push-toggle";
 import { LanguagePicker } from "@/components/i18n/language-picker";
@@ -94,6 +95,7 @@ export default function SettingsPage() {
       </div>
       {note ? <p className="mt-4 text-xs text-muted">{note}</p> : null}
       <DiscretionTools />
+      <DiscreetSettings />
       <LanguagePicker />
       <CountryPicker />
       <PushToggle />
