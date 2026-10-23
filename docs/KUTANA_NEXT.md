@@ -36,6 +36,14 @@ Playwright (390px) + pgTAP where RLS changes, update `docs/PHASE_STATUS.md`, com
      Compare the returned name to the profile first name (fuzzy, case- and accent-insensitive).
      Match → "Jina limethibitishwa" badge. Store only match yes/no and a date, never the
      returned name or the phone number beyond what payments already keep.
+   - **Finding (23 Oct 2026, K1): no reliable payer name comes back, so nothing is built.**
+     IntaSend's collection webhook and status call return invoice_id, state, provider, value,
+     currency, account (phone/email), api_ref, charges and failure fields, with no payer name
+     (developers.intasend.com/docs/payment-collection-events). The first_name/last_name in
+     their STK example is what *we* send, not a confirmed M-Pesa name. Daraja's STK callback
+     returns Amount, MpesaReceiptNumber, TransactionDate and PhoneNumber only. Selfie + ID stays
+     the verification. Revisit if IntaSend confirms a registered-name field, checked on a real
+     payment first.
 3. **Rafiki vouches.**
    - A verified member can vouch for another member they know (max 5 given, shown up to 3).
    - Vouches show on the profile as "Vouched by 2 friends" with first names only.

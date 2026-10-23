@@ -16,6 +16,7 @@ import { Button } from "@/components/soko/button";
 import { PresenceDot } from "@/components/soko/presence-dot";
 import { ProfileCard } from "@/components/soko/profile-card";
 import { VerificationBadge } from "@/components/soko/verification-badge";
+import { VouchRow } from "@/components/trust/vouch-row";
 import { AuthGate, type AuthIntent } from "@/components/auth/auth-gate";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ImpressionBeacon } from "@/components/analytics/impression-beacon";
@@ -152,6 +153,7 @@ export function PublicProfile({
           </p>
         ) : null}
         <PresenceDot presence={profile.presence} className="mt-2" />
+        {!profile.isTest && /^[0-9a-f-]{36}$/.test(profile.id) ? <VouchRow profileId={profile.id} name={profile.name} /> : null}
         {profile.isTest ? (
           <p className="mt-3 rounded-2xl border border-sky-400/40 bg-sky-400/10 px-3 py-2 text-xs text-sky-200">
             Test profile — here so you can try liking, matching and chatting. Like them and they’ll like you back.

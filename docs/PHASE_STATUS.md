@@ -209,7 +209,7 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 | Phase | Name | Status | Notes |
 |---|---|---|---|
 | K0 | Pricing | complete | `00043_pricing`: gold_day 39 (24h), gold_week_student 99 (verified students, server-checked), platinum_month 1,299. Comrade Gold (49/199) retired: rows kept for history, not buyable. Copy: "Gold · from KES 39" opens the store on the day pass. Salamu 59 / 249 lands with K2. |
-| K1 | Trust | not started | |
+| K1 | Trust | complete | `00044_trust`. Age bands: 18–25 default ±4 years; 30+ hidden from 18–25 unless their saved range includes them (profile_hidden_from_me → profiles RLS, cards, likes); the range is saved on the account and used by Discover; no paid message before a match from 30+ to 18–25 (`age_band`); staff age-gap flags on `/admin/queue`. Jina check: not built, no payer name returned by IntaSend or Daraja (finding in KUTANA_NEXT.md). Rafiki vouches: verified (selfie or campus) members, max 5 given, first names up to 3, banned vouchers drop, new-account vouch rings on `/admin/queue`. Student badge already existed (campus verification). |
 | K2 | Daily experience | not started | |
 | K3 | Safety | not started | |
 | K4 | African phones and markets | not started | |
