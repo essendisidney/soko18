@@ -294,7 +294,7 @@ export function DiscoverDeck({
             {upsell.code === "like_limit" ? "You’re out of likes for today" : upsell.code === "no_super_likes" ? "No Super Likes left" : "That’s a Gold feature"}
           </p>
           <p className="mt-1 text-sm text-muted">{upsell.message}</p>
-          <Link href={upsell.code === "no_super_likes" ? "/upgrade#super" : "/upgrade?plan=gold_week"} className="mt-5 block">
+          <Link href={upsell.code === "no_super_likes" ? "/upgrade#super" : "/upgrade?plan=gold_day"} className="mt-5 block">
             <Button variant="gold" className="w-full">
               {upsell.code === "no_super_likes" ? t("discover.getSuper") : t("discover.getGold")}
             </Button>

@@ -25,6 +25,16 @@ export type Product = {
 };
 
 export const PRODUCTS = {
+  gold_day: {
+    sku: "gold_day",
+    title: "Gold · 24 hours",
+    line: "Unlimited likes and see who likes you, for one night out.",
+    amountKes: 39,
+    kind: "plan",
+    plan: "gold",
+    days: 1,
+    quantity: 1,
+  },
   gold_week: {
     sku: "gold_week",
     title: "Gold · 7 days",
@@ -47,26 +57,14 @@ export const PRODUCTS = {
     quantity: 1,
     bonusSuperLikes: 5,
   },
-  comrade_week: {
-    sku: "comrade_week",
-    title: "Comrade Gold · 7 days",
-    line: "Gold at a student price. Verified students only.",
-    amountKes: 49,
+  gold_week_student: {
+    sku: "gold_week_student",
+    title: "Student Gold · 7 days",
+    line: "Gold at a student price, 3 Super Likes. Verified students only.",
+    amountKes: 99,
     kind: "plan",
     plan: "gold",
     days: 7,
-    quantity: 1,
-    bonusSuperLikes: 1,
-    requiresCampus: true,
-  },
-  comrade_month: {
-    sku: "comrade_month",
-    title: "Comrade Gold · 30 days",
-    line: "Gold at a student price, 3 Super Likes. Verified students only.",
-    amountKes: 199,
-    kind: "plan",
-    plan: "gold",
-    days: 30,
     quantity: 1,
     bonusSuperLikes: 3,
     requiresCampus: true,
@@ -75,7 +73,7 @@ export const PRODUCTS = {
     sku: "platinum_month",
     title: "Platinum · 30 days",
     line: "Gold, plus message before matching, Incognito, a free Boost and 10 Super Likes.",
-    amountKes: 999,
+    amountKes: 1299,
     kind: "plan",
     plan: "platinum",
     days: 30,
@@ -129,8 +127,9 @@ export const PRODUCTS = {
 export type Sku = keyof typeof PRODUCTS;
 export const SKUS = Object.keys(PRODUCTS) as [Sku, ...Sku[]];
 
-export const PLAN_SKUS = ["gold_week", "gold_month", "comrade_week", "comrade_month", "platinum_month"] as const satisfies readonly Sku[];
-export const COMRADE_SKUS = ["comrade_month", "comrade_week"] as const satisfies readonly Sku[];
+export const PLAN_SKUS = ["gold_day", "gold_week", "gold_month", "gold_week_student", "platinum_month"] as const satisfies readonly Sku[];
+/** Verified students see these instead of the same-length regular plan. */
+export const STUDENT_SKUS = ["gold_week_student"] as const satisfies readonly Sku[];
 export const BOOST_SKUS = ["boost_1", "boost_5"] as const satisfies readonly Sku[];
 export const SUPER_LIKE_SKUS = ["super_1", "super_5"] as const satisfies readonly Sku[];
 

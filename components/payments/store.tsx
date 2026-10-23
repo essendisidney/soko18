@@ -13,7 +13,7 @@ import { storeStart } from "@/lib/payments/store-start";
 import {
   BOOST_MINUTES,
   BOOST_SKUS,
-  COMRADE_SKUS,
+  STUDENT_SKUS,
   PLAN_FEATURES,
   PRODUCTS,
   SUPER_LIKE_SKUS,
@@ -24,7 +24,7 @@ import { useLocale } from "@/lib/i18n/use-t";
 import type { Entitlements } from "@/lib/payments/entitlements";
 import type { MyCampus } from "@/lib/campus/shared";
 
-/** The member's verified campus, if any. Comrade Gold is for them. */
+/** The member's verified campus, if any. Student Gold is for them. */
 function useMyCampus() {
   const [mine, setMine] = useState<MyCampus | null>(null);
   useEffect(() => {
@@ -88,7 +88,7 @@ export function Store({ plan = null, paid = null }: { plan?: string | null; paid
     return p ? formatMoney(p.amount, p.currency, locale) : formatMoney(PRODUCTS[sku].amountKes, "KES", locale);
   };
   const [boostNote, setBoostNote] = useState<string | null>(null);
-  // Open on whatever the button that brought them here promised (e.g. "Gold · from KES 149").
+  // Open on whatever the button that brought them here promised (e.g. "Gold · from KES 39").
   const [tier, setTier] = useState<"gold" | "platinum">(start.tier);
   const [selected, setSelected] = useState<keyof typeof PRODUCTS>(start.sku);
   const t = useT();
@@ -109,15 +109,15 @@ export function Store({ plan = null, paid = null }: { plan?: string | null; paid
     refresh();
   }
 
-  // Verified students get Comrade Gold where it's priced (Kenya). Same Gold, student price.
-  const comrade = Boolean(campus) && Boolean(priceOf("comrade_month"));
+  // Verified students get Student Gold where it's priced (Kenya). Same Gold, student price.
+  const student = Boolean(campus) && Boolean(priceOf("gold_week_student"));
   const tierSkus: Record<"gold" | "platinum", (keyof typeof PRODUCTS)[]> = {
-    gold: comrade ? [...COMRADE_SKUS] : ["gold_month", "gold_week"],
+    gold: student ? ["gold_month", ...STUDENT_SKUS, "gold_day"] : ["gold_month", "gold_week", "gold_day"],
     platinum: ["platinum_month"],
   };
   const skus = tierSkus[tier];
   // Students see the same length at the student price; everyone else, the same length at Gold price.
-  const twin = (comrade ? { gold_week: "comrade_week", gold_month: "comrade_month" } : { comrade_week: "gold_week", comrade_month: "gold_month" }) as Partial<
+  const twin = (student ? { gold_week: "gold_week_student" } : { gold_week_student: "gold_week" }) as Partial<
     Record<keyof typeof PRODUCTS, keyof typeof PRODUCTS>
   >;
   const chosen = skus.includes(selected) ? selected : (twin[selected] && skus.includes(twin[selected]!) ? twin[selected]! : skus[0]);
@@ -177,13 +177,13 @@ export function Store({ plan = null, paid = null }: { plan?: string | null; paid
         </p>
       ) : null}
 
-      {tier === "gold" && comrade && campus ? (
+      {tier === "gold" && student && campus ? (
         <p className="mt-3 inline-flex items-center gap-2 rounded-2xl border border-gold/50 px-3 py-2 text-sm">
-          <GraduationCap className="size-4 text-gold" /> Comrade Gold — student price for verified {campus.shortName} students
+          <GraduationCap className="size-4 text-gold" /> Student Gold — student price for verified {campus.shortName} students
         </p>
-      ) : tier === "gold" && !campus && priceOf("comrade_week") ? (
+      ) : tier === "gold" && !campus && priceOf("gold_week_student") ? (
         <Link href="/campus" className="mt-3 inline-flex items-center gap-2 text-sm text-gold">
-          <GraduationCap className="size-4" /> Student? Verify your campus for Gold from {show("comrade_week")} a week
+          <GraduationCap className="size-4" /> Student? Verify your campus for Gold at {show("gold_week_student")} a week
         </Link>
       ) : null}
 
@@ -220,7 +220,7 @@ export function Store({ plan = null, paid = null }: { plan?: string | null; paid
               ) : null}
               <div>
                 <p className="font-display text-lg">{item.title.split(" · ")[1] ?? item.title}</p>
-                <p className="mt-0.5 text-xs text-muted">{perWeek(sku)} / week</p>
+                <p className="mt-0.5 text-xs text-muted">{sku === "gold_day" ? "One night out" : `${perWeek(sku)} / week`}</p>
               </div>
               <div className="flex items-center gap-3">
                 <p className="font-display text-xl">{show(sku)}</p>

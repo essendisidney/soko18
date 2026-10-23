@@ -32,7 +32,7 @@ describe("like after paying", () => {
   });
   it("only sends it when the purchase covers it", () => {
     expect(purchaseCovers("gold_week", { code: "like_limit" })).toBe(true);
-    expect(purchaseCovers("comrade_week", { code: "no_super_likes" })).toBe(true);
+    expect(purchaseCovers("gold_week_student", { code: "no_super_likes" })).toBe(true);
     expect(purchaseCovers("super_1", { code: "no_super_likes" })).toBe(true);
     expect(purchaseCovers("super_1", { code: "like_limit" })).toBe(false);
     expect(purchaseCovers("boost_1", { code: "like_limit" })).toBe(false);
