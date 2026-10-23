@@ -2,7 +2,8 @@
 
 import { useT } from "@/lib/i18n/use-t";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth/use-auth";
 import { Button } from "@/components/soko/button";
 import { Chip } from "@/components/soko/chip";
 import { SHOW_ME } from "@/lib/data/nairobi";
@@ -15,12 +16,34 @@ export function FiltersSheet({ onClose }: { onClose: () => void }) {
   const [max, setMax] = useState(initial.max);
   const [show, setShow] = useState<ShowMe>(readShowMe());
   const t = useT();
+  const { user } = useAuth();
 
-  function save() {
+  // Signed in: start from the range saved on the account (for 18–25, ±4 years by default).
+  useEffect(() => {
+    if (!user) return;
+    void fetch("/api/me/age-window")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json: { data?: { min: number; max: number } | null } | null) => {
+        if (!json?.data) return;
+        setMin(json.data.min);
+        setMax(json.data.max);
+      })
+      .catch(() => {});
+  }, [user]);
+
+  async function save() {
     const lo = Math.max(18, Math.min(min, max));
     const hi = Math.min(99, Math.max(min, max));
     writeAgeRange({ min: lo, max: hi });
     writeShowMe(show);
+    // Save before closing, so the refreshed deck already uses the new range.
+    if (user) {
+      await fetch("/api/me/age-window", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ min: lo, max: hi }),
+      }).catch(() => null);
+    }
     onClose();
   }
 
@@ -58,7 +81,7 @@ export function FiltersSheet({ onClose }: { onClose: () => void }) {
         />
       </div>
       <div className="mt-4 flex gap-2">
-        <Button size="sm" variant="gold" onClick={save}>
+        <Button size="sm" variant="gold" onClick={() => void save()}>
           {t("filters.apply")}
         </Button>
         <Button size="sm" variant="ghost" onClick={onClose}>

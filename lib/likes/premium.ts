@@ -30,6 +30,7 @@ const INTRO_ERRORS: Record<string, { status: number; message: string }> = {
   intro_limit: { status: 429, message: "You’ve sent 5 intros today. Try again tomorrow." },
   already_sent: { status: 409, message: "You’ve already messaged them." },
   not_found: { status: 404, message: "Profile unavailable." },
+  age_band: { status: 403, message: "Messages before a match aren’t available between these age groups. Like them instead." },
 };
 
 export async function sendIntro(input: unknown) {

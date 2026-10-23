@@ -4,6 +4,7 @@ import { cityFromRequest } from "@/lib/geo/city-cookie";
 import { nearFromRequest } from "@/lib/nairobi/near";
 import { campusDeckAccess } from "@/lib/campus/server";
 import { CAMPUS_SLUG } from "@/lib/campus/shared";
+import { myAgeWindow } from "@/lib/discovery/age-window";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -28,10 +29,13 @@ export async function GET(request: Request) {
     if (access.ownProfileId) excludeIds.push(access.ownProfileId);
   }
 
+  // Signed in: the age range saved on the account wins (K1 age bands; the database enforces
+  // the 30+/18–25 rule either way). Guests use the range from their filters.
+  const window = await myAgeWindow();
   const feed = await discoverFeedLive({
     campusSlug: campus,
-    minAge: ageParam("minAge"),
-    maxAge: ageParam("maxAge"),
+    minAge: window?.min ?? ageParam("minAge"),
+    maxAge: window?.max ?? ageParam("maxAge"),
     citySlug: city,
     nearArea: near,
     gender,
