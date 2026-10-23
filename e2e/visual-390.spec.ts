@@ -638,6 +638,23 @@ test.describe("390px surfaces", () => {
     expect(width).toBeLessThanOrEqual(390);
   });
 
+  test("discreet mode: the PIN lock covers the app until the right PIN", async ({ page }) => {
+    // Same salted SHA-256 the app stores (lib/discreet/settings.ts).
+    const { createHash } = await import("node:crypto");
+    const pinHash = createHash("sha256").update("s4lt:2468").digest("hex");
+    await page.addInitScript((hash) => {
+      localStorage.setItem("kutana_discreet", JSON.stringify({ pinHash: hash, salt: "s4lt", pinLength: 4, quickExit: true }));
+    }, pinHash);
+    await page.goto("/");
+    const lock = page.getByRole("dialog", { name: "Enter PIN" });
+    await expect(lock).toBeVisible();
+    for (const d of ["1", "1", "1", "1"]) await lock.getByRole("button", { name: d, exact: true }).click();
+    await expect(lock.getByText("Wrong PIN.")).toBeVisible();
+    for (const d of ["2", "4", "6", "8"]) await lock.getByRole("button", { name: d, exact: true }).click();
+    await expect(lock).toBeHidden();
+    await expect(page.getByRole("button", { name: "Quick exit" })).toBeVisible();
+  });
+
   test("sign in can send you back to Discover", async ({ page }) => {
     await page.goto("/login");
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();

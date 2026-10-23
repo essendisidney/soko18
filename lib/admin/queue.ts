@@ -114,7 +114,9 @@ export async function loadQueue() {
       id: c.id as string,
       targetType: c.target_type as string,
       targetId: c.target_id as string,
-      reason: reasons.get(c.target_id as string) ?? "auto: paid services filter",
+      reason:
+        reasons.get(c.target_id as string) ??
+        (c.target_type === "account" ? "auto: scam guard (repeated money asks, see their chats)" : "auto: paid services filter"),
       text:
         c.target_type === "profile"
           ? profileText.get(c.target_id as string) ?? ""

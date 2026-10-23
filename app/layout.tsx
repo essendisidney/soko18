@@ -1,3 +1,4 @@
+import { DiscreetRuntime } from "@/components/discreet/discreet-runtime";
 import type { Metadata, Viewport } from "next";
 import { Geist, Syne } from "next/font/google";
 import localFont from "next/font/local";
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-dvh bg-bg text-cream">
         <PwaRegister />
         {children}
+        <DiscreetRuntime />
       </body>
     </html>
   );
