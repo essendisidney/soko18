@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Big_Shoulders, Geist, Syne } from "next/font/google";
+import { Geist, Syne } from "next/font/google";
+import localFont from "next/font/local";
 import { siteUrl } from "@/lib/site";
 import { PwaRegister } from "@/components/pwa/register";
 import "./globals.css";
@@ -15,10 +16,13 @@ const syne = Syne({
   weight: ["500", "600", "700", "800"],
 });
 
-const brand = Big_Shoulders({
+// The KUTANA wordmark only: Big Shoulders (SIL OFL) at weight 900, cut down to the letters
+// K U T A N (1.3 KB instead of a 36 KB variable font on every page).
+const brand = localFont({
+  src: "./fonts/kutana-wordmark.woff2",
   variable: "--font-kutana",
-  subsets: ["latin"],
-  weight: ["800", "900"],
+  weight: "900",
+  display: "swap",
 });
 
 export const metadata: Metadata = {

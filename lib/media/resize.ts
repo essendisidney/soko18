@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Shrink a photo on the phone before upload: max 1280px, JPEG ~80%.
+ * Shrink a photo on the phone before upload: max 1080px (sharp on any phone screen), JPEG ~78%.
  * Saves members' data bundles and our storage bill. Falls back to the original file.
  */
-export async function resizeImage(file: File, maxSide = 1280, quality = 0.8): Promise<Blob> {
+export async function resizeImage(file: File, maxSide = 1080, quality = 0.78): Promise<Blob> {
   if (typeof createImageBitmap !== "function") return file;
   try {
     const bitmap = await createImageBitmap(file);

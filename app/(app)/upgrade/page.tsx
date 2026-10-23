@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Store } from "@/components/payments/store";
 
 export const metadata: Metadata = {
@@ -7,10 +6,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function UpgradePage() {
-  return (
-    <Suspense fallback={null}>
-      <Store />
-    </Suspense>
-  );
+type Props = { searchParams: Promise<{ plan?: string | string[]; paid?: string | string[] }> };
+
+const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? null;
+
+export default async function UpgradePage({ searchParams }: Props) {
+  const params = await searchParams;
+  return <Store plan={one(params.plan)} paid={one(params.paid)} />;
 }
