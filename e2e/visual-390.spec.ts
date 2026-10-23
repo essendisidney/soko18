@@ -630,6 +630,14 @@ test.describe("390px surfaces", () => {
     expect(width).toBeLessThanOrEqual(390);
   });
 
+  test("date plan explains check-in and asks you to sign in", async ({ page }) => {
+    await page.goto("/safety/date");
+    await expect(page.getByRole("heading", { name: "Date plan" })).toBeVisible();
+    await expect(page.getByText(/your contact gets the plan/)).toBeVisible();
+    const width = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(width).toBeLessThanOrEqual(390);
+  });
+
   test("sign in can send you back to Discover", async ({ page }) => {
     await page.goto("/login");
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
