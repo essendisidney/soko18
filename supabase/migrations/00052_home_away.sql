@@ -55,6 +55,13 @@ returns boolean language sql stable security definer set search_path = public as
   );
 $$;
 
+-- For the public card view, which checks function rights as the viewer: only says whether a
+-- member abroad currently shows at home (the same thing the deck itself reveals).
+create or replace function public.listed_at_home(p_account uuid)
+returns boolean language sql stable security definer set search_path = public as $$
+  select private.has_home_away(p_account);
+$$;
+
 -- Where a member abroad is from: a Kenyan city.
 create or replace function public.set_home_city(p_city_slug text)
 returns void language plpgsql security definer set search_path = public as $$
@@ -281,7 +288,7 @@ create or replace view public.live_profile_cards as
      ) trip on true
   where p.status = 'live'::profile_status and p.flagged_reason is null and not profile_hidden_from_me(p.account_id)
     -- Members living abroad show in Kenyan decks with Home & Away, or around a Coming Home trip.
-    and (coalesce(acc.country_code, 'KE') = 'KE' or private.has_home_away(p.account_id) or trip.arrives_on is not null);
+    and (coalesce(acc.country_code, 'KE') = 'KE' or public.listed_at_home(p.account_id) or trip.arrives_on is not null);
 
 -- Same as 00048: members abroad join drops only with Home & Away or around a trip home.
 create or replace function private.drop_candidates(p_viewer uuid, p_limit integer)
@@ -333,6 +340,8 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 revoke all on function private.has_home_away(uuid) from public, anon, authenticated;
+revoke all on function public.listed_at_home(uuid) from public;
+grant execute on function public.listed_at_home(uuid) to anon, authenticated;
 revoke all on function private.drop_candidates(uuid, integer) from public, anon, authenticated;
 revoke all on function public.set_home_city(text) from public, anon;
 grant execute on function public.set_home_city(text) to authenticated;
