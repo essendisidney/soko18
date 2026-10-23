@@ -53,6 +53,7 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
     bio: value.bio ?? "",
     gender: value.gender ?? null,
     lookingFor: value.lookingFor ?? null,
+    ...(value.intentTags ? { intentTags: value.intentTags } : {}),
     prompts,
     indexPublic: value.indexPublic,
     status: value.status,
@@ -111,6 +112,7 @@ export async function saveProfile(input: unknown): Promise<SaveProfileResult> {
     bio: draft.bio || null,
     gender: draft.gender,
     looking_for: draft.lookingFor,
+    ...(draft.intentTags ? { intent_tags: draft.intentTags } : {}),
     prompts: draft.prompts ?? [],
     status: draft.status,
   };

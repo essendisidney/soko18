@@ -6,7 +6,7 @@
  * We never take a cut of anything arranged between members.
  */
 
-export type ProductKind = "plan" | "boost" | "super_like" | "incognito";
+export type ProductKind = "plan" | "boost" | "super_like" | "incognito" | "salamu";
 export type PlanTier = "gold" | "platinum";
 
 export type Product = {
@@ -113,6 +113,22 @@ export const PRODUCTS = {
     kind: "super_like",
     quantity: 5,
   },
+  salamu_1: {
+    sku: "salamu_1",
+    title: "Salamu",
+    line: "Message someone before you match. It lands in their Likes You.",
+    amountKes: 59,
+    kind: "salamu",
+    quantity: 1,
+  },
+  salamu_5: {
+    sku: "salamu_5",
+    title: "5 Salamu",
+    line: "Five messages before matching. Use them any time.",
+    amountKes: 249,
+    kind: "salamu",
+    quantity: 5,
+  },
   incognito_month: {
     sku: "incognito_month",
     title: "Incognito · 30 days",
@@ -132,6 +148,8 @@ export const PLAN_SKUS = ["gold_day", "gold_week", "gold_month", "gold_week_stud
 export const STUDENT_SKUS = ["gold_week_student"] as const satisfies readonly Sku[];
 export const BOOST_SKUS = ["boost_1", "boost_5"] as const satisfies readonly Sku[];
 export const SUPER_LIKE_SKUS = ["super_1", "super_5"] as const satisfies readonly Sku[];
+/** Paid first messages. Always priced above a Super Like (K0). */
+export const SALAMU_SKUS = ["salamu_1", "salamu_5"] as const satisfies readonly Sku[];
 
 /** Free members get this many likes per Nairobi day. Gold and Platinum are unlimited. */
 export const FREE_DAILY_LIKES = 30;

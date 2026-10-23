@@ -10,6 +10,7 @@ export type Verification = {
 export type ProfileGender = "man" | "woman" | "nonbinary";
 
 export type LookingFor = "relationship" | "casual" | "friends" | "unsure";
+export type IntentTag = "marriage" | "faith" | "kids" | "relocate" | "distance";
 
 export type SeedProfile = {
   id: string;
@@ -30,6 +31,7 @@ export type SeedProfile = {
   presence: Presence;
   bio: string;
   lookingFor?: LookingFor;
+  intentTags?: IntentTag[];
   prompts?: { q: string; a: string }[];
   photos: string[];
   verification: Verification;

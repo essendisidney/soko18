@@ -10,6 +10,7 @@ export type Entitlements = {
   incognito: boolean;
   superLikes: number;
   boosts: number;
+  salamu: number;
   /** Null when unlimited (Gold / Platinum). */
   likesLeftToday: number | null;
   canMessageFirst: boolean;
@@ -21,6 +22,7 @@ export const FREE_ENTITLEMENTS: Entitlements = {
   incognito: false,
   superLikes: 0,
   boosts: 0,
+  salamu: 0,
   likesLeftToday: null,
   canMessageFirst: false,
 };
