@@ -50,6 +50,22 @@ export const INTENTS = [
 
 export type LookingFor = (typeof INTENTS)[number]["id"];
 
+/**
+ * Optional extras on top of "Looking for". Mirrors `profiles_intent_tags_check` in the database.
+ * Faith is sensitive data: off unless the member ticks it, and ticking it is what shows it.
+ * There are deliberately no tribe or ethnicity tags, fields or filters (tests enforce this).
+ */
+export const INTENT_TAGS = [
+  { id: "marriage", label: "Marriage-minded", sensitive: false },
+  { id: "faith", label: "Faith matters to me", sensitive: true },
+  { id: "kids", label: "Wants kids", sensitive: false },
+  { id: "relocate", label: "Open to relocating", sensitive: false },
+  { id: "distance", label: "Open to long distance", sensitive: false },
+] as const;
+
+export type IntentTag = (typeof INTENT_TAGS)[number]["id"];
+export const INTENT_TAG_IDS = INTENT_TAGS.map((tag) => tag.id) as [IntentTag, ...IntentTag[]];
+
 export const SHOW_ME = [
   { id: "woman", label: "Women" },
   { id: "man", label: "Men" },

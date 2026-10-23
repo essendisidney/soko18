@@ -612,6 +612,16 @@ test.describe("390px surfaces", () => {
     await expect(page.getByText("KES 1,299").first()).toBeVisible();
   });
 
+  test("upgrade store sells Salamu above a Super Like, at phone width", async ({ page }) => {
+    await page.goto("/upgrade#salamu");
+    const box = page.locator("#salamu");
+    await expect(box.getByText("Salamu", { exact: true })).toBeVisible();
+    await expect(box.getByRole("button", { name: "Salamu · KES 59" })).toBeVisible();
+    await expect(box.getByRole("button", { name: "5 Salamu · KES 249" })).toBeVisible();
+    const width = await page.evaluate(() => document.documentElement.scrollWidth);
+    expect(width).toBeLessThanOrEqual(390);
+  });
+
   test("sign in can send you back to Discover", async ({ page }) => {
     await page.goto("/login");
     await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();

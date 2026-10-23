@@ -28,7 +28,7 @@ describe("catalog", () => {
   });
 
   it("writes a ledger purpose the database enum accepts", () => {
-    const allowed = new Set(["gold", "platinum", "boost", "super_like", "incognito"]);
+    const allowed = new Set(["gold", "platinum", "boost", "super_like", "incognito", "salamu"]);
     for (const sku of SKUS) expect(allowed.has(ledgerPurpose(PRODUCTS[sku]))).toBe(true);
     for (const sku of PLAN_SKUS) expect(PRODUCTS[sku].kind).toBe("plan");
   });

@@ -15,6 +15,7 @@ export type ProfileDraft = {
   bio: string;
   gender: "man" | "woman" | "nonbinary" | null;
   lookingFor: "relationship" | "casual" | "friends" | "unsure" | null;
+  intentTags?: ("marriage" | "faith" | "kids" | "relocate" | "distance")[];
   prompts?: { q: string; a: string }[];
   indexPublic: boolean;
   status: ProfileStatus;

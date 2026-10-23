@@ -1,6 +1,6 @@
 "use client";
 
-import { INTENTS } from "@/lib/data/nairobi";
+import { INTENT_TAGS, INTENTS } from "@/lib/data/nairobi";
 import { SendIntro } from "@/components/profile/send-intro";
 
 import Image from "next/image";
@@ -183,6 +183,11 @@ export function PublicProfile({
               {INTENTS.find((intent) => intent.id === profile.lookingFor)?.label}
             </span>
             <span className="rounded-full border border-line px-3 py-1.5 text-sm text-cream/80">{profile.area}</span>
+            {INTENT_TAGS.filter((tag) => profile.intentTags?.includes(tag.id)).map((tag) => (
+              <span key={tag.id} className="rounded-full border border-line px-3 py-1.5 text-sm text-cream/80">
+                {tag.label}
+              </span>
+            ))}
           </div>
         ) : null}
 

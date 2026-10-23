@@ -37,6 +37,7 @@ older in `SOKO18_MASTER_DEVELOPMENT.md`, `PHASE_STATUS.md` and the other docs wh
 | super_1 / super_5 | 49 / 199 | Super Likes |
 | incognito_month | 299 | Only people you like see you |
 | gold_week_student | 99 | Student Gold 7 days + 3 Super Likes, verified students only (Kenya). Replaced Comrade Gold (49 / 199) in K0 |
+| salamu_1 / salamu_5 | 59 / 249 | Message before matching (lands in their Likes You). Platinum includes 5 a day |
 
 Free: 30 likes per Nairobi day, matches, chat, safety tools.
 

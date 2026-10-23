@@ -4,7 +4,7 @@ import { useT } from "@/lib/i18n/use-t";
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Check, Crown, EyeOff, GraduationCap, Heart, Star, Zap } from "lucide-react";
+import { Check, Crown, EyeOff, GraduationCap, Heart, MessageCircleHeart, Star, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/soko/button";
 import { Checkout } from "@/components/payments/checkout";
@@ -16,6 +16,7 @@ import {
   STUDENT_SKUS,
   PLAN_FEATURES,
   PRODUCTS,
+  SALAMU_SKUS,
   SUPER_LIKE_SKUS,
   type Sku,
 } from "@/lib/payments/catalog";
@@ -138,7 +139,7 @@ export function Store({ plan = null, paid = null }: { plan?: string | null; paid
     <div className="pb-8">
       <section
         className={cn(
-          "-mx-5 -mt-4 px-5 pt-8 pb-6",
+          "-mx-4 -mt-4 px-4 pt-8 pb-6",
           tier === "platinum"
             ? "bg-linear-to-b from-slate-300/20 via-slate-400/5 to-transparent"
             : "bg-linear-to-b from-gold/25 via-gold/5 to-transparent",
@@ -259,6 +260,11 @@ export function Store({ plan = null, paid = null }: { plan?: string | null; paid
             <Meter icon={<Star className="size-4 fill-sky-400 text-sky-400" />} value={String(data.superLikes)} label="Super Likes" />
             <Meter icon={<Zap className="size-4 fill-violet-400 text-violet-400" />} value={String(data.boosts)} label="Boosts" />
           </div>
+          {(data.salamu ?? 0) > 0 ? (
+            <p className="mt-3 text-center text-xs text-muted">
+              {data.salamu} Salamu left · send one from any profile
+            </p>
+          ) : null}
           {data.boosts > 0 ? (
             <Button className="mt-4 w-full" variant="gold" onClick={() => void boostNow()}>
               {t("store.boostNow")} · {BOOST_MINUTES} min
@@ -289,6 +295,17 @@ export function Store({ plan = null, paid = null }: { plan?: string | null; paid
             line={PRODUCTS.super_1.line}
           >
             {SUPER_LIKE_SKUS.map((sku) => (
+              <Checkout key={sku} sku={sku} label={`${PRODUCTS[sku].title} · ${show(sku)}`} variant="ghost" price={priceOf(sku)} providers={providers} onPaid={refresh} />
+            ))}
+          </TopUp>
+          <TopUp
+            id="salamu"
+            icon={<MessageCircleHeart className="size-5 text-gold" />}
+            tint="bg-gold/10"
+            title="Salamu"
+            line={`${PRODUCTS.salamu_1.line} Included with Platinum (5 a day).`}
+          >
+            {SALAMU_SKUS.map((sku) => (
               <Checkout key={sku} sku={sku} label={`${PRODUCTS[sku].title} · ${show(sku)}`} variant="ghost" price={priceOf(sku)} providers={providers} onPaid={refresh} />
             ))}
           </TopUp>

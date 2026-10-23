@@ -13,7 +13,7 @@ import { saveProfileAction } from "@/lib/profile/actions";
 import { draftHealth } from "@/lib/profile/health";
 import { writeLocalDraft } from "@/lib/profile/local";
 import type { OwnerProfileStatus, ProfileDraft } from "@/lib/profile/types";
-import { INTENTS } from "@/lib/data/nairobi";
+import { INTENT_TAGS, INTENTS } from "@/lib/data/nairobi";
 import { intentSnapshot, subscribeIntents } from "@/lib/onboarding";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 import { refreshMyProfile, useProfileMeta } from "@/lib/profile/sync";
@@ -28,6 +28,7 @@ type Fields = {
   bio: string;
   gender: ProfileDraft["gender"];
   lookingFor: ProfileDraft["lookingFor"];
+  intentTags: NonNullable<ProfileDraft["intentTags"]>;
   prompts: { q: string; a: string }[];
   indexPublic: boolean;
 };
@@ -90,6 +91,7 @@ export function ProfileEditor() {
   const onboardingIntent = useSyncExternalStore(subscribeIntents, intentSnapshot, () => null);
   const firstIntent = INTENTS.find((i) => i.id === (onboardingIntent ?? "").split(",").filter(Boolean)[0])?.id ?? null;
   const lookingFor = fields?.lookingFor ?? stored?.lookingFor ?? firstIntent;
+  const intentTags = fields?.intentTags ?? stored?.intentTags ?? [];
   const prompts = fields?.prompts ?? stored?.prompts ?? [];
   const indexPublic = fields?.indexPublic ?? stored?.indexPublic ?? false;
   const status = stored?.status ?? "draft";
@@ -105,6 +107,7 @@ export function ProfileEditor() {
       bio,
       gender,
       lookingFor,
+      intentTags,
       prompts,
       indexPublic,
       ...next,
@@ -168,6 +171,7 @@ export function ProfileEditor() {
       bio,
       gender,
       lookingFor,
+      intentTags,
       prompts,
       indexPublic,
       status: nextStatus,
@@ -311,6 +315,26 @@ export function ProfileEditor() {
               </Chip>
             ))}
           </div>
+        </div>
+
+        <div>
+          <span className="text-[11px] tracking-[0.18em] text-muted uppercase">Also (optional)</span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {INTENT_TAGS.map((tag) => (
+              <Chip
+                key={tag.id}
+                selected={intentTags.includes(tag.id)}
+                onClick={() =>
+                  patch({
+                    intentTags: intentTags.includes(tag.id) ? intentTags.filter((id) => id !== tag.id) : [...intentTags, tag.id],
+                  })
+                }
+              >
+                {tag.label}
+              </Chip>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted">Shown on your profile only if you tick it. Faith is private until you choose to show it.</p>
         </div>
 
         {note ? <p className="text-sm text-cream/90">{note}</p> : null}

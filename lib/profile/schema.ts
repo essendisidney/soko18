@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { areaSlugInCity, isKenyaCitySlug } from "@/lib/geo/kenya";
 import { OWNER_PROFILE_STATUSES } from "@/lib/profile/types";
+import { INTENT_TAG_IDS } from "@/lib/data/nairobi";
 
 const maxBirthYear = () => new Date().getFullYear() - 18;
 
@@ -14,6 +15,12 @@ export const profileInputSchema = z
     bio: z.string().trim().max(280).optional().default(""),
     gender: z.enum(["man", "woman", "nonbinary"]).nullable().optional().default(null),
     lookingFor: z.enum(["relationship", "casual", "friends", "unsure"]).nullable().optional().default(null),
+    // Left out = unchanged, so a save that doesn't know about tags never wipes them.
+    intentTags: z
+      .array(z.enum(INTENT_TAG_IDS))
+      .max(INTENT_TAG_IDS.length)
+      .transform((tags) => [...new Set(tags)])
+      .optional(),
     prompts: z
       .array(z.object({ q: z.string().trim().min(1).max(80), a: z.string().trim().max(150) }))
       .max(3)

@@ -5,13 +5,14 @@ import { useT } from "@/lib/i18n/use-t";
 import { useDraftProfile } from "@/lib/profile/use-draft";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Heart, Lock, Star, Zap } from "lucide-react";
 import { Button } from "@/components/soko/button";
 
 type Person = { profileId: string; slug: string; name: string; super: boolean; at: string; photo?: string | null };
 type LikedMe = { count: number; locked: boolean; people: Person[] | null };
-type Intro = { id: string; body: string; at: string; profileId: string; slug: string; name: string };
+type Intro = { id: string; body: string; at: string; kind?: "intro" | "salamu"; profileId: string; slug: string; name: string };
 type State = { kind: "loading" } | { kind: "signed-out" } | { kind: "error" } | { kind: "ready"; data: LikedMe };
 
 // Soft, non-identifying tiles for locked likes. Real photos never reach the browser until unlocked.
@@ -68,11 +69,7 @@ export function LikedMeList() {
         <section className="mt-6 space-y-2">
           <p className="text-[11px] tracking-[0.18em] text-muted uppercase">{t("likes.waiting")}</p>
           {intros.map((intro) => (
-            <Link key={intro.id} href={`/profile/${intro.slug}`} className="block rounded-3xl border border-gold/50 bg-gold/5 p-4">
-              <p className="text-sm font-medium">{intro.name}</p>
-              <p className="mt-1 text-[15px] text-cream/90">“{intro.body}”</p>
-              <p className="mt-2 text-xs text-gold">{t("likes.likeBack")}</p>
-            </Link>
+            <IntroCard key={intro.id} intro={intro} onGone={(id) => setIntros((list) => list.filter((i) => i.id !== id))} />
           ))}
         </section>
       ) : null}
@@ -211,5 +208,67 @@ function Locked({
         </Link>
       </div>
     </>
+  );
+}
+
+/** A message before matching: reply (like back, opens the chat), ignore, or block. */
+function IntroCard({ intro, onGone }: { intro: Intro; onGone: (id: string) => void }) {
+  const router = useRouter();
+  const t = useT();
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
+
+  async function act(kind: "reply" | "ignore" | "block") {
+    setBusy(true);
+    setNote("");
+    const res =
+      kind === "reply"
+        ? await fetch("/api/likes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ profileId: intro.profileId, kind: "like" }),
+          })
+        : kind === "ignore"
+          ? await fetch("/api/intros", {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ id: intro.id }),
+            })
+          : await fetch("/api/blocks", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ profileId: intro.profileId, blocked: true }),
+            });
+    setBusy(false);
+    if (!res.ok) {
+      const json = (await res.json().catch(() => null)) as { error?: { message: string } } | null;
+      return setNote(json?.error?.message ?? "Try again in a moment.");
+    }
+    if (kind === "reply") return router.push(`/messages/${intro.slug}`);
+    onGone(intro.id);
+  }
+
+  return (
+    <div className="rounded-3xl border border-gold/50 bg-gold/5 p-4">
+      <Link href={`/profile/${intro.slug}`} className="block">
+        <p className="text-sm font-medium">
+          {intro.name}
+          {intro.kind === "salamu" ? <span className="ml-2 text-[10px] tracking-[0.14em] text-gold uppercase">Salamu</span> : null}
+        </p>
+        <p className="mt-1 text-[15px] text-cream/90">“{intro.body}”</p>
+      </Link>
+      <div className="mt-3 flex gap-2">
+        <Button className="flex-1" variant="gold" disabled={busy} onClick={() => void act("reply")}>
+          {t("likes.reply")}
+        </Button>
+        <Button className="flex-1" variant="ghost" disabled={busy} onClick={() => void act("ignore")}>
+          {t("likes.ignore")}
+        </Button>
+        <Button variant="ghost" disabled={busy} onClick={() => void act("block")} aria-label="Block">
+          {t("likes.block")}
+        </Button>
+      </div>
+      {note ? <p className="mt-2 text-xs text-muted">{note}</p> : null}
+    </div>
   );
 }

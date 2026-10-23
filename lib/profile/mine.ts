@@ -26,7 +26,7 @@ export async function loadMyProfile() {
   const { data: row } = await supabase
     .from("profiles")
     .select(
-      "id, slug, display_name, birth_year, bio, gender, looking_for, prompts, status, flagged_reason, updated_at, city:locations!profiles_city_id_fkey(slug), area:locations!profiles_area_id_fkey(slug)",
+      "id, slug, display_name, birth_year, bio, gender, looking_for, intent_tags, prompts, status, flagged_reason, updated_at, city:locations!profiles_city_id_fkey(slug), area:locations!profiles_area_id_fkey(slug)",
     )
     .eq("account_id", user.id)
     .maybeSingle();
@@ -59,6 +59,7 @@ export async function loadMyProfile() {
     bio: (row.bio as string | null) ?? "",
     gender: (row.gender as ProfileDraft["gender"]) ?? null,
     lookingFor: (row.looking_for as ProfileDraft["lookingFor"]) ?? null,
+    intentTags: Array.isArray(row.intent_tags) ? (row.intent_tags as NonNullable<ProfileDraft["intentTags"]>) : [],
     prompts: Array.isArray(row.prompts) ? (row.prompts as { q: string; a: string }[]) : [],
     indexPublic: false,
     status: toProfileStatus(row.status as string),
