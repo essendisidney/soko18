@@ -16,8 +16,9 @@ describe("catalog", () => {
     expect(PRODUCTS.boost_1.amountKes).toBe(99);
     expect(PRODUCTS.super_1.amountKes).toBe(49);
     expect(PRODUCTS.incognito_month.amountKes).toBe(299);
-    // Small, data-bundle-sized prices; Platinum is the top at KES 1,299 (K0).
-    for (const sku of SKUS) expect(PRODUCTS[sku].amountKes).toBeLessThan(1500);
+    // Small, data-bundle-sized prices; Platinum is the top at KES 1,299 (K0). Diaspora SKUs are
+    // priced in GBP / USD only and never sold in Kenya.
+    for (const sku of SKUS) if (!("marketsOnly" in PRODUCTS[sku])) expect(PRODUCTS[sku].amountKes).toBeLessThan(1500);
     expect(FREE_DAILY_LIKES).toBe(30);
   });
 
@@ -28,7 +29,7 @@ describe("catalog", () => {
   });
 
   it("writes a ledger purpose the database enum accepts", () => {
-    const allowed = new Set(["gold", "platinum", "boost", "super_like", "incognito", "salamu"]);
+    const allowed = new Set(["gold", "platinum", "boost", "super_like", "incognito", "salamu", "home_away", "trip"]);
     for (const sku of SKUS) expect(allowed.has(ledgerPurpose(PRODUCTS[sku]))).toBe(true);
     for (const sku of PLAN_SKUS) expect(PRODUCTS[sku].kind).toBe("plan");
   });

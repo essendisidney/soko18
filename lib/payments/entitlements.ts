@@ -11,6 +11,8 @@ export type Entitlements = {
   superLikes: number;
   boosts: number;
   salamu: number;
+  trips?: number;
+  homeAway?: boolean;
   /** Null when unlimited (Gold / Platinum). */
   likesLeftToday: number | null;
   canMessageFirst: boolean;

@@ -6,7 +6,7 @@
  * We never take a cut of anything arranged between members.
  */
 
-export type ProductKind = "plan" | "boost" | "super_like" | "incognito" | "salamu";
+export type ProductKind = "plan" | "boost" | "super_like" | "incognito" | "salamu" | "home_away" | "trip";
 export type PlanTier = "gold" | "platinum";
 
 export type Product = {
@@ -22,6 +22,8 @@ export type Product = {
   bonusBoosts?: number;
   /** Only verified students (campus_members) can buy it. The database enforces this at checkout. */
   requiresCampus?: boolean;
+  /** Sold only in these markets, in their own currency (product_prices). amountKes is a reference. */
+  marketsOnly?: readonly string[];
 };
 
 export const PRODUCTS = {
@@ -129,6 +131,25 @@ export const PRODUCTS = {
     kind: "salamu",
     quantity: 5,
   },
+  home_away_month: {
+    sku: "home_away_month",
+    title: "Home & Away · 30 days",
+    line: "Show up at home while you live abroad.",
+    amountKes: 1699,
+    kind: "home_away",
+    days: 30,
+    quantity: 1,
+    marketsOnly: ["GB", "US"],
+  },
+  coming_home_trip: {
+    sku: "coming_home_trip",
+    title: "Coming Home trip",
+    line: "Show up in your home city from 14 days before you land.",
+    amountKes: 2499,
+    kind: "trip",
+    quantity: 1,
+    marketsOnly: ["GB", "US"],
+  },
   incognito_month: {
     sku: "incognito_month",
     title: "Incognito · 30 days",
@@ -148,6 +169,8 @@ export const PLAN_SKUS = ["gold_day", "gold_week", "gold_month", "gold_week_stud
 export const STUDENT_SKUS = ["gold_week_student"] as const satisfies readonly Sku[];
 export const BOOST_SKUS = ["boost_1", "boost_5"] as const satisfies readonly Sku[];
 export const SUPER_LIKE_SKUS = ["super_1", "super_5"] as const satisfies readonly Sku[];
+/** Diaspora markets only (GBP / USD), never sold in Kenya. */
+export const DIASPORA_SKUS = ["home_away_month", "coming_home_trip"] as const satisfies readonly Sku[];
 /** Paid first messages. Always priced above a Super Like (K0). */
 export const SALAMU_SKUS = ["salamu_1", "salamu_5"] as const satisfies readonly Sku[];
 

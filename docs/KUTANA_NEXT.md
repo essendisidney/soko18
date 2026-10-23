@@ -99,7 +99,7 @@ Playwright (390px) + pgTAP where RLS changes, update `docs/PHASE_STATUS.md`, com
 1. **Data saver.** Setting (on by default when `navigator.connection.saveData` or a 2G/3G
    effective type is detected): small blurred photo thumbnails until tapped, no autoplay voice,
    lighter deck prefetch. Show "Today: 1.2 MB used" in Settings from a local counter.
-2. **SMS backup alerts.** For matches, Salamu and date check-ins only. Use the cheapest Kenyan
+2. **SMS backup alerts.** (Status: Africa's Talking adapter in `lib/sms/send.ts`, used only for check-in alerts to a trusted contact, off until the owner picks a provider and sets keys. Member SMS for matches and Salamu needs member phone numbers, which Kutana doesn't store; owner decision.) For matches, Salamu and date check-ins only. Use the cheapest Kenyan
    SMS route that fits (compare Africa's Talking and others; least-cost wins). No names or
    message text in the SMS. Daily cap per member. Opt-out in Settings. Skip SMS when a push
    was delivered in the last few minutes.
@@ -118,6 +118,26 @@ Playwright (390px) + pgTAP where RLS changes, update `docs/PHASE_STATUS.md`, com
 6. **Market readiness.** For each waitlist market, keep a checklist in this file: payment rail,
    local price review, data-protection registration, language, legal review of relationship
    laws. Do not switch a market to `live` from code.
+
+### Market readiness (K4.6, kept here; the owner switches a market live)
+
+Status 23 Oct 2026. "Draft" prices exist in `product_prices` for every market; none has had a
+local price review. Nothing below is done unless it says so.
+
+| Market | Payment rail | Local price review | Data protection | Language | Relationship-law review |
+|---|---|---|---|---|---|
+| KE Kenya | **Live**: M-Pesa (IntaSend), Paystack card | Done (K0) | ODPC registration: owner, pending | en, sw, Sheng | Owner, pending |
+| TZ Tanzania | Paystack only; needs M-Pesa TZ / Tigo Pesa | Not done | PDPC registration | sw | Not done |
+| UG Uganda | Paystack only; needs MTN MoMo / Airtel | Not done | PDPO registration | en | Not done (strict laws) |
+| RW Rwanda | Paystack only; needs MTN MoMo | Not done | NCSA registration | en (rw later) | Not done |
+| NG Nigeria | Paystack card + bank transfer | Not done | NDPC registration | en, Pidgin (draft) | Not done (strict laws) |
+| GH Ghana | Paystack card + MoMo | Not done | DPC registration | en | Not done (strict laws) |
+| ZA South Africa | Paystack card | Not done | Information Regulator (POPIA) | en | Not done |
+| CI Côte d'Ivoire | Paystack; needs Orange / MTN / Wave | Not done | ARTCI | fr | Not done |
+| GB United Kingdom (diaspora) | Paystack card | Not done (Home & Away GBP 9.99 draft) | ICO registration | en | Not done |
+| US United States (diaspora) | Paystack card | Not done (Home & Away USD 12.99 draft) | State privacy laws | en | Not done |
+
+Amharic (am) is ready for Ethiopia, which isn't a market yet.
 
 ## K5 — Gifts (in-app only)
 

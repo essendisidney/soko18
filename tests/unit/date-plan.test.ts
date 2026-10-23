@@ -30,3 +30,12 @@ describe("date plan", () => {
     expect(outboxText({ kind: "all_clear", member_name: "Pendo", place: "x", starts_at: "2026-10-23T16:00:00.000Z" })).toMatch(/is safe/);
   });
 });
+
+describe("sms", async () => {
+  const { smsReady, smsText } = await import("@/lib/sms/send");
+  it("is off until keys are set and keeps alerts short", () => {
+    expect(smsReady()).toBe(false);
+    expect(smsText("a   b\n c")).toBe("a b c");
+    expect(smsText("x".repeat(600)).length).toBeLessThanOrEqual(459);
+  });
+});
