@@ -1,3 +1,4 @@
+import { DataMeter } from "@/components/data-saver/data-meter";
 import { DiscreetRuntime } from "@/components/discreet/discreet-runtime";
 import type { Metadata, Viewport } from "next";
 import { Geist, Syne } from "next/font/google";
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <PwaRegister />
         {children}
         <DiscreetRuntime />
+        <DataMeter />
       </body>
     </html>
   );

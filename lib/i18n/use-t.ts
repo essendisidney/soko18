@@ -17,8 +17,10 @@ export function readLocale(): Locale {
     const saved = localStorage.getItem(KEY);
     if (isLocale(saved)) return saved;
   } catch {}
-  const nav = (navigator.language || "en").slice(0, 2).toLowerCase();
-  return isLocale(nav) ? nav : "en";
+  const nav = (navigator.language || "en").toLowerCase();
+  if (nav.startsWith("pcm")) return "pcm";
+  const short = nav.slice(0, 2);
+  return isLocale(short) ? short : "en";
 }
 
 export function writeLocale(locale: Locale) {
@@ -26,7 +28,7 @@ export function writeLocale(locale: Locale) {
     localStorage.setItem(KEY, locale);
   } catch {}
   document.cookie = `${KEY}=${locale}; path=/; max-age=31536000; samesite=lax`;
-  document.documentElement.lang = locale;
+  document.documentElement.lang = LOCALES.find((l) => l.id === locale)?.lang ?? locale;
   listeners.forEach((listen) => listen());
 }
 
