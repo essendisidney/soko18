@@ -57,7 +57,7 @@ select (select super_likes from public.member_perks where account_id = 'c8000000
 select private.settle_transaction('c7900000-0000-4000-8000-0000000000c7', 'RCPT-G');
 select is((select status from public.gifts where id = (select id from _g)), 'sent', 'paid gifts wait for the recipient');
 select is(
-  (select string_agg(type::text || '/' || direction::text || '/' || account_id::text, ',' order by direction)
+  (select string_agg(type::text || '/' || direction::text || '/' || account_id::text, ',' order by direction::text)
    from public.ledger_entries where transaction_id = 'c7900000-0000-4000-8000-0000000000c7'),
   'super_like/credit/c7000000-0000-4000-8000-0000000000c7,payment/debit/c7000000-0000-4000-8000-0000000000c7',
   'the ledger records the giver''s purchase'
