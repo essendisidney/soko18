@@ -6,7 +6,7 @@
  * We never take a cut of anything arranged between members.
  */
 
-export type ProductKind = "plan" | "boost" | "super_like" | "incognito" | "salamu" | "home_away" | "trip";
+export type ProductKind = "plan" | "boost" | "super_like" | "incognito" | "salamu" | "home_away" | "trip" | "gift";
 export type PlanTier = "gold" | "platinum";
 
 export type Product = {
@@ -24,6 +24,8 @@ export type Product = {
   requiresCampus?: boolean;
   /** Sold only in these markets, in their own currency (product_prices). amountKes is a reference. */
   marketsOnly?: readonly string[];
+  /** A gift wraps this perk for a match (same price, no discount). */
+  giftOf?: string;
 };
 
 export const PRODUCTS = {
@@ -150,6 +152,33 @@ export const PRODUCTS = {
     quantity: 1,
     marketsOnly: ["GB", "US"],
   },
+  gift_super_5: {
+    sku: "gift_super_5",
+    title: "Gift: 5 Super Likes",
+    line: "Five Super Likes for your match.",
+    amountKes: 199,
+    kind: "gift",
+    quantity: 1,
+    giftOf: "super_5",
+  },
+  gift_boost_1: {
+    sku: "gift_boost_1",
+    title: "Gift: a Boost",
+    line: "A 30-minute Boost for your match.",
+    amountKes: 99,
+    kind: "gift",
+    quantity: 1,
+    giftOf: "boost_1",
+  },
+  gift_gold_week: {
+    sku: "gift_gold_week",
+    title: "Gift: Gold for a week",
+    line: "Gold for 7 days for your match.",
+    amountKes: 149,
+    kind: "gift",
+    quantity: 1,
+    giftOf: "gold_week",
+  },
   incognito_month: {
     sku: "incognito_month",
     title: "Incognito · 30 days",
@@ -169,6 +198,8 @@ export const PLAN_SKUS = ["gold_day", "gold_week", "gold_month", "gold_week_stud
 export const STUDENT_SKUS = ["gold_week_student"] as const satisfies readonly Sku[];
 export const BOOST_SKUS = ["boost_1", "boost_5"] as const satisfies readonly Sku[];
 export const SUPER_LIKE_SKUS = ["super_1", "super_5"] as const satisfies readonly Sku[];
+/** In-app gifts for a match (K5). Never cash, airtime or anything transferable. */
+export const GIFT_SKUS = ["gift_super_5", "gift_boost_1", "gift_gold_week"] as const satisfies readonly Sku[];
 /** Diaspora markets only (GBP / USD), never sold in Kenya. */
 export const DIASPORA_SKUS = ["home_away_month", "coming_home_trip"] as const satisfies readonly Sku[];
 /** Paid first messages. Always priced above a Super Like (K0). */
@@ -181,7 +212,8 @@ export const FREE_DAILY_LIKES = 30;
 export const BOOST_MINUTES = 30;
 
 /** Ledger purpose written on the transaction row for each product kind. */
-export function ledgerPurpose(product: Product) {
+export function ledgerPurpose(product: Product): string {
+  if (product.kind === "gift" && product.giftOf) return ledgerPurpose(PRODUCTS[product.giftOf as Sku]);
   if (product.kind === "plan") return product.plan ?? "gold";
   return product.kind;
 }
