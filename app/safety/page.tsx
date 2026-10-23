@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LegalPage, LegalSection } from "@/components/legal/legal-page";
 import { SafetyTools } from "@/components/safety/safety-tools";
 import { IdentitySubmit } from "@/components/trust/identity-submit";
@@ -23,6 +24,11 @@ export default function SafetyPage() {
       </LegalSection>
       <LegalSection title="Photos">
         <p>Photos show as soon as you add them. Our team checks every new profile and photo, and removes anything fake, explicit or paid. If you see something wrong, tap Report — it goes straight to us.</p>
+      </LegalSection>
+      <LegalSection title="Going on a date?">
+        <p>
+          Start a <Link href="/safety/date" className="text-gold">date plan</Link>: where, when and a check-in time. If you don’t check in, your trusted contact is told.
+        </p>
       </LegalSection>
       <LegalSection title="If something is wrong">
         <p>Use Report on the profile or thread. Panic is on this page after you save a trusted contact. For your own data, use Settings → Download my data or Delete account.</p>
