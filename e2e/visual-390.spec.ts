@@ -609,7 +609,7 @@ test.describe("390px surfaces", () => {
     await expect(page.getByText("KES 149").first()).toBeVisible();
     await page.getByRole("button", { name: "Platinum", exact: true }).click();
     await expect(page.getByRole("button", { name: /^30 days KES [\d,]+ \/ week/ })).toBeVisible();
-    await expect(page.getByText("KES 999").first()).toBeVisible();
+    await expect(page.getByText("KES 1,299").first()).toBeVisible();
   });
 
   test("sign in can send you back to Discover", async ({ page }) => {

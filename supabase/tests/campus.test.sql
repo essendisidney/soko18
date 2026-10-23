@@ -97,18 +97,18 @@ select set_config('request.jwt.claim.sub', 'd0000000-0000-4000-8000-00000000000d
 select set_config('request.jwt.claims', '{"sub":"d0000000-0000-4000-8000-00000000000d","role":"authenticated"}', true);
 select ok(not public.profile_hidden_from_me('b0000000-0000-4000-8000-00000000000b'), 'still visible outside the campus');
 
--- Comrade Gold: D (no campus) can't start a checkout; A (verified) can.
+-- Student Gold: D (no campus) can't start a checkout; A (verified) can.
 select throws_ok(
   $$ insert into public.transactions (account_id, provider, provider_ref, amount_kes, amount, currency, country_code, status, purpose, sku)
-     values ('d0000000-0000-4000-8000-00000000000d', 'intasend', 'intasend:comrade-d', 199, 199, 'KES', 'KE', 'pending', 'gold', 'comrade_month') $$,
-  '42501', null, 'Comrade Gold is for verified students only'
+     values ('d0000000-0000-4000-8000-00000000000d', 'intasend', 'intasend:student-d', 99, 99, 'KES', 'KE', 'pending', 'gold', 'gold_week_student') $$,
+  '42501', null, 'Student Gold is for verified students only'
 );
 select set_config('request.jwt.claim.sub', 'a0000000-0000-4000-8000-00000000000a', true);
 select set_config('request.jwt.claims', '{"sub":"a0000000-0000-4000-8000-00000000000a","role":"authenticated"}', true);
 select lives_ok(
   $$ insert into public.transactions (account_id, provider, provider_ref, amount_kes, amount, currency, country_code, status, purpose, sku)
-     values ('a0000000-0000-4000-8000-00000000000a', 'intasend', 'intasend:comrade-a', 199, 199, 'KES', 'KE', 'pending', 'gold', 'comrade_month') $$,
-  'verified students can buy Comrade Gold'
+     values ('a0000000-0000-4000-8000-00000000000a', 'intasend', 'intasend:student-a', 99, 99, 'KES', 'KE', 'pending', 'gold', 'gold_week_student') $$,
+  'verified students can buy Student Gold'
 );
 reset role;
 

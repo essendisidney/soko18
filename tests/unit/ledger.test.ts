@@ -12,11 +12,12 @@ describe("catalog", () => {
   it("prices plans for M-Pesa, not for agencies", () => {
     expect(PRODUCTS.gold_week.amountKes).toBe(149);
     expect(PRODUCTS.gold_month.amountKes).toBe(499);
-    expect(PRODUCTS.platinum_month.amountKes).toBe(999);
+    expect(PRODUCTS.platinum_month.amountKes).toBe(1299);
     expect(PRODUCTS.boost_1.amountKes).toBe(99);
     expect(PRODUCTS.super_1.amountKes).toBe(49);
     expect(PRODUCTS.incognito_month.amountKes).toBe(299);
-    for (const sku of SKUS) expect(PRODUCTS[sku].amountKes).toBeLessThan(1000);
+    // Small, data-bundle-sized prices; Platinum is the top at KES 1,299 (K0).
+    for (const sku of SKUS) expect(PRODUCTS[sku].amountKes).toBeLessThan(1500);
     expect(FREE_DAILY_LIKES).toBe(30);
   });
 

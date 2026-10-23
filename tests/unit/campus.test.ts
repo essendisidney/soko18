@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CAMPUS_SLUG, campusDeckOpen, campusProgress, campusReason } from "@/lib/campus/shared";
-import { COMRADE_SKUS, PRODUCTS, type Product } from "@/lib/payments/catalog";
+import { STUDENT_SKUS, PRODUCTS, type Product } from "@/lib/payments/catalog";
 
 describe("campus copy and progress", () => {
   it("explains every reason the database can return", () => {
@@ -48,15 +48,14 @@ describe("campus deck and Comrade Gold", () => {
     expect(campusDeckOpen(null)).toBe(false);
   });
 
-  it("sells Comrade Gold as ordinary Gold, for students only, below the regular price", () => {
-    for (const sku of COMRADE_SKUS) {
+  it("sells Student Gold as ordinary Gold, for students only, below the regular price", () => {
+    for (const sku of STUDENT_SKUS) {
       const product: Product = PRODUCTS[sku];
       expect(product.requiresCampus).toBe(true);
       expect(product.kind).toBe("plan");
       expect(product.plan).toBe("gold");
     }
-    expect(PRODUCTS.comrade_week.amountKes).toBeLessThan(PRODUCTS.gold_week.amountKes);
-    expect(PRODUCTS.comrade_month.amountKes).toBeLessThan(PRODUCTS.gold_month.amountKes);
+    expect(PRODUCTS.gold_week_student.amountKes).toBeLessThan(PRODUCTS.gold_week.amountKes);
     const regular: Product = PRODUCTS.gold_month;
     expect(regular.requiresCampus).toBeUndefined();
   });

@@ -20,3 +20,9 @@ test("old onboarding pages are gone", async ({ page }) => {
   const res = await page.goto("/onboarding/ready");
   expect(res?.status()).toBe(404);
 });
+
+test("the night-out pass opens at KES 39", async ({ page }) => {
+  await page.goto("/upgrade?plan=gold_day");
+  await expect(page.getByText("One night out")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Pay with M-Pesa · KES\s?39/ })).toBeVisible();
+});

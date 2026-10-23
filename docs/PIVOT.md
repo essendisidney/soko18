@@ -29,13 +29,14 @@ older in `SOKO18_MASTER_DEVELOPMENT.md`, `PHASE_STATUS.md` and the other docs wh
 
 | SKU | KES | What |
 |---|---|---|
+| gold_day | 39 | Gold 24 hours ("Friday night pass") |
 | gold_week | 149 | Gold 7 days + 3 Super Likes |
 | gold_month | 499 | Gold 30 days + 5 Super Likes |
-| platinum_month | 999 | Gold + message before match (5/day) + Incognito + 1 Boost + 10 Super Likes |
+| platinum_month | 1,299 | Gold + message before match (5/day) + Incognito + 1 Boost + 10 Super Likes |
 | boost_1 / boost_5 | 99 / 399 | 30 min top of the local deck |
 | super_1 / super_5 | 49 / 199 | Super Likes |
 | incognito_month | 299 | Only people you like see you |
-| comrade_week / comrade_month | 49 / 199 | Comrade Gold: Gold at a student price, verified students only (Kenya) |
+| gold_week_student | 99 | Student Gold 7 days + 3 Super Likes, verified students only (Kenya). Replaced Comrade Gold (49 / 199) in K0 |
 
 Free: 30 likes per Nairobi day, matches, chat, safety tools.
 

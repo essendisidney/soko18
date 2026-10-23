@@ -38,7 +38,7 @@ export async function createPaymentIntent(input: unknown) {
   // Friendly check only — the database refuses student products for anyone not verified.
   if (product.requiresCampus) {
     const { data: campus } = await (await createClient()).rpc("my_campus");
-    if (!campus) return fail(403, "campus_required", "Comrade Gold is for verified students. Verify your campus first.");
+    if (!campus) return fail(403, "campus_required", "Student Gold is for verified students. Verify your campus first.");
   }
   const country = await resolveCountry();
   const market = await getMarket(country);

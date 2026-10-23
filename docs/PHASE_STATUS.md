@@ -203,3 +203,15 @@ Current phase: **16 Production** — Vercel, GitHub CI, env, health, legal pages
 - Catalog photos: unique Kenyan-presenting portraits in `/public/seed/`. Not Unsplash reuse, not scraped social photos, not live listings.
 - Do not start Ads, Premium-as-a-second-company, or fake density KPIs. Discover is city-strict: Nairobi seed catalog only. The first Discover paint reads the snapped city cookie — Kisumu does not flash Nairobi people. `/browse` and the PWA Browse shortcut follow that cookie. Category grids stay Nairobi; a snapped empty city is sent to its door instead of borrowing people. Empty-city Browse is a real city door: search, Active now areas, Kenya chips — never a borrowed catalog or Nairobi Now. Empty-city area pages and empty Discover are the same loop: search, other areas, Kenya (Discover keeps Nairobi as the live door) — never a borrowed person. Me names the snapped city. Empty Saved, Notify, Matches, and Blocked stay in that loop. Settings, Invite, Sign in, Studio rooms, and a missing profile name that city too. First open from any Kenyan city finishes intent before Discover. Me → Other cities keeps Discover in the snapped city. Nairobi is the live Kenya row, not a stolen snap. Guest message walls name the snapped city. Saved, Blocked, similar, likes, and reports resolve the whole seed catalog and keep similar in the same city. A leftover Nairobi area does not rename Kisumu Discover, I’m here, or Browse. Notify me names real Kenyan areas. A Studio draft slug follows the snapped city — Achieng in Kisumu is `achieng-kisumu`, not Nairobi. Discover and Browse APIs follow the city cookie when the query omits city, and near stays inside that city. Install and default meta say Kenya, not Nairobi-only. Empty stays empty. Remaining launch work is ops — paid Supabase, Daraja KYC, staff review, real people.
 - Campus launch (Oct 2026): verified students, campus-by-campus unlock, campus deck and badge. See `docs/PIVOT.md` → Campus launch.
+
+## K-phases (docs/KUTANA_NEXT.md)
+
+| Phase | Name | Status | Notes |
+|---|---|---|---|
+| K0 | Pricing | complete | `00043_pricing`: gold_day 39 (24h), gold_week_student 99 (verified students, server-checked), platinum_month 1,299. Comrade Gold (49/199) retired: rows kept for history, not buyable. Copy: "Gold · from KES 39" opens the store on the day pass. Salamu 59 / 249 lands with K2. |
+| K1 | Trust | not started | |
+| K2 | Daily experience | not started | |
+| K3 | Safety | not started | |
+| K4 | African phones and markets | not started | |
+| K5 | Gifts | not started | |
+| K7 | Owner economics | not started | |
