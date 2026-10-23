@@ -52,7 +52,8 @@ create table if not exists public.safety_outbox (
 );
 create index if not exists safety_outbox_pending_idx on public.safety_outbox (created_at) where delivered_at is null;
 alter table public.safety_outbox enable row level security;
--- No member policies: only the service role (the app's outbox route) reads it.
+-- No member policies or grants: only the service role (the app's outbox route) reads it.
+revoke all on table public.safety_outbox from public, anon, authenticated;
 
 create or replace function public.start_date_plan(
   p_place text, p_starts_at timestamptz, p_check_in_at timestamptz, p_contact_name text, p_contact_phone text
